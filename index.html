@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>BalPay - Key your money using activities</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=K2D&display=swap">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.9.0/css/all.css" crossorigin="anonymous">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <link rel="shortcut icon" type="image/x-icon" href="icon.png"/>
+</head>
+<body>
+    <div id="form">
+        <div id="signin-form">
+            <li class="head-text">Sign in to BalPay</li>
+            <li>Enter Your ID</li>
+            <input id="signin-userid" type="text" placeholder="Your ID" onkeydown="EnterID()">
+            <li>Enter Password</li>
+            <input id="signin-password" type="password" placeholder="Password" onkeydown="EnterPassword()">
+            <div id="signin-form-options">
+                <li style="float:right;">Sign up</li>
+                <li style="text-align:left">Forgot my password</li>
+            </div>
+            <div id="signin-button" onclick="SignInCheck()">Sign in</div>
+            <div id="signin-troubleshoot" style="color:red;font-size:small;display:none;">troubleshoot</div>
+        </div>
+        <div id="signup-form" style="display:none">
+
+        </div>
+        <div id="forgotmypassword-form" style="display:none">
+
+        </div>
+    </div>
+    <main>
+        <div id="user-panel">
+            <div style="float:right">
+                <i class="fas fa-history" style="display:inline;"></i>
+                <i class="fas fa-cog" style="display:inline;"></i>
+            </div>
+            <i class="fas fa-user-circle"></i>
+            <li id="fullname" style="display:inline;">Apisit Ritreungroj</li>
+        </div>
+        <div id="main-fiscal-panel">
+            <h1 style="text-align:center">Today's Fiscal</h1>
+            <div id="fiscal-expenditure">
+                <div class="expandable">
+                    <article class="total">Processing...</article>
+                    <article>Expenditure:</article>
+                </div>
+                <div class="detail" style="max-height:0">
+                    <div>
+
+                    </div>
+                    <div class="create-list-grid">
+                        <input type="text" placeholder="Title" onkeydown="KeyToEnterTitle(this)">
+                        <input type="number" placeholder="Amount" onkeydown="KeyToEnterAmount(this)">
+                        <div class="add-fiscal-list">Add</div>
+                    </div>
+                </div>
+            </div>
+            <div id="fiscal-income">
+                <div class="expandable">
+                    <article class="total">Processing...</article>
+                    <article>Income:</article>
+                </div>
+                <div class="detail" style="max-height:0">
+                    <div>
+                        
+                    </div>
+                    <div class="create-list-grid">
+                        <input type="text" placeholder="Title" onkeydown="KeyToEnterTitle(this)">
+                        <input type="number" placeholder="Amount" onkeydown="KeyToEnterAmount(this)">
+                        <div class="add-fiscal-list">Add</div>
+                    </div>
+                </div>
+            </div>
+            <div id="fiscal-lending">
+                <div class="expandable">
+                    <article class="total">Processing...</article>
+                    <article>Lending:</article>
+                </div>
+                <div class="detail" style="max-height:0">
+                    <div>
+
+                    </div>
+                    <div class="create-list-grid">
+                        <input type="text" placeholder="Title" onkeydown="KeyToEnterTitle(this)">
+                        <input type="number" placeholder="Amount" onkeydown="KeyToEnterAmount(this)">
+                        <div class="add-fiscal-list">Add</div>
+                    </div>
+                </div>
+            </div>
+            <div id="fiscal-debt">
+                <div class="expandable">
+                    <article class="total">Processing...</article>
+                    <article>Debt:</article>
+                </div>
+                <div class="detail" style="max-height:0">
+                    <div>
+                        
+                    </div>
+                    <div class="create-list-grid">
+                        <input type="text" placeholder="Title" onkeydown="KeyToEnterTitle(this)">
+                        <input type="number" placeholder="Amount" onkeydown="KeyToEnterAmount(this)">
+                        <div class="add-fiscal-list">Add</div>
+                    </div>
+                </div>
+            </div>
+            <div id="fiscal-balance" style="pointer-events:none;">
+                <article style="float: right">Processing...</article>
+                <article>Balance:</article>
+            </div>
+        </div>
+        <div id="curve_chart"></div>
+    </main>
+    <footer style="display:none">
+        <li>Created by Apisit Ritreungroj from Thailand</li>
+        <li>2019 &copy BalPay All Rights Reserved.</li>
+    </footer>
+
+    <script type="text/javascript" src="js/connectdb.js"></script>
+    <script type="text/javascript" src="js/basic.js"></script>
+    <script type="text/javascript" src="js/form.js"></script>
+    <script type="text/javascript" src="js/chart.js"></script>
+    <script type="text/javascript" src="js/devmode.js"></script>
+</body>
+</html>
