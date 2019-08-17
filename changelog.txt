@@ -1,2 +1,5 @@
 R2B001 - Mon. 5 Aug 2019
 - First beta release for admin only.
+R2B002 - Sat. 17 Aug 2019
+- Add duplicate list.
+- Add updating list while uploading to the database.

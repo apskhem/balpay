@@ -1,3 +1,4 @@
+// this is signin form
 function ShootError(formchannel) {
     ID(formchannel).focus();
     ID(formchannel).style.boxShadow = "0 0 6px -1px red";
@@ -80,4 +81,10 @@ function SignInResponse(e) {
         TN("footer")[0].style.display = "block";
         ID("form").style.display = "none";
     }
+}
+
+// click into login form
+function SignUp() {
+    ID("signin-form").style.display = "none";
+    ID("signup-form").style.display = "block";
 }

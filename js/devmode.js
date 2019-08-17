@@ -9,5 +9,7 @@ function Devmode() {
     TN("main")[0].style.display = "block";
     TN("footer")[0].style.display = "block";
     ID("form").style.display = "none";
+
+    ID("fullname").textContent = "Devmode";
 }
 Devmode();

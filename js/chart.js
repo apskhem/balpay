@@ -22,21 +22,22 @@ function drawChart() {
         colors: ["#85C1E9", '#a52714', '#097138', "#ffc70f", "#5D6D7E"]
     };
 
-    var chart = new google.visualization.LineChart(ID('curve_chart'));
+    var chart = new google.visualization.LineChart(ID('main_statistics'));
 
     chart.draw(data, options);
 }
 
 function ChartSize() {
+    var chart_channel = "main_statistics";
     if (TN("main")[0].offsetWidth > 400) {
-        ID('curve_chart').style.width = TN("main")[0].offsetWidth + 220 + "px";
-        ID('curve_chart').style.height = "600px";
-        ID('curve_chart').style.marginLeft = "-100px";
-        ID('curve_chart').style.marginTop = "-80px";
+        ID(chart_channel).style.width = TN("main")[0].offsetWidth + 220 + "px";
+        ID(chart_channel).style.height = "600px";
+        ID(chart_channel).style.marginLeft = "-100px";
+        ID(chart_channel).style.marginTop = "-80px";
     }
     else {
-        ID('curve_chart').style.width = TN("main")[0].offsetWidth + "px";
-        ID('curve_chart').style.height = "400px";
-        ID('curve_chart').style.marginTop = "-60px";
+        ID(chart_channel).style.width = TN("main")[0].offsetWidth + "px";
+        ID(chart_channel).style.height = "400px";
+        ID(chart_channel).style.marginTop = "-60px";
     }
 }

@@ -1,14 +1,17 @@
 var script_url = "https://script.google.com/macros/s/AKfycbx8PNkzqprtcF5xIjbkvHszP6P5ggWwaAsXdB-fpf7g9BA3bbHT/exec";
 
-var time = new Date();
-var today = time.getFullYear() + "." + time.getMonth() + "." + time.getDate();
+function today() {
+    var time = new Date();
+    return time.getFullYear() + "." + time.getMonth() + "." + time.getDate();
+}
+
 var leastRecordDate;
 
 // sever side variable(s)
 var user = "";
 
-var finalBalance; // The balance that not include calulated result of exp. or inc.
-var todayBalance; // for saving the leastest balanace.
+var finalBalance; // The balance that not include calulated result of exp. or inc --- form previous record.
+var todayBalance; // for saving the leastest balanace --- from today's record.
 var resultBalance; // the balnce that include calulated result of exp. or inc.
 var today_expenditure;
 var today_income;
@@ -23,6 +26,8 @@ var storedHistory = [];
 
 // systematic variable(s)
 var isCompleteReadData = false;
+
+var updatingListObject;
 
 // data send builder
 function URLQuery(source, req, action, callback) {
@@ -41,9 +46,9 @@ function InsertReq() {
 
     var req = [
         ["user", user],
-        ["date", time.getFullYear() + "." + time.getMonth() + "." + time.getDate()],
+        ["date", today()],
         ["balance", finalBalance],
-        ["expenditure", 0], 
+        ["expenditure", 0],
         ["income", 0],
         ["lending", GetSpendValue("fiscal-lending")],
         ["debt", GetSpendValue("fiscal-debt")],
@@ -67,6 +72,10 @@ function InsertReq() {
 function ReqResponse(e) {
     // $("#end").html(e.result);
     console.log(e.result);
+    if (updatingListObject != undefined) {
+        updatingListObject.style.opacity = "1";
+        updatingListObject = undefined;
+    }
 }
 
 function ReadReq() {
@@ -106,7 +115,7 @@ function ReadReq() {
                 finalBalance = json.records[i].BALANCE;
         }
 
-        if (today == leastRecordDate) {
+        if (today() == leastRecordDate) {
             QueryDataDetail("fiscal-expenditure", today_expenditure, detail_expenditure);
             QueryDataDetail("fiscal-income", today_income, detail_income);
             QueryDataDetail("fiscal-lending", today_lending, detail_lending);
@@ -114,7 +123,7 @@ function ReadReq() {
             SumTheCost();
         }
         else { // create new list for new day
-            var dt = today.split(".");
+            var dt = today().split(".");
             var newRecord = [new Date(dt[0], dt[1], dt[2]),todayBalance,0,0,today_lending,today_debt];
             storedHistory.push(newRecord);
             finalBalance = todayBalance;
@@ -127,13 +136,14 @@ function ReadReq() {
             InsertReq();
         }
 
+        // functions after completing the data request precess
         google.charts.load('current', {'packages':['corechart', 'line']});
         google.charts.setOnLoadCallback(drawChart);
         AdjustBalance();
         isCompleteReadData = true;
     });
 
-    // functions for completing during the process
+    // functions for completing lists during the process
     function QueryDataDetail(channel, q_today, q_detail) {
         var emptychanneltext = "";
         switch (channel) {
@@ -170,7 +180,7 @@ function UpdateReq() {
 
     var req = [
         ["user", user],
-        ["date", time.getFullYear() + "." + time.getMonth() + "." + time.getDate()],
+        ["date", today()],
         ["balance", resultBalance],
         ["expenditure", GetSpendValue("fiscal-expenditure")], 
         ["income", GetSpendValue("fiscal-income")],

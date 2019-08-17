@@ -16,18 +16,31 @@
         <div id="signin-form">
             <li class="head-text">Sign in to BalPay</li>
             <li>Enter Your ID</li>
-            <input id="signin-userid" type="text" placeholder="Your ID" onkeydown="EnterID()">
+            <input id="signin-userid" type="text" placeholder="Username" onkeydown="EnterID()">
             <li>Enter Password</li>
             <input id="signin-password" type="password" placeholder="Password" onkeydown="EnterPassword()">
             <div id="signin-form-options">
-                <li style="float:right;">Sign up</li>
+                <li style="float:right;" onclick="SignUp()">Sign up</li>
                 <li style="text-align:left">Forgot my password</li>
             </div>
             <div id="signin-button" onclick="SignInCheck()">Sign in</div>
             <div id="signin-troubleshoot" style="color:red;font-size:small;display:none;">troubleshoot</div>
         </div>
         <div id="signup-form" style="display:none">
-
+            <li class="head-text">Sign up</li>
+            <li>Full Name</li>
+            <input id="signup" type="text" placeholder="Full Name">
+            <li>Username</li>
+            <input id="signup" type="text" placeholder="Username">
+            <li>Password</li>
+            <input id="signup" type="text" placeholder="Password">
+            <li>Confirm Password</li>
+            <input id="signup" type="text" placeholder="Confirm Password">
+            <li>Email</li>
+            <input id="signup" type="text" placeholder="Email">
+            <li>Currency</li>
+            <input id="signup" type="text" placeholder="Currency">
+            <div id="signup-button" onclick="SignUpCheck()">Sign up</div>
         </div>
         <div id="forgotmypassword-form" style="display:none">
 
@@ -46,7 +59,7 @@
             <h1 style="text-align:center">Today's Fiscal</h1>
             <div id="fiscal-expenditure">
                 <div class="expandable">
-                    <article class="total">Processing...</article>
+                    <article class="total">Loading...</article>
                     <article>Expenditure:</article>
                 </div>
                 <div class="detail" style="max-height:0">
@@ -62,7 +75,7 @@
             </div>
             <div id="fiscal-income">
                 <div class="expandable">
-                    <article class="total">Processing...</article>
+                    <article class="total">Loading...</article>
                     <article>Income:</article>
                 </div>
                 <div class="detail" style="max-height:0">
@@ -78,7 +91,7 @@
             </div>
             <div id="fiscal-lending">
                 <div class="expandable">
-                    <article class="total">Processing...</article>
+                    <article class="total">Loading...</article>
                     <article>Lending:</article>
                 </div>
                 <div class="detail" style="max-height:0">
@@ -94,7 +107,7 @@
             </div>
             <div id="fiscal-debt">
                 <div class="expandable">
-                    <article class="total">Processing...</article>
+                    <article class="total">Loading...</article>
                     <article>Debt:</article>
                 </div>
                 <div class="detail" style="max-height:0">
@@ -109,11 +122,13 @@
                 </div>
             </div>
             <div id="fiscal-balance" style="pointer-events:none;">
-                <article style="float: right">Processing...</article>
+                <article style="float: right">Loading...</article>
                 <article>Balance:</article>
             </div>
         </div>
-        <div id="curve_chart"></div>
+        <div id="main_statistics">
+            <li>Loading Statistics...</li>
+        </div>
     </main>
     <footer style="display:none">
         <li>Created by Apisit Ritreungroj from Thailand</li>

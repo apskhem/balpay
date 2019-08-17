@@ -67,6 +67,10 @@ article {
     padding-left: 12px;
 }
 
+.rootcost {
+    transition: 0.25s;
+}
+
 .add-fiscal-list {
     color: white;
     background: lightgray;
@@ -150,6 +154,7 @@ article {
     font-size: 16px;
     font-family: 'K2D', sans-serif;
     text-align: right;
+    background: transparent;
     border: 0 transparent;
     width: 120px;
 }
@@ -179,8 +184,15 @@ article {
     padding: 12px;
 }
 
+#main_statistics li {
+    font-size: xx-large;
+    padding: 40px;
+    text-align: center;
+}
+
 /* Login part */
-#signin-form {
+#signin-form,
+#signup-form {
     width: 100%;
     border-radius: 8px;
     padding: 12px;
@@ -199,7 +211,7 @@ article {
     box-shadow: 0 0 6px -3px black;
 }
 
-#signin-form > .head-text {
+.head-text {
     font-size: xx-large;
     font-weight: bold;
     padding: 8px 0;
@@ -210,7 +222,8 @@ article {
     font-weight: bold;
 }
 
-#signin-form > input {
+#signin-form > input,
+#signup-form > input {
     margin: 12px;
     width: 90%;
     font-size: 16px;
@@ -221,7 +234,8 @@ article {
     transition: 0.3s;
 }
 
-#signin-button {
+#signin-button,
+#signup-button {
     margin: 0 auto;
     width: 90%;
     padding: 12px;
@@ -233,7 +247,8 @@ article {
     transition: 0.3s;
 }
 
-#signin-button:hover {
+#signin-button:hover,
+#signup-button:hover {
     background: #85C1E9;
     color: white;
 }
@@ -247,4 +262,8 @@ article {
 
 #signin-form-options > li {
     cursor: pointer;
+}
+
+#signup-form {
+    width: 800px;
 }

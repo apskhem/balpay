@@ -33,9 +33,18 @@ function AddExistedAmount(position, amount) {
     SumTheCost(position.parentElement.parentElement.parentElement.parentElement.parentElement.id);
     AdjustBalance();
     UpdateChart();
+    position.parentElement.parentElement.style.opacity = "0.5";
+    updatingListObject = position.parentElement.parentElement;
 
     // save data to the server
     UpdateReq();
+}
+
+function DuplicateListToInput() {
+    var textInputOfTheList = this.parentElement.parentElement.nextElementSibling.children[0];
+    var numberInputOfTheList = this.parentElement.parentElement.nextElementSibling.children[1]; // not fixed
+    textInputOfTheList.value = this.textContent.replace(":", "");
+    numberInputOfTheList.focus();
 }
 
 // collapsible content
@@ -58,6 +67,7 @@ var backupValue = 0;
 
 var inputlist = {
     out: function() {
+        var wholeObject = this.parentElement.parentElement;
         var channel = this.parentElement.parentElement.parentElement.parentElement.parentElement.id;
         if (this.value == backupValue) {
             this.type = "text";
@@ -69,12 +79,7 @@ var inputlist = {
             for (var i = 0; i < place.childElementCount; i++) {
                 if (place.getElementsByTagName("input")[i].value == 0) {
                     place.removeChild(place.children[i]);
-                    SumTheCost(channel);
-                    AdjustBalance();
-                    UpdateChart();
-
-                    // save data to the server
-                    UpdateReq();
+                    FinalizeList();
                     return;
                 }
             }
@@ -88,12 +93,18 @@ var inputlist = {
 
         this.type = "text";
         this.value = NumberFormat(this.value.replace(/[,]/g, ""));
-        SumTheCost(channel);
-        AdjustBalance();
-        UpdateChart();
+        FinalizeList();
 
-        // save data to the server
-        UpdateReq();
+        function FinalizeList() {
+            SumTheCost(channel);
+            AdjustBalance();
+            UpdateChart();
+            wholeObject.style.opacity = "0.5";
+            updatingListObject = wholeObject;
+    
+            // save data to the server
+            UpdateReq();
+        }
     },
     in: function() {
         this.value = this.value.replace(/[,]/g, "");
@@ -127,7 +138,6 @@ for (var i = 0; i < CL("add-fiscal-list").length; i++) {
                 var existed_title = rootid.getElementsByClassName("rootcost")[i].firstChild.textContent.replace(/[:]/g, "");
                 if (input_title == existed_title) {
                     AddExistedAmount(rootid.getElementsByTagName("input")[i], input_amount);
-                    
                     return;
                 }
             }
@@ -148,6 +158,7 @@ for (var i = 0; i < CL("add-fiscal-list").length; i++) {
         span.textContent = " " + defaultCurrency;
         li1.classList.add("cost");
         li2.textContent = input_title + ":";
+        li2.addEventListener("click", DuplicateListToInput);
 
         li1.appendChild(input);
         li1.appendChild(span);
@@ -186,7 +197,7 @@ function CreateList(channel, title, amount) {
 }
 
 function UpdateChart() {
-    var dt = today.split(".");
+    var dt = today().split(".");
     storedHistory[storedHistory.length - 1] = [
         new Date(dt[0], dt[1], dt[2]),
         resultBalance,
