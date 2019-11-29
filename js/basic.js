@@ -6,8 +6,14 @@ document.documentElement.addEventListener("keyup", function(event) {
     if (event.code === "Backquote") location.reload();
 })
 
+function todaytime() {
+    var time = new Date()
+    ID("today-date").textContent = `${time.getDate()}/${time.getDay()}/${time.getFullYear()}`;
+}
+todaytime();
+
 // helper functions
-function NumberFormat(num) {
+function VisualizeValue(num) { // format number to text ex. 1,000.00
     var n = parseFloat(num).toFixed(2);
     var newnum = n.toString().split(".")[0];
     var sum = "";
@@ -21,15 +27,20 @@ function NumberFormat(num) {
     return sum + "." + n.toString().split(".")[1];
 }
 
+// parse value to num of visualized value
+function valueof(visualizedValue) {
+    return parseFloat(visualizedValue.replace(/[,]/g, ""));
+}
+
 function AddExistedAmount(position, amount) {
     // value in
-    var position_value = parseFloat(position.value.replace(/[,]/g, ""));
+    var position_value = valueof(position.value);
     var in_value = parseFloat(amount) + position_value;
     position.value = in_value;
 
     // value out
     position.type = "text";
-    position.value = NumberFormat(position.value);
+    position.value = VisualizeValue(position.value);
     SumTheCost(position.parentElement.parentElement.parentElement.parentElement.parentElement.id);
     AdjustBalance();
     UpdateChart();
@@ -71,7 +82,7 @@ var inputlist = {
         var channel = this.parentElement.parentElement.parentElement.parentElement.parentElement.id;
         if (this.value == backupValue) {
             this.type = "text";
-            this.value = NumberFormat(this.value.replace(/[,]/g, ""));
+            this.value = VisualizeValue(this.value.replace(/[,]/g, ""));
             return;
         }
         else if (this.value == 0) {
@@ -92,7 +103,7 @@ var inputlist = {
         }
 
         this.type = "text";
-        this.value = NumberFormat(this.value.replace(/[,]/g, ""));
+        this.value = VisualizeValue(this.value.replace(/[,]/g, ""));
         FinalizeList();
 
         function FinalizeList() {
@@ -125,23 +136,36 @@ for (var i = 0; i < CL("add-fiscal-list").length; i++) {
         var input_amount = this.previousElementSibling.value;
 
         if (input_title == "") return;
-        if (input_amount == "" || input_amount < 1) return;
-
-        this.previousElementSibling.previousElementSibling.value = "";
-        this.previousElementSibling.value = "";
-        this.previousElementSibling.previousElementSibling.blur();
-        this.previousElementSibling.blur();
+        if (input_amount == "") return;
 
         if (isCompleteReadData) {
             var rootid = this.parentElement.parentElement;
             for (var i = 0; i < rootid.getElementsByClassName("rootcost").length; i++) {
                 var existed_title = rootid.getElementsByClassName("rootcost")[i].firstChild.textContent.replace(/[:]/g, "");
                 if (input_title == existed_title) {
-                    AddExistedAmount(rootid.getElementsByTagName("input")[i], input_amount);
+                    // (if existed value + new input value) is more than or equal 0
+                    if (rootid.getElementsByTagName("input")[i].value + input_amount >= 0) {
+                        AddExistedAmount(rootid.getElementsByTagName("input")[i], input_amount);
+                    }
+                    else {
+                        // do something handle this
+                    }
+
+                    this.previousElementSibling.previousElementSibling.value = "";
+                    this.previousElementSibling.value = "";
+                    this.previousElementSibling.previousElementSibling.blur();
+                    this.previousElementSibling.blur();
                     return;
                 }
             }
         }
+
+        if (input_amount < 1) return;
+
+        this.previousElementSibling.previousElementSibling.value = "";
+        this.previousElementSibling.value = "";
+        this.previousElementSibling.previousElementSibling.blur();
+        this.previousElementSibling.blur();
 
         var rootdiv = document.createElement("div");
         var input = document.createElement("input");
@@ -149,7 +173,7 @@ for (var i = 0; i < CL("add-fiscal-list").length; i++) {
         var li2 = document.createElement("li");
         var span = document.createElement("span");
 
-        input.value = NumberFormat(input_amount);
+        input.value = VisualizeValue(input_amount);
         input.min = "0";
         input.addEventListener("focusin", inputlist.in);
         input.addEventListener("focusout", inputlist.out);
@@ -224,20 +248,20 @@ function SumTheCost(channel) {
 
     var total = 0;
     for (var i = 0; i < ID(channel).getElementsByClassName("cost").length; i++) {
-        total += parseFloat(ID(channel).getElementsByClassName("cost")[i].children[0].value.replace(/[,]/g, ""));
+        total += valueof(ID(channel).getElementsByClassName("cost")[i].children[0].value);
     }
-    ID(channel).getElementsByClassName("total")[0].innerHTML = NumberFormat(total) + " " + defaultCurrency;
+    ID(channel).getElementsByClassName("total")[0].innerHTML = VisualizeValue(total) + " " + defaultCurrency;
 }
 
 // adjust the balance and text it
 function AdjustBalance() {
     resultBalance = finalBalance - GetSpendValue("fiscal-expenditure") + GetSpendValue("fiscal-income");
-    ID("fiscal-balance").children[0].textContent = NumberFormat(resultBalance) + " " + defaultCurrency;
+    ID("fiscal-balance").children[0].textContent = VisualizeValue(resultBalance) + " " + defaultCurrency;
 }
 
 function GetSpendValue(channel) {
     var unformattedNumber = ID(channel).getElementsByClassName("total")[0].textContent.split(" ")[0];
-    return parseFloat(unformattedNumber.replace(/[,]/g, ""));
+    return valueof(unformattedNumber);
 }
 
 function GetSpendDetail(channel) {
@@ -246,8 +270,9 @@ function GetSpendDetail(channel) {
         var rootcost = ID(channel).getElementsByClassName("rootcost")[i];
         detail += rootcost.firstChild.textContent.replace(/[:]/g, "") + "=" + 
         rootcost.getElementsByTagName("input")[0].value.replace(/[,]/g, "");
-        if (i < ID(channel).getElementsByClassName("rootcost").length - 1)
+        if (i < ID(channel).getElementsByClassName("rootcost").length - 1) {
             detail += ";";
+        }
     }
     return detail;
 }

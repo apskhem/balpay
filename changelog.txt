@@ -1,5 +1,8 @@
-R2B001 - Mon. 5 Aug 2019
+R2B001 - Mon. 5 Aug. 2019
 - First beta release for admin only.
-R2B002 - Sat. 17 Aug 2019
+R2B002 - Sat. 17 Aug. 2019
 - Add duplicate list.
 - Add updating list while uploading to the database.
+R2B003 - Sat. 30 Nov. 2019
+- Change background and font.
+- Add minus value.

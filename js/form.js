@@ -44,7 +44,6 @@ function SignInCheck() {
 }
 
 function ReqSignIn() {
-
     var req = [
         ["userid", ID("signin-userid").value],
         ["password", ID("signin-password").value]
@@ -74,8 +73,9 @@ function SignInResponse(e) {
             ID("signin-troubleshoot").textContent = "Password is incorrect.";
         }
     }
-    if (e.result == "pass") {
+    if (e.result == "pass") { // if sign in form is corrected
         user = ID("signin-userid").value;
+
         ReadReq();
         TN("main")[0].style.display = "block";
         TN("footer")[0].style.display = "block";
@@ -87,4 +87,9 @@ function SignInResponse(e) {
 function SignUp() {
     ID("signin-form").style.display = "none";
     ID("signup-form").style.display = "block";
+}
+
+function BackToSignIn() {
+    ID("signin-form").style.display = "block";
+    ID("signup-form").style.display = "none";
 }

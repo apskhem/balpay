@@ -1,5 +1,5 @@
 html, body, h1, h2, h3, h4, h5, h6 {
-    font-family: 'K2D', sans-serif;
+    font-family: 'Maitree', serif;
 }
 
 a {
@@ -42,17 +42,25 @@ main {
     border-radius: 8px;
     background: white;
 
-    padding-top:6px;
-    display:none;
+    padding-top: 6px;
+    display: none;
+    box-shadow: 0 0 6px -3px black;
 }
 
 body {
-    background: lightgrey;
+    background: rgb(34,193,195);
+    background: linear-gradient(90deg, rgba(34,193,195,1) 0%, rgba(253,187,45,1) 100%);
 }
 
 article {
     font-weight: bold;
     font-size: x-large;
+    cursor: pointer;
+}
+
+/* inside parts */
+#user-icon {
+    font-size: large;
     cursor: pointer;
 }
 
@@ -152,7 +160,7 @@ article {
 .cost > input {
     padding: 0;
     font-size: 16px;
-    font-family: 'K2D', sans-serif;
+    font-family: 'Maitree', serif;
     text-align: right;
     background: transparent;
     border: 0 transparent;
@@ -160,8 +168,15 @@ article {
 }
 
 .rootcost {
+    padding: 0 6px;
+    border-radius: 4px;
     display: grid;
     grid-template-columns: auto 160px;
+}
+
+.rootcost:hover {
+    cursor: pointer;
+    background: lightgrey;
 }
 
 .create-list-grid {
@@ -174,7 +189,7 @@ article {
 
 .create-list-grid > input {
     font-size: 16px;
-    font-family: 'K2D', sans-serif;
+    font-family: 'Maitree', serif;
     padding-left: 12px;
     border: 1px solid lightgray;
     border-radius: 4px;
@@ -217,6 +232,7 @@ article {
     padding: 8px 0;
 }
 
+/* form part */
 #signin-form > li:not(.head-text) {
     font-size: large;
     font-weight: bold;
@@ -227,7 +243,7 @@ article {
     margin: 12px;
     width: 90%;
     font-size: 16px;
-    font-family: 'K2D', sans-serif;
+    font-family: 'Maitree', serif;
     padding: 12px;
     border: 1px solid lightgray;
     border-radius: 8px;
@@ -253,17 +269,15 @@ article {
     color: white;
 }
 
-#signin-form-options {
+#signin-form-options,
+#signup-form-options {
     margin: 0 auto;
     width: 90%;
     font-size: small;
     padding: 6px 0;
 }
 
-#signin-form-options > li {
+#signin-form-options > li,
+#signup-form-options > li {
     cursor: pointer;
-}
-
-#signup-form {
-    width: 800px;
 }
