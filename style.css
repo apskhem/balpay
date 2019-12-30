@@ -1,13 +1,22 @@
 html, body, h1, h2, h3, h4, h5, h6 {
-    font-family: 'Maitree', serif;
-}
-
-a {
-    text-decoration: none
+    font-family: "Sarabun", serif;
 }
 
 html, body {
     overflow-x: hidden;
+}
+
+* :not(input) {
+    user-select: none; /* supported by Chrome and Opera */
+   -webkit-user-select: none; /* Safari */
+   -khtml-user-select: none; /* Konqueror HTML */
+   -moz-user-select: none; /* Firefox */
+   -ms-user-select: none; /* Internet Explorer/Edge */
+}
+
+a {
+    text-decoration: none;
+    color: black;
 }
 
 li {
@@ -29,6 +38,10 @@ input:focus, button:focus {
 
 input::-webkit-inner-spin-button {
     -webkit-appearance: none;
+}
+
+h1 {
+    text-align: center;
 }
 
 footer {
@@ -64,13 +77,13 @@ article {
     cursor: pointer;
 }
 
-.detail {
+.subroot {
     overflow: hidden;
     max-height: 0;
     transition: max-height 0.3s;
 }
 
-.detail > div:first-child {
+.subroot > div:first-child {
     padding-top: 12px;
     padding-left: 12px;
 }
@@ -153,28 +166,25 @@ article {
     float: right;
 }
 
-.cost {
-    text-align: right;
-}
-
 .cost > input {
     padding: 0;
     font-size: 16px;
-    font-family: 'Maitree', serif;
     text-align: right;
     background: transparent;
     border: 0 transparent;
     width: 120px;
 }
 
-.rootcost {
+/* cost detail list */
+.root-list {
     padding: 0 6px;
     border-radius: 4px;
+    
     display: grid;
     grid-template-columns: auto 160px;
 }
 
-.rootcost:hover {
+.root-list:hover {
     cursor: pointer;
     background: lightgrey;
 }
@@ -189,7 +199,6 @@ article {
 
 .create-list-grid > input {
     font-size: 16px;
-    font-family: 'Maitree', serif;
     padding-left: 12px;
     border: 1px solid lightgray;
     border-radius: 4px;
@@ -243,7 +252,6 @@ article {
     margin: 12px;
     width: 90%;
     font-size: 16px;
-    font-family: 'Maitree', serif;
     padding: 12px;
     border: 1px solid lightgray;
     border-radius: 8px;

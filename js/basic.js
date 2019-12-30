@@ -2,99 +2,84 @@ const ID = (id) => document.getElementById(id);
 const CL = (cl) => document.getElementsByClassName(cl);
 const TN = (tn) => document.getElementsByTagName(tn);
 
+window.onerror = (msg, url, lineNo, columnNo, error) => alert(msg);
+
 document.documentElement.addEventListener("keyup", function(event) {
     if (event.code === "Backquote") location.reload();
 })
 
-function todaytime() {
-    var time = new Date()
-    ID("today-date").textContent = `${time.getDate()}/${time.getDay()}/${time.getFullYear()}`;
-}
-todaytime();
+// ------------------ //
+//  Initial Functions //
+// ------------------ //
 
-// helper functions
-function VisualizeValue(num) { // format number to text ex. 1,000.00
-    var n = parseFloat(num).toFixed(2);
-    var newnum = n.toString().split(".")[0];
-    var sum = "";
-    var loop = newnum.length - 1;
-    for (var i = 0; i < newnum.length; i++) {
-        if (loop-- % 3 == 0 && i != newnum.length - 1)
-            sum += newnum[i] + ",";
+ID("today-date").textContent = today();
+
+// ----------------- //
+//  Helper Functions //
+// ----------------- //
+
+function visualizeNum(num) { // format number to text ex. 1,000.00
+    num = parseFloat(num).toFixed(2).toString().split(".");
+    let intNum = num[0];
+    let sum = "";
+
+    for (let i = 0; i < intNum.length; i++) {
+        if (((intNum.length - 1) - i) % 3 == 0 && i != intNum.length - 1)
+            sum += intNum[i] + ",";
         else 
-            sum += newnum[i]
+            sum += intNum[i];
     }
-    return sum + "." + n.toString().split(".")[1];
+    
+    return `${sum}.${num[1]}`;
 }
 
 // parse value to num of visualized value
-function valueof(visualizedValue) {
+function parseNum(visualizedValue) {
     return parseFloat(visualizedValue.replace(/[,]/g, ""));
 }
 
-function AddExistedAmount(position, amount) {
+function AddExistedAmount(list_obj, amount) {
     // value in
-    var position_value = valueof(position.value);
-    var in_value = parseFloat(amount) + position_value;
-    position.value = in_value;
+    list_obj.value = parseNum(list_obj.value) + parseNum(amount);
 
     // value out
-    position.type = "text";
-    position.value = VisualizeValue(position.value);
-    SumTheCost(position.parentElement.parentElement.parentElement.parentElement.parentElement.id);
+    list_obj.type = "text";
+    list_obj.value = visualizeNum(list_obj.value);
+    SumValue(list_obj.parentElement.parentElement.parentElement.parentElement.parentElement.id);
     AdjustBalance();
     UpdateChart();
-    position.parentElement.parentElement.style.opacity = "0.5";
-    updatingListObject = position.parentElement.parentElement;
+    list_obj.parentElement.parentElement.style.opacity = "0.5";
+    updatingListObject = list_obj.parentElement.parentElement;
 
     // save data to the server
     UpdateReq();
 }
 
 function DuplicateListToInput() {
-    var textInputOfTheList = this.parentElement.parentElement.nextElementSibling.children[0];
-    var numberInputOfTheList = this.parentElement.parentElement.nextElementSibling.children[1]; // not fixed
+    let textInputOfTheList = this.parentElement.parentElement.nextElementSibling.children[0];
+    let numberInputOfTheList = this.parentElement.parentElement.nextElementSibling.children[1]; // not fixed
     textInputOfTheList.value = this.textContent.replace(":", "");
     numberInputOfTheList.focus();
 }
 
-// collapsible content
-for (var i = 0; i < CL("expandable").length; i++) {
-    CL("expandable")[i].addEventListener("click", function() {
-        if (this.nextElementSibling.style.maxHeight == "0px") 
-            this.nextElementSibling.style.maxHeight = this.nextElementSibling.scrollHeight + "px";
-        else
-            this.nextElementSibling.style.maxHeight = 0;
-    })
-}
+// --------------------------- //
+//  Core Fundamental Functions //
+// --------------------------- //
 
-// write the currency
-var defaultCurrency = "THB"
-for (var i = 0; i < TN("span").length; i++) {
-    TN("span")[i].innerHTML = defaultCurrency;
-}
-
-var backupValue = 0;
-
-var inputlist = {
+let backupValue = 0;
+let inputlist = {
     out: function() {
-        var wholeObject = this.parentElement.parentElement;
-        var channel = this.parentElement.parentElement.parentElement.parentElement.parentElement.id;
+        const detailObject = this.parentElement.parentElement;
+        const channel = this.parentElement.parentElement.parentElement.parentElement.parentElement.id;
+
         if (this.value == backupValue) {
             this.type = "text";
-            this.value = VisualizeValue(this.value.replace(/[,]/g, ""));
+            this.value = visualizeNum(parseNum(this.value));
             return;
         }
         else if (this.value == 0) {
-            var place = this.parentElement.parentElement.parentElement
-            for (var i = 0; i < place.childElementCount; i++) {
-                if (place.getElementsByTagName("input")[i].value == 0) {
-                    place.removeChild(place.children[i]);
-                    FinalizeList();
-                    return;
-                }
-            }
-            alert("error occured! please restart the webpage.");
+            detailObject.parentElement.removeChild(detailObject);
+            FinalizeList();
             return;
         }
         else if (this.value < 0 || this.value == "" || this.value == null) {
@@ -103,22 +88,25 @@ var inputlist = {
         }
 
         this.type = "text";
-        this.value = VisualizeValue(this.value.replace(/[,]/g, ""));
+        this.value = visualizeNum(parseNum(this.value));
         FinalizeList();
 
         function FinalizeList() {
-            SumTheCost(channel);
+            SumValue(channel);
             AdjustBalance();
             UpdateChart();
-            wholeObject.style.opacity = "0.5";
-            updatingListObject = wholeObject;
+
+            if (this) {
+                detailObject.style.opacity = "0.5";
+                updatingListObject = detailObject;
+            }
     
             // save data to the server
             UpdateReq();
         }
     },
     in: function() {
-        this.value = this.value.replace(/[,]/g, "");
+        this.value = parseNum(this.value);
         this.type = "number";
         backupValue = this.value;
     },
@@ -130,31 +118,35 @@ var inputlist = {
 }
 
 // Create a new list on "Add" button clicked
-for (var i = 0; i < CL("add-fiscal-list").length; i++) {
-    CL("add-fiscal-list")[i].addEventListener("click", function() {
-        var input_title = this.previousElementSibling.previousElementSibling.value;
-        var input_amount = this.previousElementSibling.value;
+for (const addFiscalList of CL("add-fiscal-list")) {
+    addFiscalList.addEventListener("click", function() {
+        let input_title = this.previousElementSibling.previousElementSibling.value;
+        let input_amount = this.previousElementSibling.value;
 
         if (input_title == "") return;
         if (input_amount == "") return;
 
         if (isCompleteReadData) {
-            var rootid = this.parentElement.parentElement;
-            for (var i = 0; i < rootid.getElementsByClassName("rootcost").length; i++) {
-                var existed_title = rootid.getElementsByClassName("rootcost")[i].firstChild.textContent.replace(/[:]/g, "");
+            const subroot = this.parentElement.parentElement;
+            for (const detailList of subroot.getElementsByClassName("root-list")) {
+                const existed_title = detailList.children[0].textContent.replace(/[:]/g, "");
                 if (input_title == existed_title) {
                     // (if existed value + new input value) is more than or equal 0
-                    if (rootid.getElementsByTagName("input")[i].value + input_amount >= 0) {
-                        AddExistedAmount(rootid.getElementsByTagName("input")[i], input_amount);
+                    if (parseNum(detailList.getElementsByTagName("input")[0].value) + parseNum(input_amount) > 0) {
+                        AddExistedAmount(detailList.getElementsByTagName("input")[0], input_amount);
                     }
-                    else {
-                        // do something handle this
+                    else if (parseNum(detailList.getElementsByTagName("input")[0].value) + parseNum(input_amount) == 0) {
+                        detailList.parentElement.removeChild(detailList);
+
+                        SumValue(subroot.parentElement.id);
+                        AdjustBalance();
+                        UpdateChart();
+
+                        // save data to the server
+                        UpdateReq();
                     }
 
-                    this.previousElementSibling.previousElementSibling.value = "";
-                    this.previousElementSibling.value = "";
-                    this.previousElementSibling.previousElementSibling.blur();
-                    this.previousElementSibling.blur();
+                    ResetInputNewList(this.previousElementSibling);
                     return;
                 }
             }
@@ -162,18 +154,16 @@ for (var i = 0; i < CL("add-fiscal-list").length; i++) {
 
         if (input_amount < 1) return;
 
-        this.previousElementSibling.previousElementSibling.value = "";
-        this.previousElementSibling.value = "";
-        this.previousElementSibling.previousElementSibling.blur();
-        this.previousElementSibling.blur();
+        ResetInputNewList(this.previousElementSibling);
 
-        var rootdiv = document.createElement("div");
-        var input = document.createElement("input");
-        var li1 = document.createElement("li");
-        var li2 = document.createElement("li");
-        var span = document.createElement("span");
+        // create new list element
+        let rootdiv = document.createElement("div");
+        let input = document.createElement("input");
+        let li1 = document.createElement("li");
+        let li2 = document.createElement("li");
+        let span = document.createElement("span");
 
-        input.value = VisualizeValue(input_amount);
+        input.value = visualizeNum(input_amount);
         input.min = "0";
         input.addEventListener("focusin", inputlist.in);
         input.addEventListener("focusout", inputlist.out);
@@ -188,17 +178,24 @@ for (var i = 0; i < CL("add-fiscal-list").length; i++) {
         li1.appendChild(span);
         rootdiv.appendChild(li2);
         rootdiv.appendChild(li1);
-        rootdiv.classList.add("rootcost");
+        rootdiv.classList.add("root-list");
         this.parentElement.previousElementSibling.appendChild(rootdiv);
 
         //finalize
         this.parentElement.parentElement.style.maxHeight = this.parentElement.parentElement.scrollHeight + "px";
-        SumTheCost(this.parentElement.parentElement.parentElement.id);
+        SumValue(this.parentElement.parentElement.parentElement.id);
         AdjustBalance();
 
         if (isCompleteReadData) {
             UpdateChart();
             UpdateReq();
+        }
+
+        function ResetInputNewList(obj) {
+            obj.previousElementSibling.value = "";
+            obj.value = "";
+            obj.previousElementSibling.blur();
+            obj.blur();
         }
     })
 }
@@ -210,7 +207,6 @@ function CreateList(channel, title, amount) {
         case "fiscal-income": CreatePosition(CL("create-list-grid")[1]); break;
         case "fiscal-lending": CreatePosition(CL("create-list-grid")[2]); break;
         case "fiscal-debt": CreatePosition(CL("create-list-grid")[3]); break;
-        default: alert(); break;
     }
 
     function CreatePosition(ch) {
@@ -221,14 +217,13 @@ function CreateList(channel, title, amount) {
 }
 
 function UpdateChart() {
-    var dt = today().split(".");
     storedHistory[storedHistory.length - 1] = [
-        new Date(dt[0], dt[1], dt[2]),
-        resultBalance,
-        GetSpendValue("fiscal-expenditure"),
-        GetSpendValue("fiscal-income"),
-        GetSpendValue("fiscal-lending"),
-        GetSpendValue("fiscal-debt")
+        new Date(...today().split(".")),
+        finance.balance.result,
+        GetTotalValue("fiscal-expenditure"),
+        GetTotalValue("fiscal-income"),
+        GetTotalValue("fiscal-lending"),
+        GetTotalValue("fiscal-debt")
     ];
 
     // redraw statistic chart
@@ -237,54 +232,72 @@ function UpdateChart() {
 }
 
 // Sum all the detail in each channel
-function SumTheCost(channel) {
-    if (channel == null) {
-        SumTheCost("fiscal-expenditure");
-        SumTheCost("fiscal-income");
-        SumTheCost("fiscal-lending");
-        SumTheCost("fiscal-debt");
+function SumValue(channel) {
+    if (channel == undefined) {
+        SumValue("fiscal-expenditure");
+        SumValue("fiscal-income");
+        SumValue("fiscal-lending");
+        SumValue("fiscal-debt");
         return;
     }
 
-    var total = 0;
-    for (var i = 0; i < ID(channel).getElementsByClassName("cost").length; i++) {
-        total += valueof(ID(channel).getElementsByClassName("cost")[i].children[0].value);
+    let total = 0;
+    for (const cost of ID(channel).getElementsByClassName("cost")) {
+        total += parseNum(cost.children[0].value);
     }
-    ID(channel).getElementsByClassName("total")[0].innerHTML = VisualizeValue(total) + " " + defaultCurrency;
+    ID(channel).getElementsByClassName("total")[0].textContent = visualizeNum(total) + " " + defaultCurrency;
 }
 
 // adjust the balance and text it
 function AdjustBalance() {
-    resultBalance = finalBalance - GetSpendValue("fiscal-expenditure") + GetSpendValue("fiscal-income");
-    ID("fiscal-balance").children[0].textContent = VisualizeValue(resultBalance) + " " + defaultCurrency;
+    finance.balance.result = finance.balance.final - GetTotalValue("fiscal-expenditure") + GetTotalValue("fiscal-income");
+    ID("fiscal-balance").children[0].textContent = visualizeNum(finance.balance.result) + " " + defaultCurrency;
 }
 
-function GetSpendValue(channel) {
-    var unformattedNumber = ID(channel).getElementsByClassName("total")[0].textContent.split(" ")[0];
-    return valueof(unformattedNumber);
+function GetTotalValue(channel) {
+    let unformattedNumber = ID(channel).getElementsByClassName("total")[0].textContent.split(" ")[0];
+    return parseNum(unformattedNumber);
 }
 
-function GetSpendDetail(channel) {
-    var detail = "";
-    for (var i = 0; i < ID(channel).getElementsByClassName("rootcost").length; i++) {
-        var rootcost = ID(channel).getElementsByClassName("rootcost")[i];
-        detail += rootcost.firstChild.textContent.replace(/[:]/g, "") + "=" + 
-        rootcost.getElementsByTagName("input")[0].value.replace(/[,]/g, "");
-        if (i < ID(channel).getElementsByClassName("rootcost").length - 1) {
+// get database-keyed spending detail
+function GetDetails(channel) {
+    let detail = "";
+    for (let i = 0; i < ID(channel).getElementsByClassName("root-list").length; i++) {
+        let detailList = ID(channel).getElementsByClassName("root-list")[i];
+        detail += detailList.firstChild.textContent.replace(/[:]/g, "") + "=" + parseNum(detailList.getElementsByTagName("input")[0].value);
+
+        if (i < ID(channel).getElementsByClassName("root-list").length - 1)
             detail += ";";
-        }
     }
     return detail;
 }
 
-function KeyToEnterTitle(o) {
-    if (event.keyCode == 13) {
-        o.nextElementSibling.focus();
-    }
+// ----------------------- //
+//  Interface Interactions //
+// ----------------------- //
+
+// collapsible content
+for (const expandable of CL("expandable")) {
+    expandable.addEventListener("click", function() {
+        if (this.nextElementSibling.style.maxHeight == "0px") 
+            this.nextElementSibling.style.maxHeight = this.nextElementSibling.scrollHeight + "px";
+        else
+            this.nextElementSibling.style.maxHeight = 0;
+    })
 }
 
-function KeyToEnterAmount(o) {
-    if (event.keyCode == 13) {
-        o.nextElementSibling.click();
-    }
+// write the currency
+let defaultCurrency = "THB"
+for (const tagname of TN("span")) {
+    tagname.textContent = defaultCurrency;
+}
+
+function KeyToEnterTitle(obj) {
+    if (event.keyCode == 13)
+        obj.nextElementSibling.focus();
+}
+
+function KeyToEnterAmount(obj) {
+    if (event.keyCode == 13)
+        obj.nextElementSibling.click();
 }

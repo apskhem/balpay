@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="style.css">
-    <link href="https://fonts.googleapis.com/css?family=Maitree&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Sarabun&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.9.0/css/all.css" crossorigin="anonymous">
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
@@ -55,14 +55,15 @@
             <i class="fas fa-user-circle" id="user-icon"></i>
             <li id="fullname" style="display:inline;">%fullname%</li>
         </div>
+        
         <div id="main-fiscal-panel">
-            <h1 style="text-align:center">Today's Fiscal</h1>
-            <div id="fiscal-expenditure">
+            <h1>Today's Fiscal</h1>
+            <div id="fiscal-expenditure" class="root">
                 <div class="expandable">
                     <article class="total">Loading...</article>
                     <article>Expenditure:</article>
                 </div>
-                <div class="detail" style="max-height:0">
+                <div class="subroot" style="max-height:0">
                     <div class="detail-list">
 
                     </div>
@@ -73,12 +74,12 @@
                     </div>
                 </div>
             </div>
-            <div id="fiscal-income">
+            <div id="fiscal-income" class="root">
                 <div class="expandable">
                     <article class="total">Loading...</article>
                     <article>Income:</article>
                 </div>
-                <div class="detail" style="max-height:0">
+                <div class="subroot" style="max-height:0">
                     <div class="detail-list">
                         
                     </div>
@@ -89,12 +90,12 @@
                     </div>
                 </div>
             </div>
-            <div id="fiscal-lending">
+            <div id="fiscal-lending" class="root">
                 <div class="expandable">
                     <article class="total">Loading...</article>
                     <article>Lending:</article>
                 </div>
-                <div class="detail" style="max-height:0">
+                <div class="subroot" style="max-height:0">
                     <div class="detail-list">
 
                     </div>
@@ -105,12 +106,12 @@
                     </div>
                 </div>
             </div>
-            <div id="fiscal-debt">
+            <div id="fiscal-debt" class="root">
                 <div class="expandable">
                     <article class="total">Loading...</article>
                     <article>Debt:</article>
                 </div>
-                <div class="detail" style="max-height:0">
+                <div class="subroot" style="max-height:0">
                     <div class="detail-list">
                         
                     </div>
@@ -126,14 +127,15 @@
                 <article>Balance:</article>
             </div>
         </div>
-        <h1 style="text-align:center">Statistics</h1>
+
+        <h1>Statistics</h1>
         <div id="main_statistics">
             <li>Loading Statistics...</li>
         </div>
     </main>
     <footer style="display:none">
-        <li>Created by Apisit Ritreungroj from Thailand</li>
-        <li>2019 &copy BalPay All Rights Reserved.</li>
+        <li>Created by <a href="https://apskhem.github.io/me" target="_blank" >Apisit Ritreungroj</a> from Thailand</li>
+        <li>2019-2020 &copy BalPay All Rights Reserved.</li>
     </footer>
 
     <script type="text/javascript" src="js/connectdb.js"></script>

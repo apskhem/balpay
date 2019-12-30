@@ -44,14 +44,14 @@ function SignInCheck() {
 }
 
 function ReqSignIn() {
-    var req = [
+    let req = [
         ["userid", ID("signin-userid").value],
         ["password", ID("signin-password").value]
     ];
 
-    var url = URLQuery(script_url, req, "signin", "SignInResponse");
+    let url = URLQuery(script_url, req, "signin", "SignInResponse");
 
-    var request = jQuery.ajax({
+    let request = jQuery.ajax({
         crossDomain: true,
         url: url,
         method: "GET",

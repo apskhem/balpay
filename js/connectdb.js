@@ -1,68 +1,73 @@
-var script_url = "https://script.google.com/macros/s/AKfycbx8PNkzqprtcF5xIjbkvHszP6P5ggWwaAsXdB-fpf7g9BA3bbHT/exec";
+const script_url = "https://script.google.com/macros/s/AKfycbx8PNkzqprtcF5xIjbkvHszP6P5ggWwaAsXdB-fpf7g9BA3bbHT/exec";
+
+let finalRecordDate;
+
+// sever side variable(s)
+let user = "";
+let storedHistory = [];
+
+let finance = {
+    expenditure: 0,
+    income: 0,
+    lending: 0,
+    debt: 0,
+    balance: {
+        final: 0, // The balance that not include calulated result of exp. or inc --- form previous record.
+        today: 0, // for saving the leastest balanace --- from today's record.
+        result: 0 // the balnce that include calulated result of exp. or inc.
+    }
+}
+
+let detail = {
+    expenditure: "",
+    income: "",
+    lending: "",
+    debt: ""
+}
+
+// systematic variable(s)
+let isCompleteReadData = false;
+
+let updatingListObject;
 
 function today() {
-    var time = new Date();
+    let time = new Date();
     return time.getFullYear() + "." + time.getMonth() + "." + time.getDate();
 }
 
-var leastRecordDate;
-
-// sever side variable(s)
-var user = "";
-
-var finalBalance; // The balance that not include calulated result of exp. or inc --- form previous record.
-var todayBalance; // for saving the leastest balanace --- from today's record.
-var resultBalance; // the balnce that include calulated result of exp. or inc.
-var today_expenditure;
-var today_income;
-var today_lending;
-var today_debt;
-var detail_expenditure;
-var detail_income;
-var detail_lending;
-var detail_debt;
-
-var storedHistory = [];
-
-// systematic variable(s)
-var isCompleteReadData = false;
-
-var updatingListObject;
-
 // data send builder
 function URLQuery(source, req, action, callback) {
-    var url = source + "?";
-    if (callback == "" || callback == null || callback == undefined) { }
-    else { url += "callback=" + callback + "&"; }
+    let url = source + "?";
 
-    for (var i = 0; i < req.length; i++) {
-        url += req[i][0] + "=" + req[i][1] + "&";
+    if (callback)
+        url += "callback=" + callback + "&";
+
+    for (const reqlist of req) {
+        url += reqlist[0] + "=" + reqlist[1] + "&";
     }
+
     url += "action=" + action;
     return url;
 }
 
 function InsertReq() {
-
-    var req = [
+    let req = [
         ["user", user],
         ["date", today()],
-        ["balance", finalBalance],
+        ["balance", finance.balance.final],
         ["expenditure", 0],
         ["income", 0],
-        ["lending", GetSpendValue("fiscal-lending")],
-        ["debt", GetSpendValue("fiscal-debt")],
+        ["lending", GetTotalValue("fiscal-lending")],
+        ["debt", GetTotalValue("fiscal-debt")],
         ["detail_expenditure", ""],
         ["detail_income", ""],
-        ["detail_lending", GetSpendDetail("fiscal-lending")],
-        ["detail_debt", GetSpendDetail("fiscal-debt")]
+        ["detail_lending", GetDetails("fiscal-lending")],
+        ["detail_debt", GetDetails("fiscal-debt")]
     ];
 
-    var url = URLQuery(script_url, req, "insert", "ReqResponse");
-
-    var request = jQuery.ajax({
+    let request = jQuery.ajax({
         crossDomain: true,
-        url: url,
+        url: URLQuery(script_url, req, "insert", "ReqResponse"),
         method: "GET",
         dataType: "jsonp"
     });
@@ -70,68 +75,65 @@ function InsertReq() {
 
 // print the returned data
 function ReqResponse(e) {
-    // $("#end").html(e.result);
     console.log(e.result);
-    if (updatingListObject != undefined) {
+    if (updatingListObject) {
         updatingListObject.style.opacity = "1";
         updatingListObject = undefined;
     }
 }
 
 function ReadReq() {
-    var req = [
+    let req = [
         ["user", user]
     ];
 
-    var url = URLQuery(script_url, req, "read");
+    let url = URLQuery(script_url, req, "read");
 
-    $.getJSON(url, function(json) {
-        for (var i = 0; i < json.records.length; i++) {
-            var partInProcess = [];
-            var recordDate = json.records[i].DATE;
-            var dt = recordDate.split(".");
-            partInProcess.push(new Date(dt[0], dt[1], dt[2]));
-            partInProcess.push(json.records[i].BALANCE);
-            partInProcess.push(json.records[i].EXPENDITURE);
-            partInProcess.push(json.records[i].INCOME);
-            partInProcess.push(json.records[i].LENDING);
-            partInProcess.push(json.records[i].DEBT);
+    $.getJSON(url, (json) => {
+        for (const dataRow of json.records) {
+            let listingHistory = [];
 
-            storedHistory.push(partInProcess);
+            listingHistory.push(new Date(...dataRow.DATE.split(".")));
+            listingHistory.push(dataRow.BALANCE);
+            listingHistory.push(dataRow.EXPENDITURE);
+            listingHistory.push(dataRow.INCOME);
+            listingHistory.push(dataRow.LENDING);
+            listingHistory.push(dataRow.DEBT);
 
-            if (i == json.records.length - 1) {
-                leastRecordDate = dt[0] + "." + dt[1] + "." + dt[2];
-                todayBalance = json.records[i].BALANCE;
-                today_expenditure = json.records[i].EXPENDITURE;
-                today_income = json.records[i].INCOME;
-                today_lending = json.records[i].LENDING;
-                today_debt = json.records[i].DEBT;
-                detail_expenditure = json.records[i].DETAIL_EXPENDITURE;
-                detail_income = json.records[i].DETAIL_INCOME;
-                detail_lending = json.records[i].DETAIL_LENDING;
-                detail_debt = json.records[i].DETAIL_DEBT;
+            storedHistory.push(listingHistory);
+
+            if (json.records.indexOf(dataRow) == json.records.length - 1) { // is today
+                finalRecordDate = dataRow.DATE;
+                finance.balance.today = dataRow.BALANCE;
+                finance.expenditure = dataRow.EXPENDITURE;
+                finance.income = dataRow.INCOME;
+                finance.lending = dataRow.LENDING;
+                finance.debt = dataRow.DEBT;
+                detail.expenditure = dataRow.DETAIL_EXPENDITURE;
+                detail.income = dataRow.DETAIL_INCOME;
+                detail.lending = dataRow.DETAIL_LENDING;
+                detail.debt = dataRow.DETAIL_DEBT;
             }
-            if (i == json.records.length - 2)
-                finalBalance = json.records[i].BALANCE;
+            if (json.records.indexOf(dataRow) == json.records.length - 2) { // is previous day
+                finance.balance.final = dataRow.BALANCE;
+            }
         }
 
-        if (today() == leastRecordDate) {
-            QueryDataDetail("fiscal-expenditure", today_expenditure, detail_expenditure);
-            QueryDataDetail("fiscal-income", today_income, detail_income);
-            QueryDataDetail("fiscal-lending", today_lending, detail_lending);
-            QueryDataDetail("fiscal-debt", today_debt, detail_debt);                
-            SumTheCost();
+        if (today() == finalRecordDate) {
+            for (const financeList in detail) {
+                QueryDataDetail("fiscal-" + financeList, finance[financeList], detail[financeList]);
+            }             
+            SumValue();
         }
         else { // create new list for new day
-            var dt = today().split(".");
-            var newRecord = [new Date(dt[0], dt[1], dt[2]),todayBalance,0,0,today_lending,today_debt];
+            let newRecord = [new Date(...today().split(".")), finance.balance.today, 0, 0, finance.lending, finance.debt];
             storedHistory.push(newRecord);
-            finalBalance = todayBalance;
-            today_expenditure = 0;
-            today_income = 0;
-            QueryDataDetail("fiscal-lending", today_lending, detail_lending);
-            QueryDataDetail("fiscal-debt", today_debt, detail_debt);  
-            SumTheCost();
+            finance.balance.final = finance.balance.today;
+            finance.expenditure = 0;
+            finance.income = 0;
+            QueryDataDetail("fiscal-lending", finance.lending, detail.lending);
+            QueryDataDetail("fiscal-debt", finance.debt, detail.debt);  
+            SumValue();
 
             InsertReq();
         }
@@ -145,58 +147,50 @@ function ReadReq() {
 
     // functions for completing lists during the process
     function QueryDataDetail(channel, q_today, q_detail) {
-        var emptychanneltext = "";
-        switch (channel) {
-            case "fiscal-expenditure" : emptychanneltext = "$expenditure"; break;
-            case "fiscal-income" : emptychanneltext = "$income"; break;
-            case "fiscal-lending" : emptychanneltext = "$lending"; break;
-            case "fiscal-debt" : emptychanneltext = "$debt"; break;
-            default: emptychanneltext = "$null"; break;
-        }
+        const emptyDetailText = "$" + channel.split("-")[1];
 
         if (q_detail == "") {
             if (q_today > 0) {
-                CreateList(channel, emptychanneltext, q_today);
+                CreateList(channel, emptyDetailText, q_today);
             }
         }
         else {
-            var q_totalamount = 0;
-            var q = q_detail.split(";");
-            for (var i = 0; i < q.length; i++) {
-                var q_title = q[i].split("=")[0];
-                var q_amount = parseFloat(q[i].split("=")[1]);
+            let q_totalamount = 0;
+
+            for (const list of q_detail.split(";")) {
+                let q_title = list.split("=")[0];
+                let q_amount = parseFloat(list.split("=")[1]);
                 q_totalamount += q_amount;
                 CreateList(channel, q_title, q_amount);
             }
             if (q_totalamount != q_today) {
-                var q_amount = q_today - q_totalamount;
-                CreateList(channel, emptychanneltext, q_amount);
+                let q_amount = q_today - q_totalamount;
+                CreateList(channel, emptyDetailText, q_amount);
             }
         }
     }
 }
 
 function UpdateReq() {
+    if (isDevmode) return;
 
-    var req = [
+    let req = [
         ["user", user],
         ["date", today()],
         ["balance", resultBalance],
-        ["expenditure", GetSpendValue("fiscal-expenditure")], 
-        ["income", GetSpendValue("fiscal-income")],
-        ["lending", GetSpendValue("fiscal-lending")],
-        ["debt", GetSpendValue("fiscal-debt")],
-        ["detail_expenditure", GetSpendDetail("fiscal-expenditure")],
-        ["detail_income", GetSpendDetail("fiscal-income")],
-        ["detail_lending", GetSpendDetail("fiscal-lending")],
-        ["detail_debt", GetSpendDetail("fiscal-debt")]
+        ["expenditure", GetTotalValue("fiscal-expenditure")], 
+        ["income", GetTotalValue("fiscal-income")],
+        ["lending", GetTotalValue("fiscal-lending")],
+        ["debt", GetTotalValue("fiscal-debt")],
+        ["detail_expenditure", GetDetails("fiscal-expenditure")],
+        ["detail_income", GetDetails("fiscal-income")],
+        ["detail_lending", GetDetails("fiscal-lending")],
+        ["detail_debt", GetDetails("fiscal-debt")]
     ];
-
-    var url = URLQuery(script_url, req, "update", "ReqResponse");
  
-    var request = jQuery.ajax({
+    let request = jQuery.ajax({
       crossDomain: true,
-      url: url ,
+      url: URLQuery(script_url, req, "update", "ReqResponse"),
       method: "GET",
       dataType: "jsonp"
     });

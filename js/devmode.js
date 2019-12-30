@@ -1,4 +1,4 @@
-var isDevmode = false;
+let isDevmode = false;
 
 function Devmode() {
     if (!isDevmode) return;

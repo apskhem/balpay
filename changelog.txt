@@ -6,3 +6,7 @@ R2B002 - Sat. 17 Aug. 2019
 R2B003 - Sat. 30 Nov. 2019
 - Change background and font.
 - Add minus value.
+R2B004 - Mon. 30 Dec. 2019
+- Optimize code.
+- Fixed critical bugs.
+- Change interface apperance.
