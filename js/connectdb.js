@@ -177,7 +177,7 @@ function UpdateReq() {
     let req = [
         ["user", user],
         ["date", today()],
-        ["balance", resultBalance],
+        ["balance", finance.balance.result],
         ["expenditure", GetTotalValue("fiscal-expenditure")], 
         ["income", GetTotalValue("fiscal-income")],
         ["lending", GetTotalValue("fiscal-lending")],
