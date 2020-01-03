@@ -24,16 +24,16 @@ function drawChart() {
 }
 
 function ChartSize() {
-    let chart_channel = "main_statistics";
+    let chart_id = "main_statistics";
     if (TN("main")[0].offsetWidth > 400) {
-        ID(chart_channel).style.width = TN("main")[0].offsetWidth + 220 + "px";
-        ID(chart_channel).style.height = "600px";
-        ID(chart_channel).style.marginLeft = "-100px";
-        ID(chart_channel).style.marginTop = "-80px";
+        ID(chart_id).style.width = TN("main")[0].offsetWidth + 220 + "px";
+        ID(chart_id).style.height = "600px";
+        ID(chart_id).style.marginLeft = "-100px";
+        ID(chart_id).style.marginTop = "-80px";
     }
     else {
-        ID(chart_channel).style.width = TN("main")[0].offsetWidth + "px";
-        ID(chart_channel).style.height = "400px";
-        ID(chart_channel).style.marginTop = "-60px";
+        ID(chart_id).style.width = TN("main")[0].offsetWidth + "px";
+        ID(chart_id).style.height = "400px";
+        ID(chart_id).style.marginTop = "-60px";
     }
 }

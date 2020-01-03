@@ -52,7 +52,7 @@ function AddExistedAmount(list_obj, amount) {
     updatingListObject = list_obj.parentElement.parentElement;
 
     // save data to the server
-    UpdateReq();
+    Database.Update();
 }
 
 function DuplicateListToInput() {
@@ -74,7 +74,7 @@ let inputlist = {
 
         if (this.value == backupValue) {
             this.type = "text";
-            this.value = visualizeNum(parseNum(this.value));
+            this.value = visualizeNum(this.value);
             return;
         }
         else if (this.value == 0) {
@@ -88,7 +88,7 @@ let inputlist = {
         }
 
         this.type = "text";
-        this.value = visualizeNum(parseNum(this.value));
+        this.value = visualizeNum(this.value);
         FinalizeList();
 
         function FinalizeList() {
@@ -102,7 +102,7 @@ let inputlist = {
             }
     
             // save data to the server
-            UpdateReq();
+            Database.Update();
         }
     },
     in: function() {
@@ -143,7 +143,7 @@ for (const addFiscalList of CL("add-fiscal-list")) {
                         UpdateChart();
 
                         // save data to the server
-                        UpdateReq();
+                        Database.Update();
                     }
 
                     ResetInputNewList(this.previousElementSibling);
@@ -187,8 +187,11 @@ for (const addFiscalList of CL("add-fiscal-list")) {
         AdjustBalance();
 
         if (isCompleteReadData) {
+            rootdiv.style.opacity = "0.5";
+            updatingListObject = rootdiv;
+
             UpdateChart();
-            UpdateReq();
+            Database.Update();
         }
 
         function ResetInputNewList(obj) {

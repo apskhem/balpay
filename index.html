@@ -13,40 +13,40 @@
 </head>
 <body>
     <div id="form">
-        <div id="signin-form">
-            <li class="head-text">Sign in to BalPay</li>
-            <li>Enter Your ID</li>
-            <input id="signin-userid" type="text" placeholder="Username" onkeydown="EnterID()">
-            <li>Enter Password</li>
-            <input id="signin-password" type="password" placeholder="Password" onkeydown="EnterPassword()">
-            <div id="signin-form-options">
-                <li style="float:right;" onclick="SignUp()">Sign up</li>
-                <li style="text-align:left">Forgot my password</li>
+        <div id="form-frame">
+            <div id="signin-form">
+                <li class="head-text">Sign in to BalPay</li>
+                <li>Enter Your ID</li>
+                <input id="signin-userid" type="text" placeholder="Username" onkeydown="EnterID()">
+                <li>Enter Password</li>
+                <input id="signin-password" type="password" placeholder="Password" onkeydown="EnterPassword()">
+                <div id="signin-form-options">
+                    <li style="float:right;" onclick="SignUp()">Sign up</li>
+                    <li style="text-align:left">Forgot my password</li>
+                </div>
+                <div id="signin-button" onclick="SignInCheck()">Sign in</div>
+                <div id="signin-troubleshoot" style="color:red;font-size:small;display:none;">troubleshoot</div>
             </div>
-            <div id="signin-button" onclick="SignInCheck()">Sign in</div>
-            <div id="signin-troubleshoot" style="color:red;font-size:small;display:none;">troubleshoot</div>
-        </div>
-        <div id="signup-form" style="display:none">
-            <li class="head-text">Sign up</li>
-            <li>Full Name</li>
-            <input id="signup" type="text" placeholder="Full Name">
-            <li>Username</li>
-            <input id="signup" type="text" placeholder="Username">
-            <li>Password</li>
-            <input id="signup" type="text" placeholder="Password">
-            <li>Confirm Password</li>
-            <input id="signup" type="text" placeholder="Confirm Password">
-            <li>Email</li>
-            <input id="signup" type="text" placeholder="Email">
-            <li>Currency</li>
-            <input id="signup" type="text" placeholder="Currency">
-            <div id="signup-form-options">
-                <li style="text-align:left;" onclick="BackToSignIn()">Back to sign in</li>
+            <div id="signup-form" style="display:none">
+                <li class="head-text">Sign up</li>
+                <li>Full Name</li>
+                <input id="signup" type="text" placeholder="Full Name">
+                <li>Username</li>
+                <input id="signup" type="text" placeholder="Username">
+                <li>Password</li>
+                <input id="signup" type="text" placeholder="Password">
+                <li>Confirm Password</li>
+                <input id="signup" type="text" placeholder="Confirm Password">
+                <li>Email</li>
+                <input id="signup" type="text" placeholder="Email">
+                <li>Currency</li>
+                <input id="signup" type="text" placeholder="Currency">
+                <div id="signup-form-options">
+                    <li style="text-align:left;" onclick="BackToSignIn()">Back to sign in</li>
+                </div>
+                <div id="signup-button" onclick="SignUpCheck()">Sign up</div>
             </div>
-            <div id="signup-button" onclick="SignUpCheck()">Sign up</div>
-        </div>
-        <div id="forgotmypassword-form" style="display:none">
-
+            <div id="forgotmypassword-form" style="display:none"></div>
         </div>
     </div>
     <main>
@@ -57,7 +57,6 @@
         </div>
         
         <div id="main-fiscal-panel">
-            <h1>Today's Fiscal</h1>
             <div id="fiscal-expenditure" class="root">
                 <div class="expandable">
                     <article class="total">Loading...</article>
@@ -122,7 +121,7 @@
                     </div>
                 </div>
             </div>
-            <div id="fiscal-balance" style="pointer-events:none;">
+            <div id="fiscal-balance" class="root" style="pointer-events:none;">
                 <article style="float: right">Loading...</article>
                 <article>Balance:</article>
             </div>
@@ -132,13 +131,25 @@
         <div id="main_statistics">
             <li>Loading Statistics...</li>
         </div>
+
+        <h1>This Month</h1>
+        <div class="quater-grid border-list">
+            <li>Total Expenditure:</li>
+            <li id="this-month-total-expenditure">Loading...</li>
+            <li>Total Income:</li>
+            <li id="this-month-total-income">Loading...</li>
+            <li>Average Expenditure:</li>
+            <li id="this-month-average-expenditure">Loading...</li>
+            <li>Average Income:</li>
+            <li id="this-month-average-income">Loading...</li>
+        </div>
     </main>
     <footer style="display:none">
         <li>Created by <a href="https://apskhem.github.io/me" target="_blank" >Apisit Ritreungroj</a> from Thailand</li>
         <li>2019-2020 &copy BalPay All Rights Reserved.</li>
     </footer>
 
-    <script type="text/javascript" src="js/connectdb.js"></script>
+    <script type="text/javascript" src="js/database.js"></script>
     <script type="text/javascript" src="js/basic.js"></script>
     <script type="text/javascript" src="js/form.js"></script>
     <script type="text/javascript" src="js/chart.js"></script>

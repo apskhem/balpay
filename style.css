@@ -54,15 +54,11 @@ main {
     max-width: 1000px;
     border-radius: 8px;
     background: white;
-
-    padding-top: 6px;
+    
     display: none;
-    box-shadow: 0 0 6px -3px black;
-}
-
-body {
-    background: rgb(34,193,195);
-    background: linear-gradient(90deg, rgba(34,193,195,1) 0%, rgba(253,187,45,1) 100%);
+    padding: 16px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 6px 0px rgba(0, 0, 0, 0.2);
 }
 
 article {
@@ -75,6 +71,10 @@ article {
 #user-icon {
     font-size: large;
     cursor: pointer;
+}
+
+#main-fiscal-panel {
+    margin-top: 12px;
 }
 
 .subroot {
@@ -94,7 +94,7 @@ article {
 
 .add-fiscal-list {
     color: white;
-    background: lightgray;
+    border: 1px solid lightgray;
     padding: 4px;
     border-radius: 4px;
     text-align: center;
@@ -109,11 +109,7 @@ article {
     transition: 0.3s;
 }
 
-#main-fiscal-panel {
-    padding: 12px;
-}
-
-#main-fiscal-panel > div {
+#main-fiscal-panel > .root {
     background: white;
     border: 1px solid lightgrey;
     border-radius: 6px;
@@ -122,40 +118,28 @@ article {
     transition: 0.2s;
 }
 
-#main-fiscal-panel > div:hover {
+#main-fiscal-panel > .root:hover {
     box-shadow: 0 0 5px -2px black;
 }
 
-#fiscal-expenditure article {
+#fiscal-expenditure article,
+#fiscal-expenditure .add-fiscal-list {
     color: #9e0000;
 }
 
-#fiscal-expenditure .add-fiscal-list {
-    background: #9e0000;
-}
-
-#fiscal-income article {
+#fiscal-income article,
+#fiscal-income .add-fiscal-list {
     color: #097138;
 }
 
-#fiscal-income .add-fiscal-list {
-    background: #097138;
-}
-
-#fiscal-lending article {
+#fiscal-lending article,
+#fiscal-lending .add-fiscal-list  {
     color: #ffc70f;
 }
 
-#fiscal-lending .add-fiscal-list {
-    background: #ffc70f;
-}
-
-#fiscal-debt article {
-    color: #5D6D7E;
-}
-
+#fiscal-debt article,
 #fiscal-debt .add-fiscal-list {
-    background: #5D6D7E;
+    color: #5D6D7E;
 }
 
 #fiscal-balance article {
@@ -191,6 +175,7 @@ article {
 
 .create-list-grid {
     margin-top: 8px;
+
     display: grid;
     grid-gap: 8px;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
@@ -204,35 +189,54 @@ article {
     border-radius: 4px;
 }
 
-#user-panel {
-    padding: 12px;
-}
-
 #main_statistics li {
     font-size: xx-large;
     padding: 40px;
     text-align: center;
 }
 
+#add-detail {
+    display: grid;
+    grid-gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    grid-template-rows: repeat(auto-fit, auto);
+}
+
+/* various grids */
+.quater-grid {
+    display: grid;
+    grid-gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-rows: repeat(auto-fit, auto);
+}
+
+/* decorative class */
+.border-list > * {
+    padding: 4px;
+    border-radius: 4px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+}
+
 /* Login part */
-#signin-form,
-#signup-form {
+#form > div {
+    max-width: 600px;
+    padding: 12px;
     width: 100%;
+    position: absolute;
+    top: 50%;
+    left: 51.5%;
+    transform: translate(-51.5%,-50%);
+    -ms-transform: translate(-51.5%,-50%);
+}
+
+#form > div > div {
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 6px 0px rgba(0, 0, 0, 0.2);
+
     border-radius: 8px;
     padding: 12px;
     background: white;
     text-align: center;
-}
-
-#form > div {
-    max-width: 600px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%,-50%);
-    -ms-transform: translate(-50%,-50%);
-
-    box-shadow: 0 0 6px -3px black;
 }
 
 .head-text {
