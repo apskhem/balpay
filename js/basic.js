@@ -4,10 +4,6 @@ const tn = (tn) => document.getElementsByTagName(tn);
 
 window.onerror = (msg, url, lineNo, columnNo, error) => alert(msg);
 
-window.onresize = function() {
-    HistoryGraph();
-};
-
 document.documentElement.addEventListener("keyup", (e) => {
     if (e.code === "Backquote") location.reload();
 })
