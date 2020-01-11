@@ -1,57 +1,59 @@
 // this is signin form
 function ShootError(formchannel) {
-    ID(formchannel).focus();
-    ID(formchannel).style.boxShadow = "0 0 6px -1px red";
+    id(formchannel).focus();
+    id(formchannel).style.boxShadow = "0 0 6px 0px #EC7063";
+    id(formchannel).style.border = "1px solid #EC7063";
 }
 
-function EnterID() {
-    if (event.keyCode == 13) {
-        if (ID("signin-userid").value == "")
+id("signin-userid").onkeydown = function(e) {
+    if (e.keyCode == 13) {
+        if (id("signin-userid").value == "")
             ShootError("signin-userid");
         else
-            ID("signin-password").focus();
+            id("signin-password").focus();
     }
-    else {
-        ID("signin-userid").style.boxShadow = "";
-    }
+    
+    id("signin-userid").style.boxShadow = "";
+    id("signin-userid").style.border = "1px solid lightgrey";
 }
 
-function EnterPassword() {
-    if (event.keyCode == 13) {
-        if (ID("signin-password").value == "")
+id("signin-password").onkeydown = function(e) {
+    if (e.keyCode == 13) {
+        if (id("signin-password").value == "")
             ShootError("signin-password");
         else
-            ID("signin-button").click();
+            id("signin-button").click();
     }
-    else {
-        ID("signin-userid").style.boxShadow = "";
-    }
+    
+    id("signin-userid").style.boxShadow = "";
+    id("signin-userid").style.border = "1px solid lightgrey";
 }
 
-function SignInCheck() {
-    if (ID("signin-userid").value == "")
-        ShootError("signin-userid");
-    else if (ID("signin-password").value == "")
+id("signin-button").onclick = function() {
+    if (id("signin-userid").disabled) return;
+
+    if (id("signin-userid").value == "")
+    ShootError("signin-userid");
+    else if (id("signin-password").value == "")
         ShootError("signin-password");
     else {
-        ID("signin-troubleshoot").textContent = "Loading...";
-        ID("signin-troubleshoot").style.color = "black";
-        ID("signin-troubleshoot").style.display = "block";
-        ID("signin-userid").disabled = true;
-        ID("signin-password").disabled = true;
+        id("signin-button").textContent = "Loading...";
+        id("signin-userid").disabled = true;
+        id("signin-password").disabled = true;
 
         Database.GetUserSettingsData();
         //Database.GetUserRecordData();
     }
 }
 
+
 // click into login form
 function SignUp() {
-    ID("signin-form").style.display = "none";
-    ID("signup-form").style.display = "block";
+    id("signin-form").style.display = "none";
+    id("signup-form").style.display = "block";
 }
 
 function BackToSignIn() {
-    ID("signin-form").style.display = "block";
-    ID("signup-form").style.display = "none";
+    id("signin-form").style.display = "block";
+    id("signup-form").style.display = "none";
 }

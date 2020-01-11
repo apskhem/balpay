@@ -2,17 +2,17 @@ let isDevmode = false;
 
 window.onload = function Devmode() {
     if (!isDevmode) return;
-    ID("form").style.display = "none";
+    id("form").style.display = "none";
 
     user = "apskhem";
-    TN("title")[0].textContent = "Balpay - Devmode";
-    ID("fullname").textContent = "Devmode";
+    tn("title")[0].textContent = "Balpay - Devmode";
+    id("fullname").textContent = "Devmode";
 
     Database.GetUserRecordData();
 
-    ID("signin-userid").disabled = true;
-    ID("signin-password").disabled = true;
-    TN("main")[0].style.display = "block";
-    TN("footer")[0].style.display = "block";
-    ID("form").style.display = "none";
+    id("signin-userid").disabled = true;
+    id("signin-password").disabled = true;
+    tn("main")[0].style.display = "block";
+    tn("footer")[0].style.display = "block";
+    id("form").style.display = "none";
 }

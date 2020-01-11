@@ -1,6 +1,7 @@
 // sever side variable(s)
 let user = "";
-let storedHistory = [];
+let records = [];
+let detailRecords = [];
 
 let finance = {
     expenditure: 0,
@@ -22,50 +23,55 @@ let detail = {
 }
 
 // systematic variable(s)
-let isCompleteReadData = false;
+let isReadingRecordsCompleted = false;
 
 let updatingListObject;
 
-function today() {
+function GetCurrentDate() {
     let time = new Date();
     return time.getFullYear() + "." + time.getMonth() + "." + time.getDate();
 }
 
-// data sending url builder -- param should be like [[,]]
-function RequestURL(param, action, callback) {
-    const db_source = "https://script.google.com/macros/s/AKfycbx8PNkzqprtcF5xIjbkvHszP6P5ggWwaAsXdB-fpf7g9BA3bbHT/exec";
-    let url = db_source + "?";
-
-    if (callback)
-        url += `callback=${callback}&`;
-
-    for (const req of param) {
-        url += `${req[0]}=${req[1]}&`;
+class RequestURL {
+    constructor(dbURL) {
+        this.source = dbURL;
     }
 
-    url += "action=" + action;
-    return url;
+    Format(param, action, callback) {
+        let url = this.source + "?";
+
+        if (callback)
+            url += `callback=${callback}&`;
+
+        for (const key in param)
+            url += `${key}=${param[key]}&`;
+
+        url += "action=" + action;
+        return url;
+    }
 }
+
+let url = new RequestURL("https://script.google.com/macros/s/AKfycbx8PNkzqprtcF5xIjbkvHszP6P5ggWwaAsXdB-fpf7g9BA3bbHT/exec");
 
 const Database = {
     Insert: function() {
-        const req = [
-            ["user", user],
-            ["date", today()],
-            ["balance", finance.balance.final],
-            ["expenditure", 0],
-            ["income", 0],
-            ["lending", GetTotalValue("fiscal-lending")],
-            ["debt", GetTotalValue("fiscal-debt")],
-            ["detail_expenditure", ""],
-            ["detail_income", ""],
-            ["detail_lending", GetDetails("fiscal-lending")],
-            ["detail_debt", GetDetails("fiscal-debt")]
-        ];
+        const req = {
+            "user": user,
+            "date": GetCurrentDate(),
+            "balance": finance.balance.final,
+            "expenditure": 0,
+            "income": 0,
+            "lending": GetTotalValue("fiscal-lending"),
+            "debt": GetTotalValue("fiscal-debt"),
+            "detail_expenditure": "",
+            "detail_income": "",
+            "detail_lending": GetDetails("fiscal-lending"),
+            "detail_debt": GetDetails("fiscal-debt")
+        };
 
-        const request = jQuery.ajax({
+        jQuery.ajax({
             crossDomain: true,
-            url: RequestURL(req, "insert", "ReqResponse"),
+            url: url.Format(req, "insert", "requestResponse.Feedback"),
             method: "GET",
             dataType: "jsonp"
         });
@@ -73,47 +79,48 @@ const Database = {
     Update: function() {
         if (isDevmode) return;
 
-        const req = [
-            ["user", user],
-            ["date", today()],
-            ["balance", finance.balance.result],
-            ["expenditure", GetTotalValue("fiscal-expenditure")], 
-            ["income", GetTotalValue("fiscal-income")],
-            ["lending", GetTotalValue("fiscal-lending")],
-            ["debt", GetTotalValue("fiscal-debt")],
-            ["detail_expenditure", GetDetails("fiscal-expenditure")],
-            ["detail_income", GetDetails("fiscal-income")],
-            ["detail_lending", GetDetails("fiscal-lending")],
-            ["detail_debt", GetDetails("fiscal-debt")]
-        ];
+        const req = {
+            "user": user,
+            "date": GetCurrentDate(),
+            "balance": finance.balance.result,
+            "expenditure": GetTotalValue("fiscal-expenditure"),
+            "income": GetTotalValue("fiscal-income"),
+            "lending": GetTotalValue("fiscal-lending"),
+            "debt": GetTotalValue("fiscal-debt"),
+            "detail_expenditure": GetDetails("fiscal-expenditure"),
+            "detail_income": GetDetails("fiscal-income"),
+            "detail_lending": GetDetails("fiscal-lending"),
+            "detail_debt": GetDetails("fiscal-debt")
+        };
     
-        const request = jQuery.ajax({
-        crossDomain: true,
-        url: RequestURL(req, "update", "ReqResponse"),
-        method: "GET",
-        dataType: "jsonp"
+        jQuery.ajax({
+            crossDomain: true,
+            url: url.Format(req, "update", "requestResponse.Feedback"),
+            method: "GET",
+            dataType: "jsonp"
         });
     },
     GetUserRecordData: function() {
-        let req = [
-            ["user", user]
-        ];
+        const req = {"user": user};
     
-        let url = RequestURL(req, "read");
-    
-        $.getJSON(url, (json) => {
+        $.getJSON(url.Format(req, "read"), (json) => {
             let finalRecordDate;
             for (const dataRow of json.records) {
-                let listingHistory = [];
-    
-                listingHistory.push(new Date(...dataRow.DATE.split(".")));
-                listingHistory.push(dataRow.BALANCE);
-                listingHistory.push(dataRow.EXPENDITURE);
-                listingHistory.push(dataRow.INCOME);
-                listingHistory.push(dataRow.LENDING);
-                listingHistory.push(dataRow.DEBT);
-    
-                storedHistory.push(listingHistory);
+                records.push([
+                    new Date(...dataRow.DATE.split(".")),
+                    dataRow.BALANCE,
+                    dataRow.EXPENDITURE,
+                    dataRow.INCOME,
+                    dataRow.LENDING,
+                    dataRow.DEBT
+                ]);
+
+                detailRecords.push([
+                    dataRow.DETAIL_EXPENDITURE,
+                    dataRow.DETAIL_INCOME,
+                    dataRow.DETAIL_LENDING,
+                    dataRow.DETAIL_DEBT
+                ]);
     
                 if (json.records.indexOf(dataRow) == json.records.length - 1) { // is today
                     finalRecordDate = dataRow.DATE;
@@ -132,39 +139,40 @@ const Database = {
                 }
             }
     
-            if (today() == finalRecordDate) {
+            if (GetCurrentDate() == finalRecordDate) {
                 for (const financeList in detail) {
-                    QueryDataDetail("fiscal-" + financeList, finance[financeList], detail[financeList]);
+                    ParseAndCreateList("fiscal-" + financeList, finance[financeList], detail[financeList]);
                 }             
                 SumValue();
             }
             else { // create new list for new day
-                let newRecord = [new Date(...today().split(".")), finance.balance.today, 0, 0, finance.lending, finance.debt];
-                storedHistory.push(newRecord);
+                records.push([new Date(...GetCurrentDate().split(".")), finance.balance.today, 0, 0, finance.lending, finance.debt]);
+                detailRecords.push(["", "", detail.lending, detail.debt]);
+
                 finance.balance.final = finance.balance.today;
                 finance.expenditure = 0;
                 finance.income = 0;
-                QueryDataDetail("fiscal-lending", finance.lending, detail.lending);
-                QueryDataDetail("fiscal-debt", finance.debt, detail.debt);  
+                ParseAndCreateList("fiscal-lending", finance.lending, detail.lending);
+                ParseAndCreateList("fiscal-debt", finance.debt, detail.debt);  
                 SumValue();
     
                 Database.Insert();
             }
     
             // functions after completing the data request precess
-            google.charts.load('current', {'packages':['corechart', 'line']});
-            google.charts.setOnLoadCallback(drawChart);
-            AdjustBalance();
-            isCompleteReadData = true;
+            google.charts.setOnLoadCallback(HistoryGraph);
+            UpdateBalance();
+            SumThisMonth();
+            isReadingRecordsCompleted = true;
 
             // close all newly created list
-            for (const expandable of CL("expandable")) {
+            for (const expandable of cl("expandable")) {
                 expandable.nextElementSibling.style.maxHeight = 0;
             }
         });
     
         // functions for completing lists during the process
-        function QueryDataDetail(channel, q_today, q_detail) {
+        function ParseAndCreateList(channel, q_today, q_detail) {
             const emptyDetailText = "$" + channel.split("-")[1];
     
             if (q_detail == "") {
@@ -189,55 +197,68 @@ const Database = {
         }
     },
     GetUserSettingsData: function() {
-        let req = [
-            ["userid", ID("signin-userid").value],
-            ["password", ID("signin-password").value]
-        ];
+        const req = {
+            "userid": id("signin-userid").value,
+            "password": id("signin-password").value
+        }
     
-        let request = jQuery.ajax({
+        jQuery.ajax({
             crossDomain: true,
-            url: RequestURL(req, "signIn", "SignInResponse"),
+            url: url.Format(req, "signIn", "requestResponse.SignIn"),
             method: "GET",
             dataType: "jsonp"
         });
     }
-};
-
-// print the returned data
-function ReqResponse(e) {
-    console.log(e.result);
-    if (updatingListObject) {
-        updatingListObject.style.opacity = "1";
-        updatingListObject = undefined;
-    }
 }
 
-function SignInResponse(e) {
-    ID("signin-userid").disabled = false;
-    ID("signin-password").disabled = false;
-
-    if (e.result == "error") {
-        ID("signin-troubleshoot").style.color = "red";
-        if (e.error == "id") {
-            ShootError("signin-userid");
-            ID("signin-troubleshoot").textContent = "User ID didn't exist.";
+// never use
+const requestResponse = {
+    Feedback: (res) => {
+        console.log(res.result);
+        UpdatedListObject();
+    },
+    SignIn: (res) => {
+        id("signin-userid").disabled = false;
+        id("signin-password").disabled = false;
+    
+        if (res.result == "error") {
+            if (res.error == "id") {
+                ShootError("signin-userid");
+                id("signin-button").textContent = "User ID didn't exist.";
+            }
+            if (res.error == "password") {
+                ShootError("signin-password");
+                id("signin-button").textContent = "Password is incorrect.";
+            }
         }
-        if (e.error == "password") {
-            ShootError("signin-password");
-            ID("signin-troubleshoot").textContent = "Password is incorrect.";
+        else if (res.result == "pass") { // if sign in form is corrected
+            user = id("signin-userid").value;
+    
+            Database.GetUserRecordData();
+    
+            tn("main")[0].style.display = "block";
+            tn("footer")[0].style.display = "block";
+            id("form").style.display = "none";
+    
+            // init user settings
+            tn("title")[0].textContent = "Balpay - " + res.userData.FULLNAME;
+            id("fullname").textContent = res.userData.FULLNAME;
+    
+            const userSettings = ParseUserSettings(res.userData.USER_SETTINGS);
+    
+            defaultCurrency = userSettings.currency;
+            for (const tagname of tn("span")) {
+                tagname.textContent = defaultCurrency;
+            }
         }
-    }
-    else if (e.result == "pass") { // if sign in form is corrected
-        user = ID("signin-userid").value;
-
-        Database.GetUserRecordData();
-
-        TN("main")[0].style.display = "block";
-        TN("footer")[0].style.display = "block";
-        ID("form").style.display = "none";
-
-        // init user settings
-        TN("title")[0].textContent = "Balpay - " + e.userData.FULLNAME;
-        ID("fullname").textContent = e.userData.FULLNAME;
+    
+        function ParseUserSettings(dataObj) {
+            let parsedObj = new Object();
+            for (let pairVal of dataObj.split(";")) {
+                pairVal = pairVal.split("=");
+                parsedObj[pairVal[0]] = pairVal[1];
+            }
+            return parsedObj;
+        }
     }
 }

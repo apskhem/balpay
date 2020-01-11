@@ -206,7 +206,7 @@ article {
 .quater-grid {
     display: grid;
     grid-gap: 8px;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
     grid-template-rows: repeat(auto-fit, auto);
 }
 
@@ -243,6 +243,17 @@ article {
     font-size: xx-large;
     font-weight: bold;
     padding: 8px 0;
+}
+
+#this-month-lists > div > li:first-child,
+#this-month-detail div > li:first-child {
+    display: inline-block;
+}
+
+#this-month-lists > div > li:last-child,
+#this-month-detail div > li:last-child {
+    text-align: right;
+    float: right;
 }
 
 /* form part */

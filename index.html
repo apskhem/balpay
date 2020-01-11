@@ -17,36 +17,35 @@
             <div id="signin-form">
                 <li class="head-text">Sign in to BalPay</li>
                 <li>Enter Your ID</li>
-                <input id="signin-userid" type="text" placeholder="Username" onkeydown="EnterID()">
+                <input id="signin-userid" type="text" placeholder="Username">
                 <li>Enter Password</li>
-                <input id="signin-password" type="password" placeholder="Password" onkeydown="EnterPassword()">
+                <input id="signin-password" type="password" placeholder="Password">
                 <div id="signin-form-options">
                     <li style="float:right;" onclick="SignUp()">Sign up</li>
                     <li style="text-align:left">Forgot my password</li>
                 </div>
-                <div id="signin-button" onclick="SignInCheck()">Sign in</div>
-                <div id="signin-troubleshoot" style="color:red;font-size:small;display:none;">troubleshoot</div>
+                <div id="signin-button">Sign in</div>
             </div>
             <div id="signup-form" style="display:none">
                 <li class="head-text">Sign up</li>
                 <li>Full Name</li>
-                <input id="signup" type="text" placeholder="Full Name">
-                <li>Username</li>
-                <input id="signup" type="text" placeholder="Username">
+                <input id="signup-fullname" type="text" placeholder="Full Name">
+                <li>User ID</li>
+                <input id="signup-userid" type="text" placeholder="Username">
                 <li>Password</li>
-                <input id="signup" type="text" placeholder="Password">
-                <li>Confirm Password</li>
-                <input id="signup" type="text" placeholder="Confirm Password">
+                <input id="signup-password" type="text" placeholder="Password">
                 <li>Email</li>
-                <input id="signup" type="text" placeholder="Email">
+                <input id="signup-email" type="text" placeholder="Email">
                 <li>Currency</li>
-                <input id="signup" type="text" placeholder="Currency">
+                <input id="signup-currency" type="text" placeholder="Currency THB, USD, GBP etc.">
                 <div id="signup-form-options">
                     <li style="text-align:left;" onclick="BackToSignIn()">Back to sign in</li>
                 </div>
                 <div id="signup-button" onclick="SignUpCheck()">Sign up</div>
             </div>
-            <div id="forgotmypassword-form" style="display:none"></div>
+            <div id="forgotmypassword-form" style="display:none">
+            
+            </div>
         </div>
     </div>
     <main>
@@ -133,15 +132,37 @@
         </div>
 
         <h1>This Month</h1>
-        <div class="quater-grid border-list">
-            <li>Total Expenditure:</li>
-            <li id="this-month-total-expenditure">Loading...</li>
-            <li>Total Income:</li>
-            <li id="this-month-total-income">Loading...</li>
-            <li>Average Expenditure:</li>
-            <li id="this-month-average-expenditure">Loading...</li>
-            <li>Average Income:</li>
-            <li id="this-month-average-income">Loading...</li>
+        <div class="quater-grid border-list" id="this-month-lists">
+            <div>
+                <li>Total Expenditure:</li>
+                <li id="this-month-total-expenditure">Loading...</li>
+            </div>
+            <div>
+                <li>Total Income:</li>
+                <li id="this-month-total-income">Loading...</li>
+            </div>
+            <div>
+                <li>Average Expenditure:</li>
+                <li id="this-month-average-expenditure">Loading...</li>
+            </div>
+            <div>
+                <li>Average Income:</li>
+                <li id="this-month-average-income">Loading...</li>
+            </div>
+        </div>
+        <div class="quater-grid" id="this-month-detail" style="padding-top:8px;">
+            <div id="this-month-expenditure-detail">
+                <div>
+                    <li>Average Income:</li>
+                    <li>Loading...</li>
+                </div>
+            </div>
+            <div id="this-month-income-detail">
+                <div>
+                    <li>Average Income:</li>
+                    <li>Loading...</li>
+                </div>
+            </div>
         </div>
     </main>
     <footer style="display:none">
@@ -152,7 +173,7 @@
     <script type="text/javascript" src="js/database.js"></script>
     <script type="text/javascript" src="js/basic.js"></script>
     <script type="text/javascript" src="js/form.js"></script>
-    <script type="text/javascript" src="js/chart.js"></script>
+    <script type="text/javascript" src="js/graph.js"></script>
     <script type="text/javascript" src="js/devmode.js"></script>
 </body>
 </html>

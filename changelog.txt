@@ -13,3 +13,5 @@ R2B004 - Mon. 30 Dec. 2019
 R2B005 - Fri. 3 Jan. 2020
 - Optimize code.
 - Change interface apperance.
+R2B006 - Sat. 11 Jan. 2020
+- Add more statistics information.
