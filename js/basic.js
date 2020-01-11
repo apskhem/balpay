@@ -17,6 +17,7 @@ document.documentElement.addEventListener("keyup", (e) => {
 // ------------------ //
 
 id("today-date").textContent = FormatDate(GetCurrentDate());
+id("copyright-year").textContent = GetCurrentDate().split(".")[0];
 
 // ----------------- //
 //  Helper Functions //
@@ -288,14 +289,14 @@ function SumValue(channel) {
 function SumThisMonth() {
     let date = GetCurrentDate().split(".");
     let month = {expenditure: 0, income: 0};
-    let mdetail = {expenditure: new Object(), income: new Object()};
+    let spendingLists = {expenditure: new Object(), income: new Object()};
 
     let z = records.length - 1;
     while (records[z][0].getMonth() == date[1]) {
         month.expenditure += records[z][2];
         month.income += records[z][3];
-        ParseDetail(detailRecords[z][0], mdetail.expenditure);
-        ParseDetail(detailRecords[z--][1], mdetail.income);
+        ParseDetail(detailRecords[z][0], spendingLists.expenditure);
+        ParseDetail(detailRecords[z--][1], spendingLists.income);
     }
 
     id("this-month-total-expenditure").textContent = visualizeNum(month.expenditure) + " " + defaultCurrency;
@@ -303,24 +304,37 @@ function SumThisMonth() {
     id("this-month-average-expenditure").textContent = visualizeNum(month.expenditure / parseFloat(date[2])) + " " + defaultCurrency;
     id("this-month-average-income").textContent = visualizeNum(month.income / parseFloat(date[2])) + " " + defaultCurrency;
 
+    id("this-month-total-balance-text").textContent = (month.income >= month.expenditure) ? "Surplus" : "Deficit";
+    id("this-month-total-balance-text").parentElement.style.color = (month.income >= month.expenditure) ? "#097138" : "#9e0000";
+    id("this-month-total-balance").textContent = visualizeNum(Math.abs(month.expenditure - month.income)) + " " + defaultCurrency;
+    id("this-month-average-balance-text").textContent = "Daily Average " + ((month.income >= month.expenditure) ? "Surplus" : "Deficit");
+    id("this-month-average-balance-text").parentElement.style.color = (month.income >= month.expenditure) ? "#097138" : "#9e0000";
+    id("this-month-average-balance").textContent = visualizeNum(Math.abs(month.expenditure - month.income)/parseFloat(date[2])) + " " + defaultCurrency;
+
     // create detail list
-    for (let type in mdetail) {
+    for (let type in spendingLists) {
         id(`this-month-${type}-detail`).innerHTML = "";
-        for (let list in mdetail[type]) {
+        for (let list in spendingLists[type]) {
             let block = document.createElement("div");
             let li1 = document.createElement("li");
             let li2 = document.createElement("li");
     
             li1.textContent = list + ":";
-            li2.textContent = visualizeNum(mdetail[type][list]);
+            li2.textContent = visualizeNum(spendingLists[type][list]) + " " + defaultCurrency;
             block.appendChild(li1);
             block.appendChild(li2);
 
             id(`this-month-${type}-detail`).appendChild(block);
         }
     }
-    
 
+    // redraw this month chart
+    google.charts.setOnLoadCallback(function() {
+        ThisMonthGraph(Object2Array(spendingLists.expenditure), "this-month-expenditure-graph");
+        ThisMonthGraph(Object2Array(spendingLists.income), "this-month-income-graph");
+    });
+
+    // helper functions
     function ParseDetail(detailRow, obj) {
         if (detailRow == "") return;
 
@@ -329,6 +343,14 @@ function SumThisMonth() {
 
             obj[pairVal[0]] = obj[pairVal[0]] ? obj[pairVal[0]] + parseFloat(pairVal[1]) : parseFloat(pairVal[1]);
         }
+    }
+
+    function Object2Array(obj) {
+        let arr = [];
+        for (let key in obj) {
+            arr.push([key, obj[key]]);
+        }
+        return arr;
     }
 }
 

@@ -49,6 +49,10 @@ footer {
     text-align: center;
 }
 
+#copyright-year {
+    display: inline-block;
+}
+
 main {
     margin: 0 auto;
     max-width: 1000px;

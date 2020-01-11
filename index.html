@@ -149,25 +149,27 @@
                 <li>Average Income:</li>
                 <li id="this-month-average-income">Loading...</li>
             </div>
+            <div>
+                <li id="this-month-total-balance-text">Balance:</li>
+                <li id="this-month-total-balance">Loading...</li>
+            </div>
+            <div>
+                <li id="this-month-average-balance-text">Average Balance:</li>
+                <li id="this-month-average-balance">Loading...</li>
+            </div>
         </div>
         <div class="quater-grid" id="this-month-detail" style="padding-top:8px;">
-            <div id="this-month-expenditure-detail">
-                <div>
-                    <li>Average Income:</li>
-                    <li>Loading...</li>
-                </div>
-            </div>
-            <div id="this-month-income-detail">
-                <div>
-                    <li>Average Income:</li>
-                    <li>Loading...</li>
-                </div>
-            </div>
+            <div id="this-month-expenditure-detail"></div>
+            <div id="this-month-income-detail"></div>
+        </div>
+        <div class="quater-grid" id="this-month-graph" style="padding-top:8px;">
+            <div id="this-month-expenditure-graph"></div>
+            <div id="this-month-income-graph"></div>
         </div>
     </main>
     <footer style="display:none">
-        <li>Created by <a href="https://apskhem.github.io/me" target="_blank" >Apisit Ritreungroj</a> from Thailand</li>
-        <li>2019-2020 &copy BalPay All Rights Reserved.</li>
+        <li>Made with love &#x1F496;by <a href="https://apskhem.github.io/me" target="_blank" >Apisit Ritreungroj</a></li>
+        <li>2019-<div id="copyright-year"></div> &copy BalPay All Rights Reserved.</li>
     </footer>
 
     <script type="text/javascript" src="js/database.js"></script>
