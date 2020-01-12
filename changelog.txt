@@ -15,3 +15,5 @@ R2B005 - Fri. 3 Jan. 2020
 - Change interface apperance.
 R2B006 - Sat. 11 Jan. 2020
 - Add more statistics information.
+R2B006.1 - Sun. 12 Jan. 2020
+- minor bug fixed.

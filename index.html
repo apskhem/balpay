@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>BalPay - Key your money using activities</title>
+    <title>BalPay - Sign In</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="style.css">
@@ -58,7 +58,7 @@
         <div id="main-fiscal-panel">
             <div id="fiscal-expenditure" class="root">
                 <div class="expandable">
-                    <article class="total">Loading...</article>
+                    <article class="total"></article>
                     <article>Expenditure:</article>
                 </div>
                 <div class="subroot" style="max-height:0">
@@ -74,7 +74,7 @@
             </div>
             <div id="fiscal-income" class="root">
                 <div class="expandable">
-                    <article class="total">Loading...</article>
+                    <article class="total"></article>
                     <article>Income:</article>
                 </div>
                 <div class="subroot" style="max-height:0">
@@ -90,7 +90,7 @@
             </div>
             <div id="fiscal-lending" class="root">
                 <div class="expandable">
-                    <article class="total">Loading...</article>
+                    <article class="total"></article>
                     <article>Lending:</article>
                 </div>
                 <div class="subroot" style="max-height:0">
@@ -106,7 +106,7 @@
             </div>
             <div id="fiscal-debt" class="root">
                 <div class="expandable">
-                    <article class="total">Loading...</article>
+                    <article class="total"></article>
                     <article>Debt:</article>
                 </div>
                 <div class="subroot" style="max-height:0">
@@ -121,7 +121,7 @@
                 </div>
             </div>
             <div id="fiscal-balance" class="root" style="pointer-events:none;">
-                <article style="float: right">Loading...</article>
+                <article style="float: right"></article>
                 <article>Balance:</article>
             </div>
         </div>
@@ -135,27 +135,27 @@
         <div class="quater-grid border-list" id="this-month-lists">
             <div>
                 <li>Total Expenditure:</li>
-                <li id="this-month-total-expenditure">Loading...</li>
+                <li id="this-month-total-expenditure"></li>
             </div>
             <div>
                 <li>Total Income:</li>
-                <li id="this-month-total-income">Loading...</li>
+                <li id="this-month-total-income"></li>
             </div>
             <div>
                 <li>Average Expenditure:</li>
-                <li id="this-month-average-expenditure">Loading...</li>
+                <li id="this-month-average-expenditure"></li>
             </div>
             <div>
                 <li>Average Income:</li>
-                <li id="this-month-average-income">Loading...</li>
+                <li id="this-month-average-income"></li>
             </div>
             <div>
                 <li id="this-month-total-balance-text">Balance:</li>
-                <li id="this-month-total-balance">Loading...</li>
+                <li id="this-month-total-balance"></li>
             </div>
             <div>
                 <li id="this-month-average-balance-text">Average Balance:</li>
-                <li id="this-month-average-balance">Loading...</li>
+                <li id="this-month-average-balance"></li>
             </div>
         </div>
         <div class="quater-grid" id="this-month-detail" style="padding-top:8px;">
@@ -168,14 +168,13 @@
         </div>
     </main>
     <footer style="display:none">
-        <li>Made with love &#x1F496;by <a href="https://apskhem.github.io/me" target="_blank" >Apisit Ritreungroj</a></li>
+        <li>Made with love by <a href="https://apskhem.github.io/me" target="_blank" >Apisit Ritreungroj</a></li>
         <li>2019-<div id="copyright-year"></div> &copy BalPay All Rights Reserved.</li>
     </footer>
 
     <script type="text/javascript" src="js/database.js"></script>
-    <script type="text/javascript" src="js/basic.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
     <script type="text/javascript" src="js/form.js"></script>
     <script type="text/javascript" src="js/graph.js"></script>
-    <script type="text/javascript" src="js/devmode.js"></script>
 </body>
 </html>

@@ -47,8 +47,6 @@ function ThisMonthGraph(dataRecords, locationID) {
     data.addColumn("string", "List");
     data.addColumn("number", "Spending");
 
-    console.log(dataRecords)
-
     data.addRows(dataRecords);
 
     const options = {
@@ -63,6 +61,4 @@ function ThisMonthGraph(dataRecords, locationID) {
     let graph = new google.visualization.PieChart(id(locationID));
 
     graph.draw(data, options);
-
-    id(locationID).style.marginTop = "-80px";
 }

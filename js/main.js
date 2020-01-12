@@ -195,7 +195,7 @@ for (const addFiscalList of cl("add-fiscal-list")) {
         input.addEventListener("focusin", inputlist.FocusIn);
         input.addEventListener("focusout", inputlist.FocusOut);
         input.addEventListener("keyup", inputlist.OnEnter);
-        spanCurrency.textContent = " " + defaultCurrency;
+        spanCurrency.textContent = " " + user.settings.currency;
         li1.classList.add("cost");
         li2.textContent = input_title + ":";
         li2.addEventListener("click", DuplicateListToInput);
@@ -272,7 +272,7 @@ function SumValue(channel) {
         for (const cost of id(channel).getElementsByClassName("cost")) {
             total += parseNum(cost.children[0].value);
         }
-        id(channel).getElementsByClassName("total")[0].textContent = visualizeNum(total) + " " + defaultCurrency;
+        id(channel).getElementsByClassName("total")[0].textContent = visualizeNum(total) + " " + user.settings.currency;
     }
     else {
         SumValue("fiscal-expenditure");
@@ -295,17 +295,17 @@ function SumThisMonth() {
         ParseDetail(detailRecords[z--][1], spendingLists.income);
     }
 
-    id("this-month-total-expenditure").textContent = visualizeNum(month.expenditure) + " " + defaultCurrency;
-    id("this-month-total-income").textContent = visualizeNum(month.income) + " " + defaultCurrency;
-    id("this-month-average-expenditure").textContent = visualizeNum(month.expenditure / parseFloat(date[2])) + " " + defaultCurrency;
-    id("this-month-average-income").textContent = visualizeNum(month.income / parseFloat(date[2])) + " " + defaultCurrency;
+    id("this-month-total-expenditure").textContent = visualizeNum(month.expenditure) + " " + user.settings.currency;
+    id("this-month-total-income").textContent = visualizeNum(month.income) + " " + user.settings.currency;
+    id("this-month-average-expenditure").textContent = visualizeNum(month.expenditure / parseFloat(date[2])) + " " + user.settings.currency;
+    id("this-month-average-income").textContent = visualizeNum(month.income / parseFloat(date[2])) + " " + user.settings.currency;
 
     id("this-month-total-balance-text").textContent = (month.income >= month.expenditure) ? "Surplus" : "Deficit";
     id("this-month-total-balance-text").parentElement.style.color = (month.income >= month.expenditure) ? "#097138" : "#9e0000";
-    id("this-month-total-balance").textContent = visualizeNum(Math.abs(month.expenditure - month.income)) + " " + defaultCurrency;
+    id("this-month-total-balance").textContent = visualizeNum(Math.abs(month.expenditure - month.income)) + " " + user.settings.currency;
     id("this-month-average-balance-text").textContent = "Daily Average " + ((month.income >= month.expenditure) ? "Surplus" : "Deficit");
     id("this-month-average-balance-text").parentElement.style.color = (month.income >= month.expenditure) ? "#097138" : "#9e0000";
-    id("this-month-average-balance").textContent = visualizeNum(Math.abs(month.expenditure - month.income)/parseFloat(date[2])) + " " + defaultCurrency;
+    id("this-month-average-balance").textContent = visualizeNum(Math.abs(month.expenditure - month.income)/parseFloat(date[2])) + " " + user.settings.currency;
 
     // create detail list
     for (let type in spendingLists) {
@@ -316,7 +316,7 @@ function SumThisMonth() {
             let li2 = document.createElement("li");
     
             li1.textContent = list + ":";
-            li2.textContent = visualizeNum(spendingLists[type][list]) + " " + defaultCurrency;
+            li2.textContent = visualizeNum(spendingLists[type][list]) + " " + user.settings.currency;
             block.appendChild(li1);
             block.appendChild(li2);
 
@@ -337,7 +337,7 @@ function SumThisMonth() {
         for (let pairVal of detailRow.split(";")) {
             pairVal = pairVal.split("=");
 
-            obj[pairVal[0]] = obj[pairVal[0]] ? obj[pairVal[0]] + parseFloat(pairVal[1]) : parseFloat(pairVal[1]);
+            obj[pairVal[0]] = (obj[pairVal[0]] ? obj[pairVal[0]] : 0) + parseFloat(pairVal[1]);
         }
     }
 
@@ -353,7 +353,7 @@ function SumThisMonth() {
 // adjust the balance and text it
 function UpdateBalance() {
     finance.balance.result = finance.balance.final - GetTotalValue("fiscal-expenditure") + GetTotalValue("fiscal-income");
-    id("fiscal-balance").children[0].textContent = visualizeNum(finance.balance.result) + " " + defaultCurrency;
+    id("fiscal-balance").children[0].textContent = visualizeNum(finance.balance.result) + " " + user.settings.currency;
 }
 
 function GetTotalValue(channel) {
@@ -383,12 +383,6 @@ for (const expandable of cl("expandable")) {
         let detailList = this.nextElementSibling;
         detailList.style.maxHeight = (detailList.style.maxHeight == "0px") ? detailList.scrollHeight + "px" : 0;
     });
-}
-
-// write the currency
-let defaultCurrency = "THB";
-for (const tagname of tn("span")) {
-    tagname.textContent = defaultCurrency;
 }
 
 function KeyToEnterTitle(obj) {

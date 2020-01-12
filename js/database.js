@@ -1,5 +1,5 @@
 // sever side variable(s)
-let user = "";
+let user = {};
 let records = [];
 let detailRecords = [];
 
@@ -100,8 +100,8 @@ const Database = {
             dataType: "jsonp"
         });
     },
-    GetUserRecordData: function() {
-        const req = {"user": user};
+    GetUserRecordData: function(userID) {
+        const req = {"user": userID};
     
         $.getJSON(url.Format(req, "read"), (json) => {
             let finalRecordDate;
@@ -165,6 +165,15 @@ const Database = {
             SumThisMonth();
             isReadingRecordsCompleted = true;
 
+            // display main screen
+            tn("main")[0].style.display = "block";
+            tn("footer")[0].style.display = "block";
+            id("form").style.display = "none";
+    
+            // init user settings
+            tn("title")[0].textContent = "Balpay - " + user.fullname;
+            id("fullname").textContent = user.fullname;
+
             // close all newly created list
             for (const expandable of cl("expandable")) {
                 expandable.nextElementSibling.style.maxHeight = 0;
@@ -211,7 +220,6 @@ const Database = {
     }
 }
 
-// never use
 const requestResponse = {
     Feedback: (res) => {
         console.log(res.result);
@@ -232,28 +240,21 @@ const requestResponse = {
             }
         }
         else if (res.result == "pass") { // if sign in form is corrected
-            user = id("signin-userid").value;
-    
-            Database.GetUserRecordData();
-    
-            tn("main")[0].style.display = "block";
-            tn("footer")[0].style.display = "block";
-            id("form").style.display = "none";
-    
-            // init user settings
-            tn("title")[0].textContent = "Balpay - " + res.userData.FULLNAME;
-            id("fullname").textContent = res.userData.FULLNAME;
-    
-            const userSettings = ParseUserSettings(res.userData.USER_SETTINGS);
-    
-            defaultCurrency = userSettings.currency;
-            for (const tagname of tn("span")) {
-                tagname.textContent = defaultCurrency;
+            id("signin-button").textContent = "Initializing...";
+
+            Database.GetUserRecordData(res.userData.USERID);
+
+            // store user data
+            user = {
+                id: res.userData.USERID,
+                fullname: res.userData.FULLNAME,
+                email: res.userData.EMAIL,
+                settings: ParseUserSettings(res.userData.USER_SETTINGS)
             }
         }
     
         function ParseUserSettings(dataObj) {
-            let parsedObj = new Object();
+            let parsedObj = {};
             for (let pairVal of dataObj.split(";")) {
                 pairVal = pairVal.split("=");
                 parsedObj[pairVal[0]] = pairVal[1];
