@@ -17,3 +17,5 @@ R2B006 - Sat. 11 Jan. 2020
 - Add more statistics information.
 R2B006.1 - Sun. 12 Jan. 2020
 - minor bug fixed.
+R2B006.2 - Mon. 13 Jan. 2020
+- critical bugs fixed

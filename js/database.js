@@ -56,7 +56,7 @@ let url = new RequestURL("https://script.google.com/macros/s/AKfycbx8PNkzqprtcF5
 const Database = {
     Insert: function() {
         const req = {
-            "user": user,
+            "user": user.id,
             "date": GetCurrentDate(),
             "balance": finance.balance.final,
             "expenditure": 0,
@@ -71,7 +71,7 @@ const Database = {
 
         jQuery.ajax({
             crossDomain: true,
-            url: url.Format(req, "insert", "requestResponse.Feedback"),
+            url: url.Format(req, "INSERT", "requestResponse.Feedback"),
             method: "GET",
             dataType: "jsonp"
         });
@@ -80,7 +80,7 @@ const Database = {
         if (isDevmode) return;
 
         const req = {
-            "user": user,
+            "user": user.id,
             "date": GetCurrentDate(),
             "balance": finance.balance.result,
             "expenditure": GetTotalValue("fiscal-expenditure"),
@@ -95,7 +95,7 @@ const Database = {
     
         jQuery.ajax({
             crossDomain: true,
-            url: url.Format(req, "update", "requestResponse.Feedback"),
+            url: url.Format(req, "UPDATE", "requestResponse.Feedback"),
             method: "GET",
             dataType: "jsonp"
         });
@@ -103,7 +103,7 @@ const Database = {
     GetUserRecordData: function(userID) {
         const req = {"user": userID};
     
-        $.getJSON(url.Format(req, "read"), (json) => {
+        $.getJSON(url.Format(req, "READ"), (json) => {
             let finalRecordDate;
             for (const dataRow of json.records) {
                 records.push([
@@ -213,7 +213,7 @@ const Database = {
     
         jQuery.ajax({
             crossDomain: true,
-            url: url.Format(req, "signIn", "requestResponse.SignIn"),
+            url: url.Format(req, "SIGN_IN", "requestResponse.SignIn"),
             method: "GET",
             dataType: "jsonp"
         });
