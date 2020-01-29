@@ -62,20 +62,7 @@ function FormatDate(date) {
     return `${d[2]} ${m} ${d[0]}`;
 }
 
-// update list function
-function UpdatingListObject(element) {
-    if (element) {
-        updatingListObject = element;
-        updatingListObject.style.opacity = "0.5";
-    }
-}
 
-function UpdatedListObject() {
-    if (updatingListObject) {
-        updatingListObject.style.opacity = "1";
-        updatingListObject = undefined;
-    }
-}
 
 // --------------------------- //
 //  Core Fundamental Functions //
@@ -113,7 +100,7 @@ let inputlist = {
             SumThisMonth();
 
             if (this) {
-                UpdatingListObject(detailObject);
+                pendingList.Push(detailObject);
             }
     
             Database.Update();
@@ -160,7 +147,7 @@ for (const addFiscalList of cl("add-fiscal-list")) {
                         UpdateBalance();
                         UpdateChart();
                         SumThisMonth();
-                        UpdatingListObject(rootList);
+                        pendingList.Push(rootList);
                         Database.Update();
                     }
                     else if (parseNum(rootList.getElementsByTagName("input")[0].value) + parseNum(input_amount) == 0) {
@@ -215,7 +202,7 @@ for (const addFiscalList of cl("add-fiscal-list")) {
         if (isReadingRecordsCompleted) {
             UpdateChart();
             SumThisMonth();
-            UpdatingListObject(rootdiv);
+            pendingList.Push(rootdiv);
             Database.Update();
         }
 
@@ -325,7 +312,7 @@ function SumThisMonth() {
     }
 
     // redraw this month chart
-    google.charts.setOnLoadCallback(function() {
+    google.charts.setOnLoadCallback(() => {
         ThisMonthGraph(Object2Array(spendingLists.expenditure), "this-month-expenditure-graph");
         ThisMonthGraph(Object2Array(spendingLists.income), "this-month-income-graph");
     });

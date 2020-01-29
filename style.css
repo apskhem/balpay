@@ -308,3 +308,13 @@ article {
 #signup-form-options > li {
     cursor: pointer;
 }
+
+#this-month-expenditure-detail {
+    padding-left: 8px;
+    border-left: 3px solid #9e0000;
+}
+
+#this-month-income-detail {
+    padding-left: 8px;
+    border-left: 3px solid #097138;
+}

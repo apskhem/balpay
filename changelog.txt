@@ -16,6 +16,9 @@ R2B005 - Fri. 3 Jan. 2020
 R2B006 - Sat. 11 Jan. 2020
 - Add more statistics information.
 R2B006.1 - Sun. 12 Jan. 2020
-- minor bug fixed.
+- Minor bug fixed.
 R2B006.2 - Mon. 13 Jan. 2020
-- critical bugs fixed
+- Critical bugs fixed.
+R2B006.3 - Wed. 29 Jan. 2020
+- Minor bugs fixed.
+- Change interface apperance (minor).

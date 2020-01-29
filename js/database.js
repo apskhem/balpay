@@ -25,11 +25,35 @@ let detail = {
 // systematic variable(s)
 let isReadingRecordsCompleted = false;
 
-let updatingListObject;
-
 function GetCurrentDate() {
     let time = new Date();
     return time.getFullYear() + "." + time.getMonth() + "." + time.getDate();
+}
+
+// update list function
+class PendingList {
+    constructor() {
+        this.pendingList = [];
+    }
+
+    Push(element) {
+        if (element) {
+            for (const list of this.pendingList) {
+                if (element == list) return;
+            }
+
+            this.pendingList.push(element);
+            element.style.opacity = "0.5";
+        }
+    }
+
+    Pop() {
+        if (this.pendingList.length > 0) {
+            const element = this.pendingList.shift();
+            element.style.opacity = "1";
+            return element;
+        }
+    }
 }
 
 class RequestURL {
@@ -52,9 +76,10 @@ class RequestURL {
 }
 
 let url = new RequestURL("https://script.google.com/macros/s/AKfycbx8PNkzqprtcF5xIjbkvHszP6P5ggWwaAsXdB-fpf7g9BA3bbHT/exec");
+let pendingList = new PendingList();
 
 const Database = {
-    Insert: function() {
+    Insert() {
         const req = {
             "user": user.id,
             "date": GetCurrentDate(),
@@ -76,7 +101,7 @@ const Database = {
             dataType: "jsonp"
         });
     },
-    Update: function() {
+    Update() {
         if (isDevmode) return;
 
         const req = {
@@ -100,7 +125,7 @@ const Database = {
             dataType: "jsonp"
         });
     },
-    GetUserRecordData: function(userID) {
+    GetUserRecordData(userID) {
         const req = {"user": userID};
     
         $.getJSON(url.Format(req, "READ"), (json) => {
@@ -205,7 +230,7 @@ const Database = {
             }
         }
     },
-    GetUserSettingsData: function() {
+    GetUserSettingsData() {
         const req = {
             "userid": id("signin-userid").value,
             "password": id("signin-password").value
@@ -221,11 +246,11 @@ const Database = {
 }
 
 const requestResponse = {
-    Feedback: (res) => {
+    Feedback(res) {
         console.log(res.result);
-        UpdatedListObject();
+        pendingList.Pop();
     },
-    SignIn: (res) => {
+    SignIn(res) {
         id("signin-userid").disabled = false;
         id("signin-password").disabled = false;
     
