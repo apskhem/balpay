@@ -1,96 +1,116 @@
 const id = (id) => document.getElementById(id);
 const cl = (cl) => document.getElementsByClassName(cl);
 const tn = (tn) => document.getElementsByTagName(tn);
+const create = (tn) => document.createElement(tn);
 
-window.onerror = (msg, url, lineNo, columnNo, error) => alert(msg);
+window.onerror = (msg, url, lineNo, columnNo, error) => alert(`${msg}\nAT: ${lineNo}-${columnNo} ${url.split("/").pop()}`);
 
 document.documentElement.addEventListener("keyup", (e) => {
     if (e.code === "Backquote") location.reload();
-})
+});
+
+class AutomaticSystem {
+    static Copyright(element, startYear) {
+        const recentYear = new Date().getFullYear();
+        element.textContent = (startYear === recentYear) ? startYear : `${startYear}-${recentYear}`;
+    }
+}
+
+class AppToolset {
+    static ReadableNum(num) {
+        num = parseFloat(num).toFixed(2).toString().split(".");
+        let textNum = num[0];
+        let sum = "";
+    
+        let lastDigit = textNum.length - 1;
+        for (let i = 0; i < textNum.length; i++) {
+            sum += textNum[i] + (((lastDigit - i) % 3 === 0 && i != lastDigit) ? ",": "");
+        }
+        
+        return `${sum}.${num[1]}`;
+    }
+
+    static ParseNum(readable) {
+        return parseFloat(readable.replace(/[,]/g, ""));
+    }
+
+    static get currentDate() {
+        let time = new Date();
+        return time.getFullYear() + "." + time.getMonth() + "." + time.getDate();
+    }
+
+    static FormatDate(date) {
+        let d = date.split(".");
+        switch (d[1]) {
+            case "0": d[1] = "January"; break;
+            case "1": d[1] = "February"; break;
+            case "2": d[1] = "March"; break;
+            case "3": d[1] = "April"; break;
+            case "4": d[1] = "May"; break;
+            case "5": d[1] = "June"; break;
+            case "6": d[1] = "July"; break;
+            case "7": d[1] = "August"; break;
+            case "8": d[1] = "September"; break;
+            case "9": d[1] = "October"; break;
+            case "10": d[1] = "November"; break;
+            case "11": d[1] = "December"; break;
+        }
+        return `${d[2]} ${d[1]} ${d[0]}`;
+    }
+
+    static ParseDetail(detailRow, obj) {
+        if (detailRow === "") return;
+
+        for (let pairVal of detailRow.split(";")) {
+            pairVal = pairVal.split("=");
+
+            obj[pairVal[0]] = (obj[pairVal[0]] ? obj[pairVal[0]] : 0) + +pairVal[1];
+        }
+    }
+
+    static Object2Array(obj) {
+        let arr = [];
+        for (let key in obj) {
+            arr.push([key, obj[key]]);
+        }
+        return arr;
+    }
+}
 
 // ------------------ //
 //  Initial Functions //
 // ------------------ //
 
-id("today-date").textContent = FormatDate(GetCurrentDate());
-id("copyright-year").textContent = GetCurrentDate().split(".")[0];
-
-// ----------------- //
-//  Helper Functions //
-// ----------------- //
-
-const visualizeNum = (num) => { // format number to text ex. 1,000.00
-    num = parseFloat(num).toFixed(2).toString().split(".");
-    let textNum = num[0];
-    let sum = "";
-
-    let lastDigit = textNum.length - 1;
-    for (let i = 0; i < textNum.length; i++) {
-        sum += textNum[i] + (((lastDigit - i) % 3 == 0 && i != lastDigit) ? ",": "");
-    }
-    
-    return `${sum}.${num[1]}`;
-}
-
-// parse value to num of visualized value
-const parseNum = (visualizedValue) => parseFloat(visualizedValue.replace(/[,]/g, ""));
-
-function DuplicateListToInput() {
-    let textInputOfTheList = this.parentElement.parentElement.nextElementSibling.children[0];
-    let numberInputOfTheList = this.parentElement.parentElement.nextElementSibling.children[1]; // not fixed
-    textInputOfTheList.value = this.textContent.replace(":", "");
-    numberInputOfTheList.focus();
-}
-
-function FormatDate(date) {
-    let d = date.split(".");
-    let m = "";
-    switch (d[1]) {
-        case "0": m = "January"; break;
-        case "1": m = "February"; break;
-        case "2": m = "March"; break;
-        case "3": m = "April"; break;
-        case "4": m = "May"; break;
-        case "5": m = "June"; break;
-        case "6": m = "July"; break;
-        case "7": m = "August"; break;
-        case "8": m = "September"; break;
-        case "9": m = "October"; break;
-        case "10": m = "November"; break;
-        case "11": m = "December"; break;
-    }
-    return `${d[2]} ${m} ${d[0]}`;
-}
-
-
+id("today-date").textContent = AppToolset.FormatDate(AppToolset.currentDate);
+AutomaticSystem.Copyright(id("copyright-year"), 2019);
 
 // --------------------------- //
 //  Core Fundamental Functions //
 // --------------------------- //
 
-let backupValue = 0;
-let inputlist = {
-    FocusOut: function() {
+const inputlist = {
+    backupValue: "0",
+    FocusOut() {
         const detailObject = this.parentElement.parentElement;
         const channel = this.parentElement.parentElement.parentElement.parentElement.parentElement.id;
 
-        if (this.value == backupValue) {
+        if (this.value === inputlist.backupValue) {
             this.type = "text";
-            this.value = visualizeNum(this.value);
+            this.value = AppToolset.ReadableNum(this.value);
             return;
         }
-        else if (this.value == 0) {
+        else if (this.value === "0") {
             detailObject.parentElement.removeChild(detailObject);
             FinalizeList();
             return;
         }
-        else if (this.value < 0 || this.value == "" || this.value == null) {
-            this.value = backupValue;
+        else if (this.value < 0 || this.value === "") {
+            this.value = inputlist.backupValue;
             return;
         }
 
         this.type = "text";
-        this.value = visualizeNum(this.value);
+        this.value = AppToolset.ReadableNum(this.value);
         FinalizeList();
 
         function FinalizeList() {
@@ -106,12 +126,12 @@ let inputlist = {
             Database.Update();
         }
     },
-    FocusIn: function() {
-        this.value = parseNum(this.value);
+    FocusIn() {
+        this.value = AppToolset.ParseNum(this.value);
         this.type = "number";
-        backupValue = this.value;
+        inputlist.backupValue = this.value;
     },
-    OnEnter: function(event) {
+    OnEnter(event) {
         if (event.code === "Enter") {
             this.blur();
         }
@@ -124,24 +144,24 @@ for (const addFiscalList of cl("add-fiscal-list")) {
         let input_title = this.previousElementSibling.previousElementSibling.value;
         let input_amount = this.previousElementSibling.value;
 
-        if (input_title == "") return;
-        if (input_amount == "") return;
+        if (input_title === "") return;
+        if (input_amount === "") return;
 
         if (isReadingRecordsCompleted) {
             const subroot = this.parentElement.parentElement;
             for (const rootList of subroot.getElementsByClassName("root-list")) {
                 const existed_title = rootList.children[0].textContent.replace(/[:]/g, "");
-                if (input_title == existed_title) {
+                if (input_title === existed_title) {
                     // (if existed value + new input value) is more than or equal 0
-                    if (parseNum(rootList.getElementsByTagName("input")[0].value) + parseNum(input_amount) > 0) {
+                    if (AppToolset.ParseNum(rootList.getElementsByTagName("input")[0].value) + AppToolset.ParseNum(input_amount) > 0) {
                         let listObj = rootList.getElementsByTagName("input")[0];
 
                         // value in
-                        listObj.value = parseNum(listObj.value) + parseNum(input_amount);
+                        listObj.value = AppToolset.ParseNum(listObj.value) + AppToolset.ParseNum(input_amount);
 
                         // value out
                         listObj.type = "text";
-                        listObj.value = visualizeNum(listObj.value);
+                        listObj.value = AppToolset.ReadableNum(listObj.value);
 
                         SumValue(subroot.parentElement.id);
                         UpdateBalance();
@@ -150,7 +170,7 @@ for (const addFiscalList of cl("add-fiscal-list")) {
                         pendingList.Push(rootList);
                         Database.Update();
                     }
-                    else if (parseNum(rootList.getElementsByTagName("input")[0].value) + parseNum(input_amount) == 0) {
+                    else if (AppToolset.ParseNum(rootList.getElementsByTagName("input")[0].value) + AppToolset.ParseNum(input_amount) === 0) {
                         rootList.parentElement.removeChild(rootList);
 
                         SumValue(subroot.parentElement.id);
@@ -171,13 +191,13 @@ for (const addFiscalList of cl("add-fiscal-list")) {
         ResetInputNewList(this.previousElementSibling);
 
         // create new list element
-        let rootdiv = document.createElement("div");
-        let input = document.createElement("input");
-        let li1 = document.createElement("li");
-        let li2 = document.createElement("li");
-        let spanCurrency = document.createElement("span");
+        let rootdiv = create("div");
+        let input = create("input");
+        let li1 = create("li");
+        let li2 = create("li");
+        let spanCurrency = create("span");
 
-        input.value = visualizeNum(input_amount);
+        input.value = AppToolset.ReadableNum(input_amount);
         input.min = "0";
         input.addEventListener("focusin", inputlist.FocusIn);
         input.addEventListener("focusout", inputlist.FocusOut);
@@ -212,28 +232,28 @@ for (const addFiscalList of cl("add-fiscal-list")) {
             obj.previousElementSibling.blur();
             obj.blur();
         }
+
+        function DuplicateListToInput() {
+            const textInputOfTheList = this.parentElement.parentElement.nextElementSibling.children[0];
+            const numberInputOfTheList = this.parentElement.parentElement.nextElementSibling.children[1]; // not fixed
+            textInputOfTheList.value = this.textContent.replace(":", "");
+            numberInputOfTheList.focus();
+        }
     });
 }
 
 // create spend list in defined channel
 function CreateList(channel, title, amount) {
-    switch (channel) {
-        case "fiscal-expenditure": CreatePosition(cl("create-list-grid")[0]); break;
-        case "fiscal-income": CreatePosition(cl("create-list-grid")[1]); break;
-        case "fiscal-lending": CreatePosition(cl("create-list-grid")[2]); break;
-        case "fiscal-debt": CreatePosition(cl("create-list-grid")[3]); break;
-    }
+    const ch = id(channel).getElementsByClassName("create-list-grid")[0];
 
-    function CreatePosition(ch) {
-        ch.children[0].value = title;
-        ch.children[1].value = amount;
-        ch.children[2].click();
-    }
+    ch.children[0].value = title;
+    ch.children[1].value = amount;
+    ch.children[2].click();
 }
 
 function UpdateChart() {
     records[records.length - 1] = [
-        new Date(...GetCurrentDate().split(".")),
+        new Date(...AppToolset.currentDate.split(".")),
         finance.balance.result,
         GetTotalValue("fiscal-expenditure"),
         GetTotalValue("fiscal-income"),
@@ -257,9 +277,9 @@ function SumValue(channel) {
     if (channel) {
         let total = 0;
         for (const cost of id(channel).getElementsByClassName("cost")) {
-            total += parseNum(cost.children[0].value);
+            total += AppToolset.ParseNum(cost.children[0].value);
         }
-        id(channel).getElementsByClassName("total")[0].textContent = visualizeNum(total) + " " + user.settings.currency;
+        id(channel).getElementsByClassName("total")[0].textContent = AppToolset.ReadableNum(total) + " " + user.settings.currency;
     }
     else {
         SumValue("fiscal-expenditure");
@@ -270,40 +290,40 @@ function SumValue(channel) {
 }
 
 function SumThisMonth() {
-    let date = GetCurrentDate().split(".");
+    let date = AppToolset.currentDate.split(".");
     let month = {expenditure: 0, income: 0};
-    let spendingLists = {expenditure: new Object(), income: new Object()};
+    let spendingLists = {expenditure: {}, income: {}};
 
     let z = records.length - 1;
     while (records[z][0].getMonth() == date[1]) {
         month.expenditure += records[z][2];
         month.income += records[z][3];
-        ParseDetail(detailRecords[z][0], spendingLists.expenditure);
-        ParseDetail(detailRecords[z--][1], spendingLists.income);
+        AppToolset.ParseDetail(detailRecords[z][0], spendingLists.expenditure);
+        AppToolset.ParseDetail(detailRecords[z--][1], spendingLists.income);
     }
 
-    id("this-month-total-expenditure").textContent = visualizeNum(month.expenditure) + " " + user.settings.currency;
-    id("this-month-total-income").textContent = visualizeNum(month.income) + " " + user.settings.currency;
-    id("this-month-average-expenditure").textContent = visualizeNum(month.expenditure / parseFloat(date[2])) + " " + user.settings.currency;
-    id("this-month-average-income").textContent = visualizeNum(month.income / parseFloat(date[2])) + " " + user.settings.currency;
+    id("this-month-total-expenditure").textContent = AppToolset.ReadableNum(month.expenditure) + " " + user.settings.currency;
+    id("this-month-total-income").textContent = AppToolset.ReadableNum(month.income) + " " + user.settings.currency;
+    id("this-month-average-expenditure").textContent = AppToolset.ReadableNum(month.expenditure / +date[2]) + " " + user.settings.currency;
+    id("this-month-average-income").textContent = AppToolset.ReadableNum(month.income / +date[2]) + " " + user.settings.currency;
 
     id("this-month-total-balance-text").textContent = (month.income >= month.expenditure) ? "Surplus" : "Deficit";
     id("this-month-total-balance-text").parentElement.style.color = (month.income >= month.expenditure) ? "#097138" : "#9e0000";
-    id("this-month-total-balance").textContent = visualizeNum(Math.abs(month.expenditure - month.income)) + " " + user.settings.currency;
+    id("this-month-total-balance").textContent = AppToolset.ReadableNum(Math.abs(month.expenditure - month.income)) + " " + user.settings.currency;
     id("this-month-average-balance-text").textContent = "Daily Average " + ((month.income >= month.expenditure) ? "Surplus" : "Deficit");
     id("this-month-average-balance-text").parentElement.style.color = (month.income >= month.expenditure) ? "#097138" : "#9e0000";
-    id("this-month-average-balance").textContent = visualizeNum(Math.abs(month.expenditure - month.income)/parseFloat(date[2])) + " " + user.settings.currency;
+    id("this-month-average-balance").textContent = AppToolset.ReadableNum(Math.abs(month.expenditure - month.income)/ +date[2]) + " " + user.settings.currency;
 
     // create detail list
     for (let type in spendingLists) {
         id(`this-month-${type}-detail`).innerHTML = "";
         for (let list in spendingLists[type]) {
-            let block = document.createElement("div");
-            let li1 = document.createElement("li");
-            let li2 = document.createElement("li");
+            let block = create("div");
+            let li1 = create("li");
+            let li2 = create("li");
     
             li1.textContent = list + ":";
-            li2.textContent = visualizeNum(spendingLists[type][list]) + " " + user.settings.currency;
+            li2.textContent = AppToolset.ReadableNum(spendingLists[type][list]) + " " + user.settings.currency;
             block.appendChild(li1);
             block.appendChild(li2);
 
@@ -313,38 +333,19 @@ function SumThisMonth() {
 
     // redraw this month chart
     google.charts.setOnLoadCallback(() => {
-        ThisMonthGraph(Object2Array(spendingLists.expenditure), "this-month-expenditure-graph");
-        ThisMonthGraph(Object2Array(spendingLists.income), "this-month-income-graph");
+        ThisMonthGraph(AppToolset.Object2Array(spendingLists.expenditure), "this-month-expenditure-graph");
+        ThisMonthGraph(AppToolset.Object2Array(spendingLists.income), "this-month-income-graph");
     });
-
-    // helper functions
-    function ParseDetail(detailRow, obj) {
-        if (detailRow == "") return;
-
-        for (let pairVal of detailRow.split(";")) {
-            pairVal = pairVal.split("=");
-
-            obj[pairVal[0]] = (obj[pairVal[0]] ? obj[pairVal[0]] : 0) + parseFloat(pairVal[1]);
-        }
-    }
-
-    function Object2Array(obj) {
-        let arr = [];
-        for (let key in obj) {
-            arr.push([key, obj[key]]);
-        }
-        return arr;
-    }
 }
 
 // adjust the balance and text it
 function UpdateBalance() {
     finance.balance.result = finance.balance.final - GetTotalValue("fiscal-expenditure") + GetTotalValue("fiscal-income");
-    id("fiscal-balance").children[0].textContent = visualizeNum(finance.balance.result) + " " + user.settings.currency;
+    id("fiscal-balance").children[0].textContent = AppToolset.ReadableNum(finance.balance.result) + " " + user.settings.currency;
 }
 
 function GetTotalValue(channel) {
-    return parseNum(id(channel).getElementsByClassName("total")[0].textContent);
+    return AppToolset.ParseNum(id(channel).getElementsByClassName("total")[0].textContent);
 }
 
 // get database-keyed spending detail
@@ -352,7 +353,7 @@ function GetDetails(channel) {
     let detail = "";
     for (let i = 0; i < id(channel).getElementsByClassName("root-list").length; i++) {
         const rootList = id(channel).getElementsByClassName("root-list")[i];
-        detail += rootList.firstChild.textContent.replace(/[:]/g, "") + "=" + parseNum(rootList.getElementsByTagName("input")[0].value);
+        detail += rootList.firstChild.textContent.replace(/[:]/g, "") + "=" + AppToolset.ParseNum(rootList.getElementsByTagName("input")[0].value);
 
         if (i < id(channel).getElementsByClassName("root-list").length - 1)
             detail += ";";
@@ -368,16 +369,16 @@ function GetDetails(channel) {
 for (const expandable of cl("expandable")) {
     expandable.addEventListener("click", function() {
         let detailList = this.nextElementSibling;
-        detailList.style.maxHeight = (detailList.style.maxHeight == "0px") ? detailList.scrollHeight + "px" : 0;
+        detailList.style.maxHeight = (detailList.style.maxHeight === "0px") ? detailList.scrollHeight + "px" : 0;
     });
 }
 
 function KeyToEnterTitle(obj) {
-    if (event.keyCode == 13)
+    if (event.keyCode === 13)
         obj.nextElementSibling.focus();
 }
 
 function KeyToEnterAmount(obj) {
-    if (event.keyCode == 13)
+    if (event.keyCode === 13)
         obj.nextElementSibling.click();
 }

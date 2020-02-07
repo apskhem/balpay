@@ -12,21 +12,21 @@
     <link rel="shortcut icon" type="image/x-icon" href="icon.png"/>
 </head>
 <body>
-    <div id="form">
+    <header id="form">
         <div id="form-frame">
-            <div id="signin-form">
-                <li class="head-text">Sign in to BalPay</li>
+            <section id="signin-form">
+                <li class="head-text">SIGN IN TO BALPAY</li>
                 <li>Enter Your ID</li>
                 <input id="signin-userid" type="text" placeholder="Username">
                 <li>Enter Password</li>
                 <input id="signin-password" type="password" placeholder="Password">
-                <div id="signin-form-options">
-                    <li style="float:right;" onclick="SignUp()">Sign up</li>
-                    <li style="text-align:left">Forgot my password</li>
+                <div class="form-options">
+                    <span onclick="Form.DisplayForgotPassword()">Forgot my password</span>
+                    <span onclick="Form.DisplaySignUp()">Sign up</span>
                 </div>
-                <div id="signin-button">Sign in</div>
-            </div>
-            <div id="signup-form" style="display:none">
+                <div class="comfirm-button" onclick="Form.SignInCheck()">Sign in</div>
+            </section>
+            <section id="signup-form" style="display:none">
                 <li class="head-text">Sign up</li>
                 <li>Full Name</li>
                 <input id="signup-fullname" type="text" placeholder="Full Name">
@@ -38,23 +38,23 @@
                 <input id="signup-email" type="text" placeholder="Email">
                 <li>Currency</li>
                 <input id="signup-currency" type="text" placeholder="Currency THB, USD, GBP etc.">
-                <div id="signup-form-options">
-                    <li style="text-align:left;" onclick="BackToSignIn()">Back to sign in</li>
+                <div class="form-options">
+                    <span onclick="Form.DisplaySignIn()">Back to sign in</span>
                 </div>
-                <div id="signup-button" onclick="SignUpCheck()">Sign up</div>
-            </div>
-            <div id="forgotmypassword-form" style="display:none">
+                <div class="comfirm-button" onclick="Form.SignUpCheck()">Sign up</div>
+            </section>
+            <section id="forgotmypassword-form" style="display:none">
             
-            </div>
+            </section>
         </div>
-    </div>
+    </header>
     <main>
         <div id="user-panel">
             <div style="float:right" id="today-date"></div>
             <i class="fas fa-user-circle" id="user-icon"></i>
             <li id="fullname" style="display:inline;">%fullname%</li>
         </div>
-        
+        <hr>
         <div id="main-fiscal-panel">
             <div id="fiscal-expenditure" class="root">
                 <div class="expandable">
@@ -125,38 +125,38 @@
                 <article>Balance:</article>
             </div>
         </div>
-
+        <hr>
         <h1>Statistics</h1>
         <div id="main_statistics">
             <li>Loading Statistics...</li>
         </div>
-
+        <hr>
         <h1>This Month</h1>
         <div class="quater-grid border-list" id="this-month-lists">
-            <div>
-                <li>Total Expenditure:</li>
-                <li id="this-month-total-expenditure"></li>
-            </div>
-            <div>
-                <li>Total Income:</li>
-                <li id="this-month-total-income"></li>
-            </div>
-            <div>
-                <li>Average Expenditure:</li>
-                <li id="this-month-average-expenditure"></li>
-            </div>
-            <div>
-                <li>Average Income:</li>
-                <li id="this-month-average-income"></li>
-            </div>
-            <div>
-                <li id="this-month-total-balance-text">Balance:</li>
-                <li id="this-month-total-balance"></li>
-            </div>
-            <div>
-                <li id="this-month-average-balance-text">Average Balance:</li>
-                <li id="this-month-average-balance"></li>
-            </div>
+            <aside>
+                <span>Total Expenditure:</span>
+                <span id="this-month-total-expenditure"></span>
+            </aside>
+            <aside>
+                <span>Total Income:</span>
+                <span id="this-month-total-income"></span>
+            </aside>
+            <aside>
+                <span>Average Expenditure:</span>
+                <span id="this-month-average-expenditure"></span>
+            </aside>
+            <aside>
+                <span>Average Income:</span>
+                <span id="this-month-average-income"></span>
+            </aside>
+            <aside>
+                <span id="this-month-total-balance-text">Balance:</span>
+                <span id="this-month-total-balance"></span>
+            </aside>
+            <aside>
+                <span id="this-month-average-balance-text">Average Balance:</span>
+                <span id="this-month-average-balance"></span>
+            </aside>
         </div>
         <div class="quater-grid" id="this-month-detail" style="padding-top:8px;">
             <div id="this-month-expenditure-detail"></div>
@@ -169,7 +169,7 @@
     </main>
     <footer style="display:none">
         <li>Made with love by <a href="https://apskhem.github.io/me" target="_blank" >Apisit Ritreungroj</a></li>
-        <li>2019-<div id="copyright-year"></div> &copy BalPay All Rights Reserved.</li>
+        <li><span id="copyright-year"></span> &copy BalPay All Rights Reserved.</li>
     </footer>
 
     <script type="text/javascript" src="js/database.js"></script>

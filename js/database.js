@@ -25,11 +25,6 @@ let detail = {
 // systematic variable(s)
 let isReadingRecordsCompleted = false;
 
-function GetCurrentDate() {
-    let time = new Date();
-    return time.getFullYear() + "." + time.getMonth() + "." + time.getDate();
-}
-
 // update list function
 class PendingList {
     constructor() {
@@ -39,7 +34,7 @@ class PendingList {
     Push(element) {
         if (element) {
             for (const list of this.pendingList) {
-                if (element == list) return;
+                if (element in list) return;
             }
 
             this.pendingList.push(element);
@@ -78,11 +73,11 @@ class RequestURL {
 let url = new RequestURL("https://script.google.com/macros/s/AKfycbx8PNkzqprtcF5xIjbkvHszP6P5ggWwaAsXdB-fpf7g9BA3bbHT/exec");
 let pendingList = new PendingList();
 
-const Database = {
-    Insert() {
+class Database {
+    static Insert() {
         const req = {
             "user": user.id,
-            "date": GetCurrentDate(),
+            "date": AppToolset.currentDate,
             "balance": finance.balance.final,
             "expenditure": 0,
             "income": 0,
@@ -96,17 +91,18 @@ const Database = {
 
         jQuery.ajax({
             crossDomain: true,
-            url: url.Format(req, "INSERT", "requestResponse.Feedback"),
+            url: url.Format(req, "INSERT", "RequestResponse.Feedback"),
             method: "GET",
             dataType: "jsonp"
         });
-    },
-    Update() {
+    }
+
+    static Update() {
         if (isDevmode) return;
 
         const req = {
             "user": user.id,
-            "date": GetCurrentDate(),
+            "date": AppToolset.currentDate,
             "balance": finance.balance.result,
             "expenditure": GetTotalValue("fiscal-expenditure"),
             "income": GetTotalValue("fiscal-income"),
@@ -120,12 +116,13 @@ const Database = {
     
         jQuery.ajax({
             crossDomain: true,
-            url: url.Format(req, "UPDATE", "requestResponse.Feedback"),
+            url: url.Format(req, "UPDATE", "RequestResponse.Feedback"),
             method: "GET",
             dataType: "jsonp"
         });
-    },
-    GetUserRecordData(userID) {
+    }
+
+    static GetUserRecordData(userID) {
         const req = {"user": userID};
     
         $.getJSON(url.Format(req, "READ"), (json) => {
@@ -147,7 +144,7 @@ const Database = {
                     dataRow.DETAIL_DEBT
                 ]);
     
-                if (json.records.indexOf(dataRow) == json.records.length - 1) { // is today
+                if (json.records.indexOf(dataRow) === json.records.length - 1) { // is today
                     finalRecordDate = dataRow.DATE;
                     finance.balance.today = dataRow.BALANCE;
                     finance.expenditure = dataRow.EXPENDITURE;
@@ -159,19 +156,19 @@ const Database = {
                     detail.lending = dataRow.DETAIL_LENDING;
                     detail.debt = dataRow.DETAIL_DEBT;
                 }
-                if (json.records.indexOf(dataRow) == json.records.length - 2) { // is previous day
+                if (json.records.indexOf(dataRow) === json.records.length - 2) { // is previous day
                     finance.balance.final = dataRow.BALANCE;
                 }
             }
     
-            if (GetCurrentDate() == finalRecordDate) {
+            if (AppToolset.currentDate === finalRecordDate) {
                 for (const financeList in detail) {
                     ParseAndCreateList("fiscal-" + financeList, finance[financeList], detail[financeList]);
                 }             
                 SumValue();
             }
             else { // create new list for new day
-                records.push([new Date(...GetCurrentDate().split(".")), finance.balance.today, 0, 0, finance.lending, finance.debt]);
+                records.push([new Date(...AppToolset.currentDate.split(".")), finance.balance.today, 0, 0, finance.lending, finance.debt]);
                 detailRecords.push(["", "", detail.lending, detail.debt]);
 
                 finance.balance.final = finance.balance.today;
@@ -209,7 +206,7 @@ const Database = {
         function ParseAndCreateList(channel, q_today, q_detail) {
             const emptyDetailText = "$" + channel.split("-")[1];
     
-            if (q_detail == "") {
+            if (q_detail === "") {
                 if (q_today > 0) {
                     CreateList(channel, emptyDetailText, q_today);
                 }
@@ -229,8 +226,9 @@ const Database = {
                 }
             }
         }
-    },
-    GetUserSettingsData() {
+    }
+
+    static GetUserSettingsData() {
         const req = {
             "userid": id("signin-userid").value,
             "password": id("signin-password").value
@@ -238,34 +236,37 @@ const Database = {
     
         jQuery.ajax({
             crossDomain: true,
-            url: url.Format(req, "SIGN_IN", "requestResponse.SignIn"),
+            url: url.Format(req, "SIGN_IN", "RequestResponse.SignIn"),
             method: "GET",
             dataType: "jsonp"
         });
     }
 }
 
-const requestResponse = {
-    Feedback(res) {
+class RequestResponse {
+    static Feedback(res) {
         console.log(res.result);
         pendingList.Pop();
-    },
-    SignIn(res) {
+    }
+
+    static SignIn(res) {
         id("signin-userid").disabled = false;
         id("signin-password").disabled = false;
     
-        if (res.result == "error") {
-            if (res.error == "id") {
-                ShootError("signin-userid");
-                id("signin-button").textContent = "User ID didn't exist.";
-            }
-            if (res.error == "password") {
-                ShootError("signin-password");
-                id("signin-button").textContent = "Password is incorrect.";
+        if (res.result === "error") {
+            switch (res.error) {
+                case "id": {
+                    Form.ShootError("signin-userid");
+                    cl("comfirm-button")[0].textContent = "User ID didn't exist.";
+                } break;
+                case "password": {
+                    Form.ShootError("signin-password");
+                    cl("comfirm-button")[0].textContent = "Password is incorrect.";
+                } break;
             }
         }
-        else if (res.result == "pass") { // if sign in form is corrected
-            id("signin-button").textContent = "Initializing...";
+        else if (res.result === "pass") { // if sign in form is corrected
+            cl("comfirm-button")[0].textContent = "Initializing...";
 
             Database.GetUserRecordData(res.userData.USERID);
 

@@ -1,9 +1,14 @@
-html, body, h1, h2, h3, h4, h5, h6 {
-    font-family: "Sarabun", serif;
-}
-
 html, body {
-    overflow-x: hidden;
+    font-family: "Sarabun", serif;
+	margin: 0;
+	padding: 0;
+    line-height: 1.5;
+    
+    background-color: #bbded6;
+
+	box-sizing: border-box;
+	-ms-text-size-adjust: 100%;
+	-webkit-text-size-adjust: 100%
 }
 
 * :not(input) {
@@ -24,12 +29,13 @@ li {
 }
 
 hr {
-    display: block;
-    height: 1px;
-    border: 0;
-    border-top: 1px solid #BEBEBE;
-    margin: 0px;
-    padding: 0; 
+	display: block;
+	box-sizing: content-box;
+	height: 0;
+	border: 0;
+	overflow: visible;
+    border-top: 2px dashed #BEBEBE;
+    margin: 8px 0; 
 }
 
 input:focus, button:focus {
@@ -49,19 +55,16 @@ footer {
     text-align: center;
 }
 
-#copyright-year {
-    display: inline-block;
-}
-
 main {
     margin: 0 auto;
+    margin-top: 12px;
     max-width: 1000px;
     border-radius: 8px;
-    background: white;
+    background: #f9f9f9;
     
     display: none;
     padding: 16px;
-    border: 2px solid rgba(0, 0, 0, 0.2);
+    border: 2px solid #6b7b8e;
     box-shadow: 0 0 6px 0px rgba(0, 0, 0, 0.2);
 }
 
@@ -98,7 +101,7 @@ article {
 
 .add-fiscal-list {
     color: white;
-    border: 1px solid lightgray;
+    border: 1px solid #6b7b8e;
     padding: 4px;
     border-radius: 4px;
     text-align: center;
@@ -107,15 +110,15 @@ article {
 
 #list-editors > input {
     border-radius: 4px;
-    border: 1px solid lightgray;
+    border: 1px solid #6b7b8e;
     padding: 6px;
     width: 98.5%;
     transition: 0.3s;
 }
 
 #main-fiscal-panel > .root {
-    background: white;
-    border: 1px solid lightgrey;
+    background-color: #f6f6f6;
+    border: 1px solid #6b7b8e;
     border-radius: 6px;
     padding: 8px;
     margin-bottom: 12px;
@@ -187,9 +190,10 @@ article {
 }
 
 .create-list-grid > input {
+    background-color: transparent;
     font-size: 16px;
     padding-left: 12px;
-    border: 1px solid lightgray;
+    border: 1px solid #5D6D7E;
     border-radius: 4px;
 }
 
@@ -215,31 +219,38 @@ article {
 }
 
 /* decorative class */
-.border-list > * {
+.border-list > aside {
     padding: 4px;
     border-radius: 4px;
-    border: 2px solid rgba(0, 0, 0, 0.2);
+    border: 1px solid #5D6D7E;
+
+    display: flex;
+    justify-content: space-between;
 }
 
 /* Login part */
+#form {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+
+    align-items: center;
+    justify-content: center;
+}
+
 #form > div {
     max-width: 600px;
     padding: 12px;
     width: 100%;
-    position: absolute;
-    top: 50%;
-    left: 51.5%;
-    transform: translate(-51.5%,-50%);
-    -ms-transform: translate(-51.5%,-50%);
 }
 
-#form > div > div {
-    border: 2px solid rgba(0, 0, 0, 0.2);
+#form > div > section {
+    border: 2px solid #6b7b8e;
     box-shadow: 0 0 6px 0px rgba(0, 0, 0, 0.2);
 
-    border-radius: 8px;
-    padding: 12px;
-    background: white;
+    border-radius: 16px;
+    padding: 6px;
+    background-color: #f9f9f9;
     text-align: center;
 }
 
@@ -247,6 +258,17 @@ article {
     font-size: xx-large;
     font-weight: bold;
     padding: 8px 0;
+}
+
+/* this month stats */
+#this-month-expenditure-detail {
+    padding-left: 8px;
+    border-left: 3px solid #9e0000;
+}
+
+#this-month-income-detail {
+    padding-left: 8px;
+    border-left: 3px solid #097138;
 }
 
 #this-month-lists > div > li:first-child,
@@ -266,19 +288,25 @@ article {
     font-weight: bold;
 }
 
-#signin-form > input,
-#signup-form > input {
-    margin: 12px;
+#form-frame li:not(.head-text) {
+    padding:6px;
+}
+
+#form-frame > section input {
     width: 90%;
     font-size: 16px;
     padding: 12px;
-    border: 1px solid lightgray;
+    border: 1px solid #6b7b8e;
     border-radius: 8px;
+    background-color: transparent;
     transition: 0.3s;
 }
 
-#signin-button,
-#signup-button {
+.input-container {
+    width: 100%;
+}
+
+.comfirm-button {
     margin: 0 auto;
     width: 90%;
     padding: 12px;
@@ -290,31 +318,23 @@ article {
     transition: 0.3s;
 }
 
-#signin-button:hover,
-#signup-button:hover {
+.comfirm-button:hover {
     background: #85C1E9;
     color: white;
 }
 
-#signin-form-options,
-#signup-form-options {
+.form-options {
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-options {
     margin: 0 auto;
     width: 90%;
     font-size: small;
     padding: 6px 0;
 }
 
-#signin-form-options > li,
-#signup-form-options > li {
+#form-frame > section span {
     cursor: pointer;
-}
-
-#this-month-expenditure-detail {
-    padding-left: 8px;
-    border-left: 3px solid #9e0000;
-}
-
-#this-month-income-detail {
-    padding-left: 8px;
-    border-left: 3px solid #097138;
 }

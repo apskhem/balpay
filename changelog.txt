@@ -22,3 +22,5 @@ R2B006.2 - Mon. 13 Jan. 2020
 R2B006.3 - Wed. 29 Jan. 2020
 - Minor bugs fixed.
 - Change interface apperance (minor).
+R2B007 - Sat. 8 Feb. 2020
+- Change user-interface

@@ -9,57 +9,67 @@ window.onload = () => {
     id("signin-button").click();
 }
 
-// -- SIGNIN FORM -- //
-function ShootError(inputChannel) {
-    id(inputChannel).focus();
-    id(inputChannel).style.boxShadow = "0 0 6px 0px #EC7063";
-    id(inputChannel).style.border = "1px solid #EC7063";
-}
+class Form {
+    static ShootInputError(inputChannel) {
+        id(inputChannel).focus();
+        id(inputChannel).style.boxShadow = "0 0 6px 0px #EC7063";
+        id(inputChannel).style.border = "1px solid #EC7063";
+    }
 
-id("signin-userid").onkeydown = (e) => {
-    if (e.keyCode == 13) {
-        id("signin-userid").value == "" ? ShootError("signin-userid") : id("signin-password").focus();
+    static DisplaySignUp() {
+        id("signup-form").style.display = "block";
+        id("signin-form").style.display = "none";
+        id("forgotmypassword-form").style.display = "none";
     }
     
-    id("signin-userid").style.boxShadow = "";
-    id("signin-userid").style.border = "1px solid lightgrey";
+    static DisplaySignIn() {
+        id("signup-form").style.display = "none";
+        id("signin-form").style.display = "block";
+        id("forgotmypassword-form").style.display = "none";
+    }
+
+    static DisplayForgotPassword() {
+
+    }
+
+    static SignInCheck() {
+        if (id("signin-userid").disabled || id("signin-password").disabled) return;
+
+        if (id("signin-userid").value === "") {
+            this.ShootInputError("signin-userid");
+        }
+        else if (id("signin-password").value === "") {
+            this.ShootInputError("signin-password");
+        }
+        else {
+            cl("comfirm-button")[0].textContent = "Loading...";
+            id("signin-userid").disabled = true;
+            id("signin-password").disabled = true;
+    
+            Database.GetUserSettingsData();
+        }
+    }
+
+    static SignUpCheck() {
+
+    }
 }
 
-id("signin-password").onkeydown = (e) => {
-    if (e.keyCode == 13) {
-        id("signin-password").value == "" ? ShootError("signin-password") : id("signin-button").click();
+// form interface
+id("signin-userid").onkeydown = function(e) {
+    if (e.keyCode === 13) {
+        id(this.id).value === "" ? Form.ShootInputError(this.id) : id("signin-password").focus();
     }
     
-    id("signin-userid").style.boxShadow = "";
-    id("signin-userid").style.border = "1px solid lightgrey";
+    id(this.id).style.boxShadow = "";
+    id(this.id).style.border = "1px solid #5D6D7E";
 }
 
-id("signin-button").onclick = () => {
-    if (id("signin-userid").disabled) return;
-
-    if (id("signin-userid").value == "") {
-        ShootError("signin-userid");
+id("signin-password").onkeydown = function(e) {
+    if (e.keyCode === 13) {
+        id(this.id).value === "" ? Form.ShootInputError(this.id) : cl("comfirm-button")[0].click();
     }
-    else if (id("signin-password").value == "") {
-        ShootError("signin-password");
-    }
-    else {
-        id("signin-button").textContent = "Loading...";
-        id("signin-userid").disabled = true;
-        id("signin-password").disabled = true;
-
-        Database.GetUserSettingsData();
-    }
-}
-
-
-// -- LOWER BUTTONS IN FORM -- //
-function SignUp() {
-    id("signin-form").style.display = "none";
-    id("signup-form").style.display = "block";
-}
-
-function BackToSignIn() {
-    id("signin-form").style.display = "block";
-    id("signup-form").style.display = "none";
+    
+    id(this.id).style.boxShadow = "";
+    id(this.id).style.border = "1px solid #5D6D7E";
 }
