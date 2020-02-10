@@ -123,7 +123,7 @@ const inputlist = {
         }
     },
     FocusIn() {
-        this.value = AppToolset.FormatNumber(this.value);
+        this.value = AppToolset.DeformatNumber(this.value);
         this.type = "number";
         inputlist.backupValue = this.value;
     },
@@ -149,11 +149,11 @@ for (const addFiscalList of cl("add-fiscal-list")) {
                 const existed_title = rootList.children[0].textContent.replace(/[:]/g, "");
                 if (input_title === existed_title) {
                     // (if existed value + new input value) is more than or equal 0
-                    if (AppToolset.FormatNumber(rootList.getElementsByTagName("input")[0].value) + AppToolset.FormatNumber(input_amount) > 0) {
+                    if (AppToolset.DeformatNumber(rootList.getElementsByTagName("input")[0].value) + AppToolset.DeformatNumber(input_amount) > 0) {
                         let listObj = rootList.getElementsByTagName("input")[0];
 
                         // value in
-                        listObj.value = AppToolset.FormatNumber(listObj.value) + AppToolset.FormatNumber(input_amount);
+                        listObj.value = AppToolset.DeformatNumber(listObj.value) + AppToolset.DeformatNumber(input_amount);
 
                         // value out
                         listObj.type = "text";
@@ -166,7 +166,7 @@ for (const addFiscalList of cl("add-fiscal-list")) {
                         pendingList.Push(rootList);
                         Database.Update();
                     }
-                    else if (AppToolset.FormatNumber(rootList.getElementsByTagName("input")[0].value) + AppToolset.FormatNumber(input_amount) === 0) {
+                    else if (AppToolset.DeformatNumber(rootList.getElementsByTagName("input")[0].value) + AppToolset.DeformatNumber(input_amount) === 0) {
                         rootList.parentElement.removeChild(rootList);
 
                         SumList(subroot.parentElement.id);
@@ -273,7 +273,7 @@ function SumList(channel) {
     if (channel) {
         let total = 0;
         for (const cost of id(channel).getElementsByClassName("cost")) {
-            total += AppToolset.FormatNumber(cost.children[0].value);
+            total += AppToolset.DeformatNumber(cost.children[0].value);
         }
         id(channel).getElementsByClassName("total")[0].textContent = AppToolset.FormatNumber(total) + " " + user.settings.currency;
     }
@@ -342,7 +342,7 @@ function UpdateBalance() {
 }
 
 function GetTotalValue(channel) {
-    return AppToolset.FormatNumber(id(channel).getElementsByClassName("total")[0].textContent);
+    return AppToolset.DeformatNumber(id(channel).getElementsByClassName("total")[0].textContent);
 }
 
 // get database-keyed spending detail
@@ -350,7 +350,7 @@ function GetDetails(channel) {
     let detail = "";
     for (let i = 0; i < id(channel).getElementsByClassName("root-list").length; i++) {
         const rootList = id(channel).getElementsByClassName("root-list")[i];
-        detail += rootList.firstChild.textContent.replace(/[:]/g, "") + "=" + AppToolset.FormatNumber(rootList.getElementsByTagName("input")[0].value);
+        detail += rootList.firstChild.textContent.replace(/[:]/g, "") + "=" + AppToolset.DeformatNumber(rootList.getElementsByTagName("input")[0].value);
 
         if (i < id(channel).getElementsByClassName("root-list").length - 1)
             detail += ";";

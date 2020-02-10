@@ -27,3 +27,5 @@ R2B007 - Sat. 8 Feb. 2020
 R2B007.1 - Tue. 11 Feb. 2020
 - Fixed minor bugs.
 - Changed icon.
+R2B007.1h - Tue. 11 Feb. 2020
+- Hotfixes.
