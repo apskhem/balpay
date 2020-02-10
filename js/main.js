@@ -5,10 +5,6 @@ const create = (tn) => document.createElement(tn);
 
 window.onerror = (msg, url, lineNo, columnNo, error) => alert(`${msg}\nAT: ${lineNo}-${columnNo} ${url.split("/").pop()}`);
 
-document.documentElement.addEventListener("keyup", (e) => {
-    if (e.code === "Backquote") location.reload();
-});
-
 class AutomaticSystem {
     static Copyright(element, startYear) {
         const recentYear = new Date().getFullYear();
@@ -17,7 +13,7 @@ class AutomaticSystem {
 }
 
 class AppToolset {
-    static ReadableNum(num) {
+    static FormatNumber(num) {
         num = parseFloat(num).toFixed(2).toString().split(".");
         let textNum = num[0];
         let sum = "";
@@ -30,13 +26,13 @@ class AppToolset {
         return `${sum}.${num[1]}`;
     }
 
-    static ParseNum(readable) {
+    static DeformatNumber(readable) {
         return parseFloat(readable.replace(/[,]/g, ""));
     }
 
     static get currentDate() {
-        let time = new Date();
-        return time.getFullYear() + "." + time.getMonth() + "." + time.getDate();
+        let t = new Date();
+        return t.getFullYear() + "." + t.getMonth() + "." + t.getDate();
     }
 
     static FormatDate(date) {
@@ -96,7 +92,7 @@ const inputlist = {
 
         if (this.value === inputlist.backupValue) {
             this.type = "text";
-            this.value = AppToolset.ReadableNum(this.value);
+            this.value = AppToolset.FormatNumber(this.value);
             return;
         }
         else if (this.value === "0") {
@@ -110,11 +106,11 @@ const inputlist = {
         }
 
         this.type = "text";
-        this.value = AppToolset.ReadableNum(this.value);
+        this.value = AppToolset.FormatNumber(this.value);
         FinalizeList();
 
         function FinalizeList() {
-            SumValue(channel);
+            SumList(channel);
             UpdateBalance();
             UpdateChart();
             SumThisMonth();
@@ -127,7 +123,7 @@ const inputlist = {
         }
     },
     FocusIn() {
-        this.value = AppToolset.ParseNum(this.value);
+        this.value = AppToolset.FormatNumber(this.value);
         this.type = "number";
         inputlist.backupValue = this.value;
     },
@@ -147,33 +143,33 @@ for (const addFiscalList of cl("add-fiscal-list")) {
         if (input_title === "") return;
         if (input_amount === "") return;
 
-        if (isReadingRecordsCompleted) {
+        if (wasRecordsRead) {
             const subroot = this.parentElement.parentElement;
             for (const rootList of subroot.getElementsByClassName("root-list")) {
                 const existed_title = rootList.children[0].textContent.replace(/[:]/g, "");
                 if (input_title === existed_title) {
                     // (if existed value + new input value) is more than or equal 0
-                    if (AppToolset.ParseNum(rootList.getElementsByTagName("input")[0].value) + AppToolset.ParseNum(input_amount) > 0) {
+                    if (AppToolset.FormatNumber(rootList.getElementsByTagName("input")[0].value) + AppToolset.FormatNumber(input_amount) > 0) {
                         let listObj = rootList.getElementsByTagName("input")[0];
 
                         // value in
-                        listObj.value = AppToolset.ParseNum(listObj.value) + AppToolset.ParseNum(input_amount);
+                        listObj.value = AppToolset.FormatNumber(listObj.value) + AppToolset.FormatNumber(input_amount);
 
                         // value out
                         listObj.type = "text";
-                        listObj.value = AppToolset.ReadableNum(listObj.value);
+                        listObj.value = AppToolset.FormatNumber(listObj.value);
 
-                        SumValue(subroot.parentElement.id);
+                        SumList(subroot.parentElement.id);
                         UpdateBalance();
                         UpdateChart();
                         SumThisMonth();
                         pendingList.Push(rootList);
                         Database.Update();
                     }
-                    else if (AppToolset.ParseNum(rootList.getElementsByTagName("input")[0].value) + AppToolset.ParseNum(input_amount) === 0) {
+                    else if (AppToolset.FormatNumber(rootList.getElementsByTagName("input")[0].value) + AppToolset.FormatNumber(input_amount) === 0) {
                         rootList.parentElement.removeChild(rootList);
 
-                        SumValue(subroot.parentElement.id);
+                        SumList(subroot.parentElement.id);
                         UpdateBalance();
                         UpdateChart();
                         SumThisMonth();
@@ -197,7 +193,7 @@ for (const addFiscalList of cl("add-fiscal-list")) {
         let li2 = create("li");
         let spanCurrency = create("span");
 
-        input.value = AppToolset.ReadableNum(input_amount);
+        input.value = AppToolset.FormatNumber(input_amount);
         input.min = "0";
         input.addEventListener("focusin", inputlist.FocusIn);
         input.addEventListener("focusout", inputlist.FocusOut);
@@ -216,10 +212,10 @@ for (const addFiscalList of cl("add-fiscal-list")) {
 
         //finalize
         this.parentElement.parentElement.style.maxHeight = this.parentElement.parentElement.scrollHeight + "px";
-        SumValue(this.parentElement.parentElement.parentElement.id);
+        SumList(this.parentElement.parentElement.parentElement.id);
         UpdateBalance();
 
-        if (isReadingRecordsCompleted) {
+        if (wasRecordsRead) {
             UpdateChart();
             SumThisMonth();
             pendingList.Push(rootdiv);
@@ -273,19 +269,19 @@ function UpdateChart() {
 }
 
 // Sum all the detail in each channel
-function SumValue(channel) {
+function SumList(channel) {
     if (channel) {
         let total = 0;
         for (const cost of id(channel).getElementsByClassName("cost")) {
-            total += AppToolset.ParseNum(cost.children[0].value);
+            total += AppToolset.FormatNumber(cost.children[0].value);
         }
-        id(channel).getElementsByClassName("total")[0].textContent = AppToolset.ReadableNum(total) + " " + user.settings.currency;
+        id(channel).getElementsByClassName("total")[0].textContent = AppToolset.FormatNumber(total) + " " + user.settings.currency;
     }
     else {
-        SumValue("fiscal-expenditure");
-        SumValue("fiscal-income");
-        SumValue("fiscal-lending");
-        SumValue("fiscal-debt");
+        SumList("fiscal-expenditure");
+        SumList("fiscal-income");
+        SumList("fiscal-lending");
+        SumList("fiscal-debt");
     }
 }
 
@@ -295,24 +291,25 @@ function SumThisMonth() {
     let spendingLists = {expenditure: {}, income: {}};
 
     let z = records.length - 1;
-    while (records[z][0].getMonth() == date[1]) {
+    const thisMonth = +date[1]
+    while (records[z][0].getMonth() === thisMonth) {
         month.expenditure += records[z][2];
         month.income += records[z][3];
         AppToolset.ParseDetail(detailRecords[z][0], spendingLists.expenditure);
         AppToolset.ParseDetail(detailRecords[z--][1], spendingLists.income);
     }
 
-    id("this-month-total-expenditure").textContent = AppToolset.ReadableNum(month.expenditure) + " " + user.settings.currency;
-    id("this-month-total-income").textContent = AppToolset.ReadableNum(month.income) + " " + user.settings.currency;
-    id("this-month-average-expenditure").textContent = AppToolset.ReadableNum(month.expenditure / +date[2]) + " " + user.settings.currency;
-    id("this-month-average-income").textContent = AppToolset.ReadableNum(month.income / +date[2]) + " " + user.settings.currency;
+    id("this-month-total-expenditure").textContent = AppToolset.FormatNumber(month.expenditure) + " " + user.settings.currency;
+    id("this-month-total-income").textContent = AppToolset.FormatNumber(month.income) + " " + user.settings.currency;
+    id("this-month-average-expenditure").textContent = AppToolset.FormatNumber(month.expenditure / +date[2]) + " " + user.settings.currency;
+    id("this-month-average-income").textContent = AppToolset.FormatNumber(month.income / +date[2]) + " " + user.settings.currency;
 
     id("this-month-total-balance-text").textContent = (month.income >= month.expenditure) ? "Surplus" : "Deficit";
     id("this-month-total-balance-text").parentElement.style.color = (month.income >= month.expenditure) ? "#097138" : "#9e0000";
-    id("this-month-total-balance").textContent = AppToolset.ReadableNum(Math.abs(month.expenditure - month.income)) + " " + user.settings.currency;
+    id("this-month-total-balance").textContent = AppToolset.FormatNumber(Math.abs(month.expenditure - month.income)) + " " + user.settings.currency;
     id("this-month-average-balance-text").textContent = "Daily Average " + ((month.income >= month.expenditure) ? "Surplus" : "Deficit");
     id("this-month-average-balance-text").parentElement.style.color = (month.income >= month.expenditure) ? "#097138" : "#9e0000";
-    id("this-month-average-balance").textContent = AppToolset.ReadableNum(Math.abs(month.expenditure - month.income)/ +date[2]) + " " + user.settings.currency;
+    id("this-month-average-balance").textContent = AppToolset.FormatNumber(Math.abs(month.expenditure - month.income)/ +date[2]) + " " + user.settings.currency;
 
     // create detail list
     for (let type in spendingLists) {
@@ -323,7 +320,7 @@ function SumThisMonth() {
             let li2 = create("li");
     
             li1.textContent = list + ":";
-            li2.textContent = AppToolset.ReadableNum(spendingLists[type][list]) + " " + user.settings.currency;
+            li2.textContent = AppToolset.FormatNumber(spendingLists[type][list]) + " " + user.settings.currency;
             block.appendChild(li1);
             block.appendChild(li2);
 
@@ -341,11 +338,11 @@ function SumThisMonth() {
 // adjust the balance and text it
 function UpdateBalance() {
     finance.balance.result = finance.balance.final - GetTotalValue("fiscal-expenditure") + GetTotalValue("fiscal-income");
-    id("fiscal-balance").children[0].textContent = AppToolset.ReadableNum(finance.balance.result) + " " + user.settings.currency;
+    id("fiscal-balance").children[0].textContent = AppToolset.FormatNumber(finance.balance.result) + " " + user.settings.currency;
 }
 
 function GetTotalValue(channel) {
-    return AppToolset.ParseNum(id(channel).getElementsByClassName("total")[0].textContent);
+    return AppToolset.FormatNumber(id(channel).getElementsByClassName("total")[0].textContent);
 }
 
 // get database-keyed spending detail
@@ -353,7 +350,7 @@ function GetDetails(channel) {
     let detail = "";
     for (let i = 0; i < id(channel).getElementsByClassName("root-list").length; i++) {
         const rootList = id(channel).getElementsByClassName("root-list")[i];
-        detail += rootList.firstChild.textContent.replace(/[:]/g, "") + "=" + AppToolset.ParseNum(rootList.getElementsByTagName("input")[0].value);
+        detail += rootList.firstChild.textContent.replace(/[:]/g, "") + "=" + AppToolset.FormatNumber(rootList.getElementsByTagName("input")[0].value);
 
         if (i < id(channel).getElementsByClassName("root-list").length - 1)
             detail += ";";

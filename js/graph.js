@@ -1,5 +1,4 @@
 google.charts.load("current", {"packages":["corechart", "line"]});
-google.charts.load("current", {"packages":["corechart"]});
 
 function HistoryGraph() {
     ChartSize();
@@ -27,18 +26,19 @@ function HistoryGraph() {
 }
 
 function ChartSize() {
-    const graphID = "main_statistics";
-    if (tn("main")[0].offsetWidth > 400) {
-        id(graphID).style.width = tn("main")[0].offsetWidth + 250 + "px";
-        id(graphID).style.height = "540px";
-        id(graphID).style.marginLeft = "-125px";
-        id(graphID).style.marginTop = "-80px";
+    const main = tn("main")[0];
+    const graph = id("main_statistics");
+    if (main.offsetWidth > 450) {
+        graph.style.width = main.offsetWidth + 250 + "px";
+        graph.style.height = "540px";
+        graph.style.marginLeft = "-125px";
+        graph.style.marginTop = "-80px";
     }
     else {
-        id(graphID).style.width = tn("main")[0].offsetWidth + 50 + "px";
-        id(graphID).style.height = "400px";
-        id(graphID).style.marginLeft = "-30px";
-        id(graphID).style.marginTop = "-60px";
+        graph.style.width = main.offsetWidth + 50 + "px";
+        graph.style.height = "400px";
+        graph.style.marginLeft = "-30px";
+        graph.style.marginTop = "-60px";
     }
 }
 

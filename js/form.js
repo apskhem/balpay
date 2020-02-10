@@ -56,20 +56,20 @@ class Form {
 }
 
 // form interface
-id("signin-userid").onkeydown = function(e) {
+id("signin-userid").addEventListener("keydown", function(e) {
     if (e.keyCode === 13) {
         id(this.id).value === "" ? Form.ShootInputError(this.id) : id("signin-password").focus();
     }
     
     id(this.id).style.boxShadow = "";
     id(this.id).style.border = "1px solid #5D6D7E";
-}
+});
 
-id("signin-password").onkeydown = function(e) {
+id("signin-password").addEventListener("keydown", function(e) {
     if (e.keyCode === 13) {
         id(this.id).value === "" ? Form.ShootInputError(this.id) : cl("comfirm-button")[0].click();
     }
     
     id(this.id).style.boxShadow = "";
     id(this.id).style.border = "1px solid #5D6D7E";
-}
+});

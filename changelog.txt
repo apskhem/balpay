@@ -1,26 +1,29 @@
 R2B001 - Mon. 5 Aug. 2019
 - First beta release for admin only.
 R2B002 - Sat. 17 Aug. 2019
-- Add duplicate list.
-- Add updating list while uploading to the database.
+- Added duplicate list.
+- Added updating list while uploading to the database.
 R2B003 - Sat. 30 Nov. 2019
 - Change background and font.
-- Add minus value.
+- Added minus value.
 R2B004 - Mon. 30 Dec. 2019
 - Optimize code.
 - Fixed critical bugs.
-- Change interface apperance.
+- Changed interface apperance.
 R2B005 - Fri. 3 Jan. 2020
-- Optimize code.
-- Change interface apperance.
+- Optimized code.
+- Changed interface apperance.
 R2B006 - Sat. 11 Jan. 2020
-- Add more statistics information.
+- Added more statistics information.
 R2B006.1 - Sun. 12 Jan. 2020
-- Minor bug fixed.
+- Fixed minor bugs.
 R2B006.2 - Mon. 13 Jan. 2020
 - Critical bugs fixed.
 R2B006.3 - Wed. 29 Jan. 2020
-- Minor bugs fixed.
-- Change interface apperance (minor).
+- Fixed minor bugs.
+- Changed interface apperance (minor).
 R2B007 - Sat. 8 Feb. 2020
-- Change user-interface
+- Changed user-interface.
+R2B007.1 - Tue. 11 Feb. 2020
+- Fixed minor bugs.
+- Changed icon.

@@ -5,6 +5,7 @@ html, body {
     line-height: 1.5;
     
     background-color: #bbded6;
+    overflow-x: hidden;
 
 	box-sizing: border-box;
 	-ms-text-size-adjust: 100%;
@@ -63,7 +64,7 @@ main {
     background: #f9f9f9;
     
     display: none;
-    padding: 16px;
+    padding: 10px;
     border: 2px solid #6b7b8e;
     box-shadow: 0 0 6px 0px rgba(0, 0, 0, 0.2);
 }
@@ -229,7 +230,7 @@ article {
 }
 
 /* Login part */
-#form {
+header {
     display: flex;
     width: 100vw;
     height: 100vh;
@@ -238,13 +239,13 @@ article {
     justify-content: center;
 }
 
-#form > div {
+#form-frame {
     max-width: 600px;
-    padding: 12px;
+    padding: 6px;
     width: 100%;
 }
 
-#form > div > section {
+#form-frame > section {
     border: 2px solid #6b7b8e;
     box-shadow: 0 0 6px 0px rgba(0, 0, 0, 0.2);
 
@@ -282,14 +283,14 @@ article {
     float: right;
 }
 
-/* form part */
+/* -- FORM -- */
 #signin-form > li:not(.head-text) {
     font-size: large;
     font-weight: bold;
 }
 
 #form-frame li:not(.head-text) {
-    padding:6px;
+    padding: 6px;
 }
 
 #form-frame > section input {
@@ -319,6 +320,7 @@ article {
 }
 
 .comfirm-button:hover {
+    border: 1px solid #6b7b8e;
     background: #85C1E9;
     color: white;
 }

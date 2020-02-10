@@ -23,7 +23,7 @@ let detail = {
 }
 
 // systematic variable(s)
-let isReadingRecordsCompleted = false;
+let wasRecordsRead = false;
 
 // update list function
 class PendingList {
@@ -165,7 +165,7 @@ class Database {
                 for (const financeList in detail) {
                     ParseAndCreateList("fiscal-" + financeList, finance[financeList], detail[financeList]);
                 }             
-                SumValue();
+                SumList();
             }
             else { // create new list for new day
                 records.push([new Date(...AppToolset.currentDate.split(".")), finance.balance.today, 0, 0, finance.lending, finance.debt]);
@@ -176,7 +176,7 @@ class Database {
                 finance.income = 0;
                 ParseAndCreateList("fiscal-lending", finance.lending, detail.lending);
                 ParseAndCreateList("fiscal-debt", finance.debt, detail.debt);  
-                SumValue();
+                SumList();
     
                 Database.Insert();
             }
@@ -185,12 +185,13 @@ class Database {
             google.charts.setOnLoadCallback(HistoryGraph);
             UpdateBalance();
             SumThisMonth();
-            isReadingRecordsCompleted = true;
+            wasRecordsRead = true;
 
             // display main screen
             tn("main")[0].style.display = "block";
             tn("footer")[0].style.display = "block";
-            id("form").style.display = "none";
+            tn("header")[0].style.display = "none";
+            document.body.style.padding = "0 6px";
     
             // init user settings
             tn("title")[0].textContent = "Balpay - " + user.fullname;
