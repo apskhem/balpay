@@ -259,11 +259,11 @@ class RequestResponse {
         if (res.result === "error") {
             switch (res.error) {
                 case "id": {
-                    Form.ShootError("signin-userid");
+                    Form.ShootInputError("signin-userid");
                     cl("comfirm-button")[0].textContent = "User ID didn't exist.";
                 } break;
                 case "password": {
-                    Form.ShootError("signin-password");
+                    Form.ShootInputError("signin-password");
                     cl("comfirm-button")[0].textContent = "Password is incorrect.";
                 } break;
             }

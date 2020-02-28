@@ -244,6 +244,7 @@ main {
 
     border: 1px solid #5D6D7E;
     border-radius: 4px;
+    overflow: hidden;
 }
 
 .section-view-grid > aside:not(:last-child) {
