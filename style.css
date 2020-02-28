@@ -12,6 +12,10 @@ html, body {
 	-webkit-text-size-adjust: 100%
 }
 
+[hidden] {
+    display: none;
+}
+
 * :not(input) {
     user-select: none; /* supported by Chrome and Opera */
    -webkit-user-select: none; /* Safari */
@@ -63,26 +67,68 @@ main {
     border-radius: 8px;
     background: #f9f9f9;
     
-    display: none;
     padding: 10px;
     border: 2px solid #6b7b8e;
     box-shadow: 0 0 6px 0px rgba(0, 0, 0, 0.2);
 }
 
-article {
+/* inside parts */
+#user-panel {
+    display: grid;
+    grid-template-columns: 33.33% 33.33% 33.33%;
+}
+
+#user-panel > aside:last-child {
+    text-align: right;
+}
+
+#user-panel > aside:last-child > i {
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.selected {
+    color: #85C1E9;
+}
+
+#today-date {
+    text-align: center;
+}
+
+#user-icon {
+    cursor: pointer;
+}
+
+/* ### */
+
+#main-fiscal-panel {
+    margin-top: 12px;
+}
+
+.root {
+    background-color: #f6f6f6;
+    border: 1px solid #6b7b8e;
+    border-radius: 6px;
+    padding: 8px;
+    margin-bottom: 12px;
+    transition: 0.2s;
+}
+
+.root:not(:last-child):hover {
+    box-shadow: 0 0 5px -2px black;
+}
+
+.root > nav {
+    display: grid;
+    grid-template-columns: 50% 50%;
+
     font-weight: bold;
     font-size: x-large;
     cursor: pointer;
 }
 
-/* inside parts */
-#user-icon {
-    font-size: large;
-    cursor: pointer;
-}
-
-#main-fiscal-panel {
-    margin-top: 12px;
+.root > nav > aside:last-child {
+    text-align: right;
 }
 
 .subroot {
@@ -91,7 +137,7 @@ article {
     transition: max-height 0.3s;
 }
 
-.subroot > div:first-child {
+.detail-list {
     padding-top: 12px;
     padding-left: 12px;
 }
@@ -109,53 +155,39 @@ article {
     cursor: pointer;
 }
 
-#list-editors > input {
-    border-radius: 4px;
-    border: 1px solid #6b7b8e;
-    padding: 6px;
-    width: 98.5%;
-    transition: 0.3s;
-}
-
-#main-fiscal-panel > .root {
-    background-color: #f6f6f6;
-    border: 1px solid #6b7b8e;
-    border-radius: 6px;
-    padding: 8px;
-    margin-bottom: 12px;
-    transition: 0.2s;
-}
-
-#main-fiscal-panel > .root:hover {
-    box-shadow: 0 0 5px -2px black;
-}
-
-#fiscal-expenditure article,
+#fiscal-expenditure aside,
 #fiscal-expenditure .add-fiscal-list {
-    color: #9e0000;
+    color: #d45079;
 }
 
-#fiscal-income article,
+#fiscal-income aside,
 #fiscal-income .add-fiscal-list {
-    color: #097138;
+    color: #4baea0;
 }
 
-#fiscal-lending article,
+#fiscal-lending aside,
 #fiscal-lending .add-fiscal-list  {
     color: #ffc70f;
 }
 
-#fiscal-debt article,
+#fiscal-debt aside,
 #fiscal-debt .add-fiscal-list {
     color: #5D6D7E;
 }
 
-#fiscal-balance article {
-    color: #85C1E9;
+#fiscal-balance {
+    display: grid;
+    grid-template-columns: 50% 50%;
 }
 
-.total {
-    float: right;
+#fiscal-balance > aside {
+    color: #85C1E9;
+    font-weight: bold;
+    font-size: x-large;
+}
+
+#fiscal-balance > aside:last-child {
+    text-align: right;
 }
 
 .cost > input {
@@ -198,25 +230,46 @@ article {
     border-radius: 4px;
 }
 
-#main_statistics li {
+#main_statistics > li {
     font-size: xx-large;
     padding: 40px;
     text-align: center;
 }
 
-#add-detail {
+/* statistics view */
+.section-view-grid {
+    margin: 0 auto;
     display: grid;
-    grid-gap: 8px;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    grid-template-rows: repeat(auto-fit, auto);
+    grid-template-columns: repeat(auto-fit, 100px);
+
+    border: 1px solid #5D6D7E;
+    border-radius: 4px;
+}
+
+.section-view-grid > aside:not(:last-child) {
+    border-right: 1px solid #5D6D7E;
+}
+
+.section-view-grid > aside {
+    text-align: center;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.viewed {
+    background-color: #85C1E9;
+    color: white;
+}
+
+#view-mode {
+    margin-bottom: 20px;
 }
 
 /* various grids */
-.quater-grid {
+.summarized-grid {
     display: grid;
     grid-gap: 8px;
     grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-    grid-template-rows: repeat(auto-fit, auto);
 }
 
 /* decorative class */
@@ -262,25 +315,73 @@ header {
 }
 
 /* this month stats */
-#this-month-expenditure-detail {
+#stm-expenditure-detail,
+#by-time-expenditure,
+#by-average-expenditure {
     padding-left: 8px;
-    border-left: 3px solid #9e0000;
+    border-left: 3px solid #d45079;
 }
 
-#this-month-income-detail {
+#stm-income-detail,
+#by-time-income,
+#by-average-income {
     padding-left: 8px;
-    border-left: 3px solid #097138;
+    border-left: 3px solid #4baea0;
 }
 
-#this-month-lists > div > li:first-child,
-#this-month-detail div > li:first-child {
+#stm-lists > div > li:first-child,
+#stm-detail div > li:first-child {
     display: inline-block;
 }
 
-#this-month-lists > div > li:last-child,
-#this-month-detail div > li:last-child {
+#stm-lists > div > li:last-child,
+#stm-detail div > li:last-child {
     text-align: right;
     float: right;
+}
+
+/* ### */
+#compare-option {
+    margin: 0 auto;
+    max-width: 400px;
+    display: grid;
+    grid-template-columns: 25% 32.5% 10% 32.5%;
+
+    border: 1px solid #5D6D7E;
+    border-radius: 4px;
+}
+
+#compare-option > aside:not(:last-child) {border-right: 1px solid #5D6D7E;}
+#compare-option > aside:nth-child(3) {text-align: center;}
+#compare-option > aside:nth-child(even) {cursor: pointer;}
+#compare-option > aside:nth-child(odd) {color:white;background-color:#5D6D7E;}
+#compare-option > aside {padding: 0 8px;}
+
+.minor-header {
+    margin: 8px 0;
+    text-align: center;
+    font-weight: bold;
+    font-size: small;
+}
+
+.summarized-grid > aside > div {
+    display: grid;
+    align-items: center;
+    grid-template-columns: 35% 45% 20%;
+}
+
+.summarized-grid > aside > div:first-child > aside:first-child {
+    text-decoration: underline
+}
+
+.summarized-grid > aside > div > aside:nth-child(2) {
+    height: 12px;
+    border: 2px solid #5D6D7E;
+    border-radius: 4px;
+}
+
+.summarized-grid > aside > div > aside:last-child {
+    text-align: right;
 }
 
 /* -- FORM -- */

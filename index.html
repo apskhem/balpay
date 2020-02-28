@@ -26,7 +26,7 @@
                 </div>
                 <div class="comfirm-button" onclick="Form.SignInCheck()">Sign in</div>
             </section>
-            <section id="signup-form" style="display:none">
+            <section id="signup-form" hidden>
                 <li class="head-text">Sign up</li>
                 <li>Full Name</li>
                 <input id="signup-fullname" type="text" placeholder="Full Name">
@@ -43,132 +43,199 @@
                 </div>
                 <div class="comfirm-button" onclick="Form.SignUpCheck()">Sign up</div>
             </section>
-            <section id="forgotmypassword-form" style="display:none">
+            <section id="forgotmypassword-form" hidden>
             
             </section>
         </div>
     </header>
-    <main>
+    <main hidden>
         <div id="user-panel">
-            <div style="float:right" id="today-date"></div>
-            <i class="fas fa-user-circle" id="user-icon"></i>
-            <li id="fullname" style="display:inline;">%fullname%</li>
+            <aside>
+                <i class="fas fa-user-circle" id="user-icon"></i>
+                <span id="fullname">%fullname%</span>
+            </aside>
+            <aside>
+                <div id="today-date"></div>
+            </aside>
+            <aside>
+                <i class="fas fa-edit selected"></i>
+                <i class="fas fa-history"></i>
+                <i class="fas fa-cog"></i>
+            </aside>
         </div>
         <hr>
         <div id="main-fiscal-panel">
             <div id="fiscal-expenditure" class="root">
-                <div class="expandable">
-                    <article class="total"></article>
-                    <article>Expenditure:</article>
-                </div>
-                <div class="subroot" style="max-height:0">
+                <nav class="collapsible-object">
+                    <aside>Expense:</aside>
+                    <aside class="total"></aside>
+                </nav>
+                <div class="subroot">
                     <div class="detail-list">
 
                     </div>
-                    <div class="create-list-grid">
-                        <input type="text" placeholder="Title" onkeydown="KeyToEnterTitle(this)">
-                        <input type="number" placeholder="Amount" onkeydown="KeyToEnterAmount(this)">
+                    <nav class="create-list-grid">
+                        <input type="text" placeholder="Title">
+                        <input type="number" placeholder="Amount">
                         <div class="add-fiscal-list">Add</div>
-                    </div>
+                    </nav>
                 </div>
             </div>
             <div id="fiscal-income" class="root">
-                <div class="expandable">
-                    <article class="total"></article>
-                    <article>Income:</article>
-                </div>
-                <div class="subroot" style="max-height:0">
+                <nav class="collapsible-object">
+                    <aside>Income:</aside>
+                    <aside class="total"></aside>
+                </nav>
+                <div class="subroot">
                     <div class="detail-list">
                         
                     </div>
-                    <div class="create-list-grid">
-                        <input type="text" placeholder="Title" onkeydown="KeyToEnterTitle(this)">
-                        <input type="number" placeholder="Amount" onkeydown="KeyToEnterAmount(this)">
+                    <nav class="create-list-grid">
+                        <input type="text" placeholder="Title">
+                        <input type="number" placeholder="Amount">
                         <div class="add-fiscal-list">Add</div>
-                    </div>
+                    </nav>
                 </div>
             </div>
             <div id="fiscal-lending" class="root">
-                <div class="expandable">
-                    <article class="total"></article>
-                    <article>Lending:</article>
-                </div>
-                <div class="subroot" style="max-height:0">
+                <nav class="collapsible-object">
+                    <aside>Lending:</aside>
+                    <aside class="total"></aside>
+                </nav>
+                <div class="subroot">
                     <div class="detail-list">
 
                     </div>
-                    <div class="create-list-grid">
-                        <input type="text" placeholder="Title" onkeydown="KeyToEnterTitle(this)">
-                        <input type="number" placeholder="Amount" onkeydown="KeyToEnterAmount(this)">
+                    <nav class="create-list-grid">
+                        <input type="text" placeholder="Title">
+                        <input type="number" placeholder="Amount">
                         <div class="add-fiscal-list">Add</div>
-                    </div>
+                    </nav>
                 </div>
             </div>
             <div id="fiscal-debt" class="root">
-                <div class="expandable">
-                    <article class="total"></article>
-                    <article>Debt:</article>
-                </div>
-                <div class="subroot" style="max-height:0">
+                <nav class="collapsible-object">
+                    <aside>Debt:</aside>
+                    <aside class="total"></aside>
+                </nav>
+                <div class="subroot">
                     <div class="detail-list">
                         
                     </div>
-                    <div class="create-list-grid">
-                        <input type="text" placeholder="Title" onkeydown="KeyToEnterTitle(this)">
-                        <input type="number" placeholder="Amount" onkeydown="KeyToEnterAmount(this)">
+                    <nav class="create-list-grid">
+                        <input type="text" placeholder="Title">
+                        <input type="number" placeholder="Amount">
                         <div class="add-fiscal-list">Add</div>
-                    </div>
+                    </nav>
                 </div>
             </div>
-            <div id="fiscal-balance" class="root" style="pointer-events:none;">
-                <article style="float: right"></article>
-                <article>Balance:</article>
+            <div id="fiscal-balance" class="root">
+                <aside>Balance:</aside>
+                <aside></aside>
             </div>
         </div>
         <hr>
         <h1>Statistics</h1>
+        <div id="statistics-view" class="section-view-grid" style="width:300px;">
+            <aside class="viewed">All</aside>
+            <aside>This Month</aside>
+            <aside>This Week</aside>
+        </div>
         <div id="main_statistics">
             <li>Loading Statistics...</li>
         </div>
         <hr>
-        <h1>This Month</h1>
-        <div class="quater-grid border-list" id="this-month-lists">
-            <aside>
-                <span>Total Expenditure:</span>
-                <span id="this-month-total-expenditure"></span>
-            </aside>
-            <aside>
-                <span>Total Income:</span>
-                <span id="this-month-total-income"></span>
-            </aside>
-            <aside>
-                <span>Average Expenditure:</span>
-                <span id="this-month-average-expenditure"></span>
-            </aside>
-            <aside>
-                <span>Average Income:</span>
-                <span id="this-month-average-income"></span>
-            </aside>
-            <aside>
-                <span id="this-month-total-balance-text">Balance:</span>
-                <span id="this-month-total-balance"></span>
-            </aside>
-            <aside>
-                <span id="this-month-average-balance-text">Average Balance:</span>
-                <span id="this-month-average-balance"></span>
-            </aside>
-        </div>
-        <div class="quater-grid" id="this-month-detail" style="padding-top:8px;">
-            <div id="this-month-expenditure-detail"></div>
-            <div id="this-month-income-detail"></div>
-        </div>
-        <div class="quater-grid" id="this-month-graph" style="padding-top:8px;">
-            <div id="this-month-expenditure-graph"></div>
-            <div id="this-month-income-graph"></div>
+        <div id="summarized-details">
+            <h1>Summarized Details</h1>
+            <div id="view-mode" class="section-view-grid" style="width:200px;">
+                <aside class="viewed">This Month</aside>
+                <aside>Comparison</aside>
+            </div>
+            <section>
+                <div class="summarized-grid border-list" id="stm-lists">
+                    <aside>
+                        <span>Total Expense:</span>
+                        <span id="stm-total-expenditure"></span>
+                    </aside>
+                    <aside>
+                        <span>Total Income:</span>
+                        <span id="stm-total-income"></span>
+                    </aside>
+                    <aside>
+                        <span>Average Expense:</span>
+                        <span id="stm-average-expenditure"></span>
+                    </aside>
+                    <aside>
+                        <span>Average Income:</span>
+                        <span id="stm-average-income"></span>
+                    </aside>
+                    <aside>
+                        <span id="stm-total-balance-text">Balance:</span>
+                        <span id="stm-total-balance"></span>
+                    </aside>
+                    <aside>
+                        <span id="stm-average-balance-text">Average Balance:</span>
+                        <span id="stm-average-balance"></span>
+                    </aside>
+                </div>
+                <div class="summarized-grid" id="stm-detail" style="padding-top:8px;">
+                    <div id="stm-expenditure-detail"></div>
+                    <div id="stm-income-detail"></div>
+                </div>
+                <div class="summarized-grid" id="stm-graph" style="padding-top:8px;">
+                    <div id="stm-expenditure-graph"></div>
+                    <div id="stm-income-graph"></div>
+                </div>
+            </section>
+            <section hidden>
+                <div id="compare-option">
+                    <aside>Compare:</aside>
+                    <aside>This Month</aside>
+                    <aside>to</aside>
+                    <aside>Last Month</aside>
+                </div>
+                <li class="minor-header">By Time</li>
+                <div class="summarized-grid">
+                    <aside id="by-time-expenditure">
+                        <div>
+                            <aside>Total Expense:</aside>
+                            <aside></aside>
+                            <aside>N/A</aside>
+                        </div>
+                    </aside>
+                    <aside id="by-time-income">
+                        <div>
+                            <aside>Total Income:</aside>
+                            <aside></aside>
+                            <aside>N/A</aside>
+                        </div>
+                    </aside>
+                </div>
+                <li class="minor-header">By Average</li>
+                <div class="summarized-grid">
+                    <aside id="by-average-expenditure">
+                        <div>
+                            <aside>Total Expense:</aside>
+                            <aside></aside>
+                            <aside>N/A</aside>
+                        </div>
+                        <div>
+                            
+                        </div>
+                    </aside>
+                    <aside id="by-average-income">
+                        <div>
+                            <aside>Total Income:</aside>
+                            <aside></aside>
+                            <aside>N/A</aside>
+                        </div>
+                    </aside>
+                </div>
+            </section>
         </div>
     </main>
-    <footer style="display:none">
-        <li>Made with love by <a href="https://apskhem.github.io/me" target="_blank" >Apisit Ritreungroj</a></li>
+    <footer hidden>
+        <li>Made by <a href="https://apskhem.github.io/me" target="_blank" >Apisit Ritreungroj</a></li>
         <li><span id="copyright-year"></span> &copy BalPay All Rights Reserved.</li>
     </footer>
 

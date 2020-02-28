@@ -6,7 +6,7 @@ window.onload = () => {
 
     id("signin-userid").value = "apskhem";
     id("signin-password").value = "0821866840a";
-    id("signin-button").click();
+    cl("comfirm-button")[0].click();
 }
 
 class Form {
@@ -17,15 +17,15 @@ class Form {
     }
 
     static DisplaySignUp() {
-        id("signup-form").style.display = "block";
-        id("signin-form").style.display = "none";
-        id("forgotmypassword-form").style.display = "none";
+        id("signup-form").hidden = false;
+        id("signin-form").hidden = true;
+        id("forgotmypassword-form").hidden = true;
     }
     
     static DisplaySignIn() {
-        id("signup-form").style.display = "none";
-        id("signin-form").style.display = "block";
-        id("forgotmypassword-form").style.display = "none";
+        id("signup-form").hidden = true;
+        id("signin-form").hidden = false;
+        id("forgotmypassword-form").hidden = true;
     }
 
     static DisplayForgotPassword() {
@@ -61,7 +61,7 @@ id("signin-userid").addEventListener("keydown", function(e) {
         id(this.id).value === "" ? Form.ShootInputError(this.id) : id("signin-password").focus();
     }
     
-    id(this.id).style.boxShadow = "";
+    id(this.id).style.boxShadow = null;
     id(this.id).style.border = "1px solid #5D6D7E";
 });
 
@@ -70,6 +70,6 @@ id("signin-password").addEventListener("keydown", function(e) {
         id(this.id).value === "" ? Form.ShootInputError(this.id) : cl("comfirm-button")[0].click();
     }
     
-    id(this.id).style.boxShadow = "";
+    id(this.id).style.boxShadow = null;
     id(this.id).style.border = "1px solid #5D6D7E";
 });

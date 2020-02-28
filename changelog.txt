@@ -29,3 +29,8 @@ R2B007.1 - Tue. 11 Feb. 2020
 - Changed icon.
 R2B007.1h - Tue. 11 Feb. 2020
 - Hotfixes.
+R2B008 - Fri. 28 Feb. 2020
+- Updated user-interface.
+- Fixed system performance.
+- Added 'comparison' summarization.
+- Added 'range' view of history graph.

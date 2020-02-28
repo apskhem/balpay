@@ -12,6 +12,26 @@ class AutomaticSystem {
     }
 }
 
+class Interface {
+    static AdjustHistoryGraphSize() {
+        const main = tn("main")[0];
+        const graph = id("main_statistics");
+    
+        if (main.offsetWidth > 450) {
+            graph.style.width = main.offsetWidth + 250 + "px";
+            graph.style.height = "540px";
+            graph.style.marginLeft = "-125px";
+            graph.style.marginTop = "-80px";
+        }
+        else {
+            graph.style.width = main.offsetWidth + 50 + "px";
+            graph.style.height = "400px";
+            graph.style.marginLeft = "-30px";
+            graph.style.marginTop = "-60px";
+        }
+    }
+}
+
 class AppToolset {
     static FormatNumber(num) {
         num = parseFloat(num).toFixed(2).toString().split(".");
@@ -113,7 +133,7 @@ const inputlist = {
             SumList(channel);
             UpdateBalance();
             UpdateChart();
-            SumThisMonth();
+            Summarization();
 
             if (this) {
                 pendingList.Push(detailObject);
@@ -137,11 +157,10 @@ const inputlist = {
 // Create a new list on "Add" button clicked
 for (const addFiscalList of cl("add-fiscal-list")) {
     addFiscalList.addEventListener("click", function() {
-        let input_title = this.previousElementSibling.previousElementSibling.value;
-        let input_amount = this.previousElementSibling.value;
+        const input_title = this.previousElementSibling.previousElementSibling.value;
+        const input_amount = this.previousElementSibling.value;
 
-        if (input_title === "") return;
-        if (input_amount === "") return;
+        if (input_title === "" || input_amount === "") return;
 
         if (wasRecordsRead) {
             const subroot = this.parentElement.parentElement;
@@ -162,7 +181,7 @@ for (const addFiscalList of cl("add-fiscal-list")) {
                         SumList(subroot.parentElement.id);
                         UpdateBalance();
                         UpdateChart();
-                        SumThisMonth();
+                        Summarization();
                         pendingList.Push(rootList);
                         Database.Update();
                     }
@@ -172,7 +191,7 @@ for (const addFiscalList of cl("add-fiscal-list")) {
                         SumList(subroot.parentElement.id);
                         UpdateBalance();
                         UpdateChart();
-                        SumThisMonth();
+                        Summarization();
                         Database.Update();
                     }
 
@@ -217,7 +236,7 @@ for (const addFiscalList of cl("add-fiscal-list")) {
 
         if (wasRecordsRead) {
             UpdateChart();
-            SumThisMonth();
+            Summarization();
             pendingList.Push(rootdiv);
             Database.Update();
         }
@@ -265,7 +284,7 @@ function UpdateChart() {
     ];
 
     // redraw statistics chart
-    google.charts.setOnLoadCallback(HistoryGraph);
+    google.charts.setOnLoadCallback(GraphSet.History);
 }
 
 // Sum all the detail in each channel
@@ -285,35 +304,52 @@ function SumList(channel) {
     }
 }
 
-function SumThisMonth() {
+function Summarization() {
     let date = AppToolset.currentDate.split(".");
     let month = {expenditure: 0, income: 0};
     let spendingLists = {expenditure: {}, income: {}};
 
-    let z = records.length - 1;
-    const thisMonth = +date[1]
-    while (records[z][0].getMonth() === thisMonth) {
-        month.expenditure += records[z][2];
-        month.income += records[z][3];
-        AppToolset.ParseDetail(detailRecords[z][0], spendingLists.expenditure);
-        AppToolset.ParseDetail(detailRecords[z--][1], spendingLists.income);
+    let cMonth = {expenditure: 0, income: 0};
+    let lastMonthSpendingLists = {expenditure: {}, income: {}};
+    
+    const thisMonth = +date[1];
+    let tcMonth = thisMonth - 1 < 0 ? 11 : thisMonth - 1;
+    let totalComDate = 0;
+
+    for (let z = records.length - 1; z >= 0; z--) {
+        // get this month data
+        if (records[z][0].getMonth() === thisMonth) {
+            month.expenditure += records[z][2];
+            month.income += records[z][3];
+            AppToolset.ParseDetail(detailRecords[z][0], spendingLists.expenditure);
+            AppToolset.ParseDetail(detailRecords[z][1], spendingLists.income);
+        }
+
+        // get last month data
+        if (records[z][0].getMonth() === tcMonth) {
+            cMonth.expenditure += records[z][2];
+            cMonth.income += records[z][3];
+            AppToolset.ParseDetail(detailRecords[z][0], lastMonthSpendingLists.expenditure);
+            AppToolset.ParseDetail(detailRecords[z][1], lastMonthSpendingLists.income);
+            totalComDate++;
+        }
     }
 
-    id("this-month-total-expenditure").textContent = AppToolset.FormatNumber(month.expenditure) + " " + user.settings.currency;
-    id("this-month-total-income").textContent = AppToolset.FormatNumber(month.income) + " " + user.settings.currency;
-    id("this-month-average-expenditure").textContent = AppToolset.FormatNumber(month.expenditure / +date[2]) + " " + user.settings.currency;
-    id("this-month-average-income").textContent = AppToolset.FormatNumber(month.income / +date[2]) + " " + user.settings.currency;
+    id("stm-total-expenditure").textContent = AppToolset.FormatNumber(month.expenditure) + " " + user.settings.currency;
+    id("stm-total-income").textContent = AppToolset.FormatNumber(month.income) + " " + user.settings.currency;
+    id("stm-average-expenditure").textContent = AppToolset.FormatNumber(month.expenditure / +date[2]) + " " + user.settings.currency;
+    id("stm-average-income").textContent = AppToolset.FormatNumber(month.income / +date[2]) + " " + user.settings.currency;
 
-    id("this-month-total-balance-text").textContent = (month.income >= month.expenditure) ? "Surplus" : "Deficit";
-    id("this-month-total-balance-text").parentElement.style.color = (month.income >= month.expenditure) ? "#097138" : "#9e0000";
-    id("this-month-total-balance").textContent = AppToolset.FormatNumber(Math.abs(month.expenditure - month.income)) + " " + user.settings.currency;
-    id("this-month-average-balance-text").textContent = "Daily Average " + ((month.income >= month.expenditure) ? "Surplus" : "Deficit");
-    id("this-month-average-balance-text").parentElement.style.color = (month.income >= month.expenditure) ? "#097138" : "#9e0000";
-    id("this-month-average-balance").textContent = AppToolset.FormatNumber(Math.abs(month.expenditure - month.income)/ +date[2]) + " " + user.settings.currency;
+    id("stm-total-balance-text").textContent = month.income >= month.expenditure ? "Surplus" : "Deficit";
+    id("stm-total-balance-text").parentElement.style.color = month.income >= month.expenditure ? "#4baea0" : "#d45079";
+    id("stm-total-balance").textContent = AppToolset.FormatNumber(Math.abs(month.expenditure - month.income)) + " " + user.settings.currency;
+    id("stm-average-balance-text").textContent = "Daily Average " + (month.income >= month.expenditure ? "Surplus" : "Deficit");
+    id("stm-average-balance-text").parentElement.style.color = month.income >= month.expenditure ? "#4baea0" : "#d45079";
+    id("stm-average-balance").textContent = AppToolset.FormatNumber(Math.abs(month.expenditure - month.income)/ +date[2]) + " " + user.settings.currency;
 
-    // create detail list
+    // create detail list for sdm
     for (let type in spendingLists) {
-        id(`this-month-${type}-detail`).innerHTML = "";
+        id(`stm-${type}-detail`).innerHTML = "";
         for (let list in spendingLists[type]) {
             let block = create("div");
             let li1 = create("li");
@@ -324,21 +360,158 @@ function SumThisMonth() {
             block.appendChild(li1);
             block.appendChild(li2);
 
-            id(`this-month-${type}-detail`).appendChild(block);
+            id(`stm-${type}-detail`).appendChild(block);
         }
     }
 
     // redraw this month chart
     google.charts.setOnLoadCallback(() => {
-        ThisMonthGraph(AppToolset.Object2Array(spendingLists.expenditure), "this-month-expenditure-graph");
-        ThisMonthGraph(AppToolset.Object2Array(spendingLists.income), "this-month-income-graph");
+        GraphSet.SummarizedThisMonth(AppToolset.Object2Array(spendingLists.expenditure), "stm-expenditure-graph");
+        GraphSet.SummarizedThisMonth(AppToolset.Object2Array(spendingLists.income), "stm-income-graph");
     });
+
+    /* #### SUMMARIZATION #### */
+
+    if (totalComDate === 0) return;
+
+    ComparisonBarExpenditure("expenditure", id("by-time-expenditure").children[0].children[1], month.expenditure, cMonth.expenditure);
+    ComparisonBarExpenditure("income", id("by-time-income").children[0].children[1], month.income, cMonth.income);
+    ComparisonBarExpenditure("expenditure", id("by-average-expenditure").children[0].children[1], month.expenditure / +date[2], cMonth.expenditure / totalComDate);
+    ComparisonBarExpenditure("income", id("by-average-income").children[0].children[1], month.income / +date[2], cMonth.income / totalComDate);
+
+    // create detail list for comparison
+    for (const type in spendingLists) {
+        while (id(`by-time-${type}`).childElementCount > 1) {
+            id(`by-time-${type}`).removeChild(id(`by-time-${type}`).lastChild);
+        }
+        
+        // by-time expenditure and income
+        for (const list in spendingLists[type]) {
+            let block = create("div");
+            let aside1 = create("aside");
+            let aside2 = create("aside");
+            let aside3 = create("aside");
+
+            if (lastMonthSpendingLists[type][list]) {
+                const last = lastMonthSpendingLists[type][list];
+                const current = spendingLists[type][list];
+                let base, over, color;
+
+                if (current < last) {
+                    base = (last - current) / last * 100;
+                    over = current / last * 100;
+                    color = type === "expenditure" ? "#4baea0" : "#d45079";
+                    aside3.textContent = `-${AppToolset.FormatNumber(base)}%`;
+                    aside2.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${over}%, ${color} 0)`;
+                }
+                else {
+                    base = last / current * 100;
+                    over = (current - last) / current * 100;
+                    color = type === "expenditure" ? "#d45079" : "#4baea0";
+                    aside3.textContent = `+${AppToolset.FormatNumber(over)}%`;
+                    aside2.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${base}%, ${color} 0)`;
+                }
+                aside3.style.color = aside3.textContent === "+0.00%" ? "black" : color;
+            }
+            else {
+                aside3.style.color = aside2.style.backgroundColor = type === "expenditure" ? "#d45079" : "#4baea0";
+                aside3.textContent = "NEW";
+            }
+    
+            aside1.textContent = list + ":";
+            block.appendChild(aside1);
+            block.appendChild(aside2);
+            block.appendChild(aside3);
+
+            id(`by-time-${type}`).appendChild(block);
+        }
+
+        // by-average expenditure and income
+        for (const list in spendingLists[type]) {
+            let block = create("div");
+            let aside1 = create("aside");
+            let aside2 = create("aside");
+            let aside3 = create("aside");
+
+            if (lastMonthSpendingLists[type][list]) {
+                const last = lastMonthSpendingLists[type][list] / totalComDate;
+                const current = spendingLists[type][list] / +date[2];
+                let base, over, color;
+
+                if (current < last) {
+                    base = (last - current) / last * 100;
+                    over = current / last * 100;
+                    color = type === "expenditure" ? "#4baea0" : "#d45079";
+                    aside3.textContent = `-${AppToolset.FormatNumber(base)}%`;
+                    aside2.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${over}%, ${color} 0)`;
+                }
+                else {
+                    base = last / current * 100;
+                    over = (current - last) / current * 100;
+                    color = type === "expenditure" ? "#d45079" : "#4baea0";
+                    aside3.textContent = `+${AppToolset.FormatNumber(over)}%`;
+                    aside2.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${base}%, ${color} 0)`;
+                }
+                aside3.style.color = aside3.textContent === "+0.00%" ? "black" : color;
+            }
+            else {
+                aside3.style.color = aside2.style.backgroundColor = type === "expenditure" ? "#d45079" : "#4baea0";
+                aside3.textContent = "NEW";
+            }
+
+            aside1.textContent = list + ":";
+            block.appendChild(aside1);
+            block.appendChild(aside2);
+            block.appendChild(aside3);
+
+            id(`by-average-${type}`).appendChild(block);
+        }
+
+        for (const list in lastMonthSpendingLists[type]) {
+            if (spendingLists[type][list] === undefined) {
+                let block = create("div");
+                let aside1 = create("aside");
+                let aside2 = create("aside");
+                let aside3 = create("aside");
+    
+                aside2.style.backgroundColor = aside3.style.color = type === "expenditure" ? "#4baea0" : "#d45079";
+                aside3.textContent = "-100%";
+    
+                aside1.textContent = list + ":";
+                block.appendChild(aside1);
+                block.appendChild(aside2);
+                block.appendChild(aside3);
+
+                id(`by-time-${type}`).appendChild(block);
+                id(`by-average-${type}`).appendChild(block.cloneNode(true));
+            }
+        }
+    }
+
+    function ComparisonBarExpenditure(type, barElement, refNum, comNum) {
+        if (refNum < comNum) {
+            const base = (comNum - refNum) / comNum * 100;
+            const over = refNum / comNum * 100;
+            const color = type === "expenditure" ? "#4baea0" : "#d45079";
+            barElement.nextElementSibling.textContent = `-${AppToolset.FormatNumber(base)}%`;
+            barElement.nextElementSibling.style.color = color;
+            barElement.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${over}%, ${color} 0)`;
+        }
+        else {
+            const base = comNum / refNum * 100;
+            const over = (refNum - comNum) / refNum * 100;
+            const color = type === "expenditure" ? "#d45079" : "#4baea0";
+            barElement.nextElementSibling.textContent = `+${AppToolset.FormatNumber(over)}%`;
+            barElement.nextElementSibling.style.color = color;
+            barElement.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${base}%, ${color} 0)`;
+        }
+    }
 }
 
 // adjust the balance and text it
 function UpdateBalance() {
     finance.balance.result = finance.balance.final - GetTotalValue("fiscal-expenditure") + GetTotalValue("fiscal-income");
-    id("fiscal-balance").children[0].textContent = AppToolset.FormatNumber(finance.balance.result) + " " + user.settings.currency;
+    id("fiscal-balance").children[1].textContent = AppToolset.FormatNumber(finance.balance.result) + " " + user.settings.currency;
 }
 
 function GetTotalValue(channel) {
@@ -363,19 +536,51 @@ function GetDetails(channel) {
 // ----------------------- //
 
 // collapsible content
-for (const expandable of cl("expandable")) {
+for (const expandable of cl("collapsible-object")) {
     expandable.addEventListener("click", function() {
         let detailList = this.nextElementSibling;
         detailList.style.maxHeight = (detailList.style.maxHeight === "0px") ? detailList.scrollHeight + "px" : 0;
     });
 }
 
-function KeyToEnterTitle(obj) {
-    if (event.keyCode === 13)
-        obj.nextElementSibling.focus();
+// add list input on enter
+for (const element of cl("create-list-grid")) {
+    element.children[0].addEventListener("keydown", function() {
+        if (event.keyCode === 13)
+            this.nextElementSibling.focus();
+    });
+
+    element.children[1].addEventListener("keydown", function() {
+        if (event.keyCode === 13)
+            this.nextElementSibling.click();
+    });
 }
 
-function KeyToEnterAmount(obj) {
-    if (event.keyCode === 13)
-        obj.nextElementSibling.click();
+// section view
+for (const element of cl("section-view-grid")) {
+    for (const rootChild of element.children) {
+        rootChild.addEventListener("click", function() {
+        
+            for (const child of this.parentElement.children)
+                child.classList.remove("viewed");
+    
+            this.classList.add("viewed");
+        });
+    }
+}
+
+// view mode
+for (const child of id("view-mode").children) {
+    child.addEventListener("click", function() {
+        switch (this.textContent) {
+            case "This Month": {
+                id("summarized-details").children[2].hidden = false;
+                id("summarized-details").children[3].hidden = true;
+            } break;
+            case "Comparison": {
+                id("summarized-details").children[2].hidden = true;
+                id("summarized-details").children[3].hidden = false;
+            } break;
+        }
+    });
 }

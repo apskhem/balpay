@@ -25,6 +25,12 @@ let detail = {
 // systematic variable(s)
 let wasRecordsRead = false;
 
+class Records {
+    static CallRecord() {
+
+    }
+}
+
 // update list function
 class PendingList {
     constructor() {
@@ -122,86 +128,82 @@ class Database {
         });
     }
 
-    static GetUserRecordData(userID) {
-        const req = {"user": userID};
-    
-        $.getJSON(url.Format(req, "READ"), (json) => {
-            let finalRecordDate;
-            for (const dataRow of json.records) {
-                records.push([
-                    new Date(...dataRow.DATE.split(".")),
-                    dataRow.BALANCE,
-                    dataRow.EXPENDITURE,
-                    dataRow.INCOME,
-                    dataRow.LENDING,
-                    dataRow.DEBT
-                ]);
+    static ProcessRecordData(userRecords) {
+        let finalRecordDate;
+        for (const dataRow of userRecords) {
+            records.push([
+                new Date(...dataRow.DATE.split(".")),
+                dataRow.BALANCE,
+                dataRow.EXPENDITURE,
+                dataRow.INCOME,
+                dataRow.LENDING,
+                dataRow.DEBT
+            ]);
 
-                detailRecords.push([
-                    dataRow.DETAIL_EXPENDITURE,
-                    dataRow.DETAIL_INCOME,
-                    dataRow.DETAIL_LENDING,
-                    dataRow.DETAIL_DEBT
-                ]);
-    
-                if (json.records.indexOf(dataRow) === json.records.length - 1) { // is today
-                    finalRecordDate = dataRow.DATE;
-                    finance.balance.today = dataRow.BALANCE;
-                    finance.expenditure = dataRow.EXPENDITURE;
-                    finance.income = dataRow.INCOME;
-                    finance.lending = dataRow.LENDING;
-                    finance.debt = dataRow.DEBT;
-                    detail.expenditure = dataRow.DETAIL_EXPENDITURE;
-                    detail.income = dataRow.DETAIL_INCOME;
-                    detail.lending = dataRow.DETAIL_LENDING;
-                    detail.debt = dataRow.DETAIL_DEBT;
-                }
-                if (json.records.indexOf(dataRow) === json.records.length - 2) { // is previous day
-                    finance.balance.final = dataRow.BALANCE;
-                }
-            }
-    
-            if (AppToolset.currentDate === finalRecordDate) {
-                for (const financeList in detail) {
-                    ParseAndCreateList("fiscal-" + financeList, finance[financeList], detail[financeList]);
-                }             
-                SumList();
-            }
-            else { // create new list for new day
-                records.push([new Date(...AppToolset.currentDate.split(".")), finance.balance.today, 0, 0, finance.lending, finance.debt]);
-                detailRecords.push(["", "", detail.lending, detail.debt]);
+            detailRecords.push([
+                dataRow.DETAIL_EXPENDITURE,
+                dataRow.DETAIL_INCOME,
+                dataRow.DETAIL_LENDING,
+                dataRow.DETAIL_DEBT
+            ]);
 
-                finance.balance.final = finance.balance.today;
-                finance.expenditure = 0;
-                finance.income = 0;
-                ParseAndCreateList("fiscal-lending", finance.lending, detail.lending);
-                ParseAndCreateList("fiscal-debt", finance.debt, detail.debt);  
-                SumList();
-    
-                Database.Insert();
+            if (userRecords.indexOf(dataRow) === userRecords.length - 1) { // is today
+                finalRecordDate = dataRow.DATE;
+                finance.balance.today = dataRow.BALANCE;
+                finance.expenditure = dataRow.EXPENDITURE;
+                finance.income = dataRow.INCOME;
+                finance.lending = dataRow.LENDING;
+                finance.debt = dataRow.DEBT;
+                detail.expenditure = dataRow.DETAIL_EXPENDITURE;
+                detail.income = dataRow.DETAIL_INCOME;
+                detail.lending = dataRow.DETAIL_LENDING;
+                detail.debt = dataRow.DETAIL_DEBT;
             }
-    
-            // functions after completing the data request precess
-            google.charts.setOnLoadCallback(HistoryGraph);
-            UpdateBalance();
-            SumThisMonth();
-            wasRecordsRead = true;
-
-            // display main screen
-            tn("main")[0].style.display = "block";
-            tn("footer")[0].style.display = "block";
-            tn("header")[0].style.display = "none";
-            document.body.style.padding = "0 6px";
-    
-            // init user settings
-            tn("title")[0].textContent = "Balpay - " + user.fullname;
-            id("fullname").textContent = user.fullname;
-
-            // close all newly created list
-            for (const expandable of cl("expandable")) {
-                expandable.nextElementSibling.style.maxHeight = 0;
+            if (userRecords.indexOf(dataRow) === userRecords.length - 2) { // is previous day
+                finance.balance.final = dataRow.BALANCE;
             }
-        });
+        }
+
+        if (AppToolset.currentDate === finalRecordDate) {
+            for (const financeList in detail) {
+                ParseAndCreateList("fiscal-" + financeList, finance[financeList], detail[financeList]);
+            }             
+            SumList();
+        }
+        else { // create new list for new day
+            records.push([new Date(...AppToolset.currentDate.split(".")), finance.balance.today, 0, 0, finance.lending, finance.debt]);
+            detailRecords.push(["", "", detail.lending, detail.debt]);
+
+            finance.balance.final = finance.balance.today;
+            finance.expenditure = 0;
+            finance.income = 0;
+            ParseAndCreateList("fiscal-lending", finance.lending, detail.lending);
+            ParseAndCreateList("fiscal-debt", finance.debt, detail.debt);  
+            SumList();
+
+            Database.Insert();
+        }
+
+        // functions after completing the data request precess
+        google.charts.setOnLoadCallback(GraphSet.History);
+        UpdateBalance();
+        Summarization();
+        wasRecordsRead = true;
+
+        // display main screen
+        tn("main")[0].hidden = false;
+        tn("footer")[0].hidden = false;
+        tn("header")[0].hidden = true;
+        document.body.style.padding = "0 6px";
+
+        // init user settings
+        tn("title")[0].textContent = "Balpay - " + user.fullname;
+        id("fullname").textContent = user.fullname;
+
+        // close all newly created list
+        for (const expandable of cl("collapsible-object")) {
+            expandable.nextElementSibling.style.maxHeight = 0;
+        }
     
         // functions for completing lists during the process
         function ParseAndCreateList(channel, q_today, q_detail) {
@@ -267,10 +269,6 @@ class RequestResponse {
             }
         }
         else if (res.result === "pass") { // if sign in form is corrected
-            cl("comfirm-button")[0].textContent = "Initializing...";
-
-            Database.GetUserRecordData(res.userData.USERID);
-
             // store user data
             user = {
                 id: res.userData.USERID,
@@ -278,6 +276,8 @@ class RequestResponse {
                 email: res.userData.EMAIL,
                 settings: ParseUserSettings(res.userData.USER_SETTINGS)
             }
+
+            Database.ProcessRecordData(Object.values(res.records));
         }
     
         function ParseUserSettings(dataObj) {
