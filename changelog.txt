@@ -34,3 +34,7 @@ R2B008 - Fri. 28 Feb. 2020
 - Fixed system performance.
 - Added 'comparison' summarization.
 - Added 'range' view of history graph.
+R2B008.0h - Fri. 29 Feb. 2020
+- hotfixes.
+R2B008.1h - Fri. 29 Feb. 2020
+- hotfixes.

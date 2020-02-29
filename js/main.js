@@ -383,6 +383,7 @@ function Summarization() {
     for (const type in spendingLists) {
         while (id(`by-time-${type}`).childElementCount > 1) {
             id(`by-time-${type}`).removeChild(id(`by-time-${type}`).lastChild);
+            id(`by-average-${type}`).removeChild(id(`by-average-${type}`).lastChild);
         }
         
         // by-time expenditure and income
