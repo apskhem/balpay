@@ -37,7 +37,7 @@
                 <li>Email</li>
                 <input id="signup-email" type="email" placeholder="Email">
                 <li>Currency</li>
-                <input id="signup-currency" type="text" placeholder="Currency THB, USD, GBP etc.">
+                <input id="signup-currency" type="text" placeholder="Currency THB, USD, GBP etc." maxlength="3">
                 <div class="form-options">
                     <span onclick="Form.DisplaySignIn()">Back to sign in</span>
                 </div>
@@ -65,71 +65,8 @@
         </div>
         <hr>
         <div id="main-fiscal-panel">
-            <div id="fiscal-expenditure" class="root">
-                <nav class="collapsible-object">
-                    <aside>Expense:</aside>
-                    <aside class="total"></aside>
-                </nav>
-                <div class="subroot">
-                    <div class="detail-list">
-
-                    </div>
-                    <nav class="create-list-grid">
-                        <input type="text" placeholder="Title">
-                        <input type="number" placeholder="Amount">
-                        <div class="add-fiscal-list">Add</div>
-                    </nav>
-                </div>
-            </div>
-            <div id="fiscal-income" class="root">
-                <nav class="collapsible-object">
-                    <aside>Income:</aside>
-                    <aside class="total"></aside>
-                </nav>
-                <div class="subroot">
-                    <div class="detail-list">
-                        
-                    </div>
-                    <nav class="create-list-grid">
-                        <input type="text" placeholder="Title">
-                        <input type="number" placeholder="Amount">
-                        <div class="add-fiscal-list">Add</div>
-                    </nav>
-                </div>
-            </div>
-            <div id="fiscal-lending" class="root">
-                <nav class="collapsible-object">
-                    <aside>Lending:</aside>
-                    <aside class="total"></aside>
-                </nav>
-                <div class="subroot">
-                    <div class="detail-list">
-
-                    </div>
-                    <nav class="create-list-grid">
-                        <input type="text" placeholder="Title">
-                        <input type="number" placeholder="Amount">
-                        <div class="add-fiscal-list">Add</div>
-                    </nav>
-                </div>
-            </div>
-            <div id="fiscal-debt" class="root">
-                <nav class="collapsible-object">
-                    <aside>Debt:</aside>
-                    <aside class="total"></aside>
-                </nav>
-                <div class="subroot">
-                    <div class="detail-list">
-                        
-                    </div>
-                    <nav class="create-list-grid">
-                        <input type="text" placeholder="Title">
-                        <input type="number" placeholder="Amount">
-                        <div class="add-fiscal-list">Add</div>
-                    </nav>
-                </div>
-            </div>
-            <div id="fiscal-balance" class="root">
+            <!-- INSERTING ROOT LIST -->
+            <div id="bal-root" class="root">
                 <aside>Balance:</aside>
                 <aside></aside>
             </div>
@@ -239,7 +176,7 @@
         <li><span id="copyright-year"></span> &copy BalPay All Rights Reserved.</li>
     </footer>
 
-    <script type="text/javascript" src="js/database.js"></script>
+    <script type="text/javascript" src="js/db.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
     <script type="text/javascript" src="js/form.js"></script>
     <script type="text/javascript" src="js/graph.js"></script>

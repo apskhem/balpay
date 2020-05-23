@@ -3,8 +3,7 @@ html, body {
 	margin: 0;
 	padding: 0;
     line-height: 1.5;
-    
-    background-color: #bbded6;
+
     overflow-x: hidden;
 
 	box-sizing: border-box;
@@ -68,7 +67,7 @@ main {
     background: #f9f9f9;
     
     padding: 10px;
-    border: 2px solid #6b7b8e;
+    border: 1px solid #6b7b8e;
     box-shadow: 0 0 6px 0px rgba(0, 0, 0, 0.2);
 }
 
@@ -146,7 +145,7 @@ main {
     transition: 0.25s;
 }
 
-.add-fiscal-list {
+.list-adding-btn {
     color: white;
     border: 1px solid #6b7b8e;
     padding: 4px;
@@ -155,38 +154,42 @@ main {
     cursor: pointer;
 }
 
-#fiscal-expenditure aside,
-#fiscal-expenditure .add-fiscal-list {
+.list-adding-btn::before {
+    content: "ADD";
+}
+
+#exp-root aside,
+#exp-root .list-adding-btn {
     color: #d45079;
 }
 
-#fiscal-income aside,
-#fiscal-income .add-fiscal-list {
+#inc-root aside,
+#inc-root .list-adding-btn {
     color: #4baea0;
 }
 
-#fiscal-lending aside,
-#fiscal-lending .add-fiscal-list  {
+#len-root aside,
+#len-root .list-adding-btn  {
     color: #ffc70f;
 }
 
-#fiscal-debt aside,
-#fiscal-debt .add-fiscal-list {
+#deb-root aside,
+#deb-root .list-adding-btn {
     color: #5D6D7E;
 }
 
-#fiscal-balance {
+#bal-root {
     display: grid;
     grid-template-columns: 50% 50%;
 }
 
-#fiscal-balance > aside {
+#bal-root > aside {
     color: #85C1E9;
     font-weight: bold;
     font-size: x-large;
 }
 
-#fiscal-balance > aside:last-child {
+#bal-root > aside:last-child {
     text-align: right;
 }
 
@@ -225,7 +228,7 @@ main {
 .create-list-grid > input {
     background-color: transparent;
     font-size: 16px;
-    padding-left: 12px;
+    padding: 6px 8px;
     border: 1px solid #5D6D7E;
     border-radius: 4px;
 }

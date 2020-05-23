@@ -1,8 +1,8 @@
-google.charts.load("current", {"packages":["corechart", "line"]});
+google.charts.load("current", { "packages": ["corechart", "line"] });
 
 class GraphSet {
     static History() {
-        let data = new google.visualization.DataTable();
+        const data = new google.visualization.DataTable();
         data.addColumn("date", "Date");
         data.addColumn("number", "Balance");
         data.addColumn("number", "Expenditure");
@@ -24,12 +24,28 @@ class GraphSet {
             },
         };
     
-        let graph = new google.visualization.LineChart(id("main_statistics"));
+        let graph = new google.visualization.LineChart(document.getElementById("main_statistics"));
+
+        // adjust graph size
+        const main = document.getElementsByTagName("main")[0];
+        const chart = document.getElementById("main_statistics");
     
-        Interface.AdjustHistoryGraphSize();
+        if (main.offsetWidth > 450) {
+            chart.style.width = main.offsetWidth + 250 + "px";
+            chart.style.height = "540px";
+            chart.style.marginLeft = "-125px";
+            chart.style.marginTop = "-80px";
+        }
+        else {
+            chart.style.width = main.offsetWidth + 50 + "px";
+            chart.style.height = "400px";
+            chart.style.marginLeft = "-30px";
+            chart.style.marginTop = "-60px";
+        }
+
         graph.draw(data, options);
     
-        for (const child of id("statistics-view").children) {
+        for (const child of document.getElementById("statistics-view").children) {
             child.addEventListener("click", function() {
                 data.removeRows(0, records.length);
     
@@ -38,7 +54,7 @@ class GraphSet {
                         data.addRows(records);
                     } break;
                     case "This Month": {
-                        const thisMonth = +AppToolset.currentDate.split(".")[1];
+                        const thisMonth = +Tools.currentDate.split(".")[1];
                         for (const record of records) {
                             if (record[0].getMonth() === thisMonth) {
                                 data.addRow(record);
@@ -69,12 +85,12 @@ class GraphSet {
             legend: "none",
             pieSliceText: 'label',
             fontName: "Sarabun",
-            height: tn("main")[0].offsetWidth/2.0,
+            height: document.getElementsByTagName("main")[0].offsetWidth/2.0,
             backgroundColor: { fill:"transparent" }
         };
     
-        let graph = new google.visualization.PieChart(id(locationID));
+        let graph = new google.visualization.PieChart(document.getElementById(locationID));
     
         graph.draw(data, options);
     }
-}
+};
