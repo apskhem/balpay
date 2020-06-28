@@ -1,69 +1,29 @@
-window.onerror = (msg, url, lineNo, columnNo, error) => alert(`${msg}\nAT: ${lineNo}-${columnNo} ${url.split("/").pop()}`);
+import EventListenerModule from "./modules/event-listener-module.js";
+import GoogleAppsScriptDB from "./modules/google-apps-script-db.js";
+import GoogleCharts from "./modules/google-charts.js";
+import { AppSystem, AutomaticSystem, Tools } from "./modules/misc.js";
+import { RootList } from "./modules/app-module.js";
 
-class AutomaticSystem {
-    static Copyright(element, startYear) {
-        const recentYear = new Date().getFullYear();
-        element.textContent = (startYear === recentYear) ? startYear : `${startYear}-${recentYear}`;
-    }
-};
+export const elm = new EventListenerModule();
+export const db = new GoogleAppsScriptDB("https://script.google.com/macros/s/AKfycbx8PNkzqprtcF5xIjbkvHszP6P5ggWwaAsXdB-fpf7g9BA3bbHT/exec");
+export const graph = new GoogleCharts("corechart", "line");
+AppSystem.WatchError();
 
-class Tools {
-    static FormatNumber(num) {
-        num = parseFloat(num).toFixed(2).toString().split(".");
-        let textNum = num[0];
-        let sum = "";
-    
-        let lastDigit = textNum.length - 1;
-        for (let i = 0; i < textNum.length; i++) {
-            sum += textNum[i] + (((lastDigit - i) % 3 === 0 && i != lastDigit) ? ",": "");
-        }
-        
-        return `${sum}.${num[1]}`;
-    }
+// sever side variable(s)
+export const user = {};
+export const records = [];
+export const detailRecords = [];
 
-    static DeformatNumber = (readable) => parseFloat(readable.replace(/[,]/g, ""));
+export const balance = {
+    final: 0, // The balance that not include calulated result of exp. or inc --- form previous record.
+    result: 0 // the balnce that include calulated result of exp. or inc.
+}
 
-    static get currentDate() {
-        let t = new Date();
-        return t.getFullYear() + "." + t.getMonth() + "." + t.getDate();
-    }
-
-    static FormatDate(date) {
-        let d = date.split(".");
-        switch (d[1]) {
-            case "0": d[1] = "January"; break;
-            case "1": d[1] = "February"; break;
-            case "2": d[1] = "March"; break;
-            case "3": d[1] = "April"; break;
-            case "4": d[1] = "May"; break;
-            case "5": d[1] = "June"; break;
-            case "6": d[1] = "July"; break;
-            case "7": d[1] = "August"; break;
-            case "8": d[1] = "September"; break;
-            case "9": d[1] = "October"; break;
-            case "10": d[1] = "November"; break;
-            case "11": d[1] = "December"; break;
-        }
-        return `${d[2]} ${d[1]} ${d[0]}`;
-    }
-
-    static ParseDetail(detailRow, obj) {
-        if (detailRow === "") return;
-
-        for (let pairVal of detailRow.split(";")) {
-            pairVal = pairVal.split("=");
-
-            obj[pairVal[0]] = (obj[pairVal[0]] ? obj[pairVal[0]] : 0) + +pairVal[1];
-        }
-    }
-
-    static Object2Array(obj) {
-        let arr = [];
-        for (let key in obj) {
-            arr.push([key, obj[key]]);
-        }
-        return arr;
-    }
+export const roots = {
+    exp: new RootList("exp"),
+    inc: new RootList("inc"),
+    len: new RootList("len"),
+    deb: new RootList("deb")
 };
 
 // ------------------ //
@@ -77,285 +37,7 @@ AutomaticSystem.Copyright(document.getElementById("copyright-year"), 2019);
 //  Core Fundamental Functions //
 // --------------------------- //
 
-class RootList {
-    static balanceEl = document.getElementById("bal-root")
-
-    constructor(type) {
-        this.el = document.createElement("div");
-        this.nav = document.createElement("nav");
-        this.asideHeader = document.createElement("aside");
-        this.asideTotal = document.createElement("aside");
-        this.listContainer = document.createElement("div");
-        this.lists = [];
-
-        this.header = type;
-        this.el.id = type + "-root";
-        this.el.className = "root";
-        this.nav.className = "collapsible-object";
-        this.asideTotal.className = "total";
-        this.asideTotal.textContent = "0";
-        this.listContainer.className = "subroot";
-
-        this.nav.appendChild(this.asideHeader);
-        this.nav.appendChild(this.asideTotal);
-        this.el.appendChild(this.nav);
-        this.el.appendChild(this.listContainer);
-
-        this.addingList = new AddingList(this);
-
-        document.getElementById("main-fiscal-panel").insertBefore(this.el, RootList.balanceEl);
-    }
-
-    get header() {
-        return this.asideHeader.textContent.slice(0, -1).toLowerCase();
-    }
-
-    set header(type) {
-        switch (type) {
-            case "exp": this.asideHeader.textContent = "Expense:"; break;
-            case "inc": this.asideHeader.textContent = "Income:"; break;
-            case "len": this.asideHeader.textContent = "Lending:"; break;
-            case "deb": this.asideHeader.textContent = "Debt:"; break;
-        }
-    }
-
-    get total() {
-        return Tools.DeformatNumber(this.asideTotal.textContent);
-    }
-
-    set total(numVal) {
-        this.asideTotal.textContent = Tools.FormatNumber(numVal) + user.settings.currency;
-    }
-
-    get detail() {
-        let detail = "";
-
-        const len = this.lists.length;
-        for (let i = 0; i < len; i++) {
-            detail += this.lists[i].title + "=" + this.lists[i].value;
-            if (i < len - 1) detail += ";";
-        }
-        return detail;
-    }
-
-    set detail(detail) {
-        if (!detail) return;
-
-        for (const list of detail.split(";")) {
-            this.lists.push(new ListObject(this, ...list.split("=")));
-        }
-    }
-
-    UpdateSum() {
-        let total = 0;
-        for (const list of this.lists) total += list.value;
-
-        this.total = total;
-    }
-
-    static UpdateBalance() {
-        finance.balance.result = finance.balance.final - roots["exp"].total + roots["inc"].total;
-        this.balanceEl.children[1].textContent = Tools.FormatNumber(finance.balance.result) + " " + user.settings.currency;
-    }
-};
-
-class AddingList {
-    constructor(ref) {
-        this.el = document.createElement("div");
-        this.titleInput = document.createElement("input");
-        this.valueInput = document.createElement("input");
-        this.button = document.createElement("div");
-        this.ref = ref;
-
-        this.titleInput.placeholder = "Title";
-        this.valueInput.placeholder = "Value";
-        this.button.className = "list-adding-btn";
-        
-        this.el.className = "create-list-grid";
-
-        this.el.appendChild(this.titleInput);
-        this.el.appendChild(this.valueInput);
-        this.el.appendChild(this.button);
-
-        this.ref.listContainer.appendChild(this.el);
-
-        this.button.addEventListener("click", this.EventClick);
-    }
-
-    ClearInput() {
-        this.titleInput.value = "";
-        this.valueInput.value = "";
-        this.titleInput.blur();
-        this.valueInput.blur();
-    }
-
-    // create new list
-    EventClick = () => {
-        if (!this.titleInput.value || !this.valueInput.value || !parseFloat(this.valueInput.value)) return;
-
-        // check for duplicated title
-        let foundDuplicated = false;
-        for (const list of this.ref.lists) {
-            if (this.titleInput.value === list.title) {
-                const newVal = list.value + parseFloat(this.valueInput.value);
-                if (newVal > 0) {
-                    list.value = newVal;
-                    pendingList.Push(list.el);
-                }
-                else if (!newVal) {
-                    list.Delete();
-                }
-                else { // less than 0
-
-                }
-
-                foundDuplicated = true;
-            }
-        }
-
-        if (parseFloat(this.valueInput.value) < 0) return;
-        
-        if (!foundDuplicated) {
-            const newList = new ListObject(this.ref, this.titleInput.value, this.valueInput.value);
-            this.ref.lists.push(newList);
-
-            this.ref.listContainer.style.maxHeight = this.ref.listContainer.scrollHeight + "px";
-            pendingList.Push(newList.el);
-        }
-
-        this.ClearInput();
-        
-        this.ref.UpdateSum();
-        RootList.UpdateBalance();
-        UpdateChart();
-        Summarization();
-        Database.Update();
-    }
-};
-
-class ListObject {
-    constructor(ref, title, amount) {
-        this.obj = document.createElement("div");
-        this.input = document.createElement("input");
-        this.lb = document.createElement("li");
-        this.rb = document.createElement("li");
-        this.currencySpan = document.createElement("span");
-        this.ref = ref;
-        this.index = this.ref.lists.length;
-
-        this.backupValue = "0";
-
-        this.input.value = Tools.FormatNumber(amount);
-        this.input.min = "0";
-        this.input.addEventListener("focusin", this.EventFocusIn);
-        this.input.addEventListener("focusout", this.EventFocusOut);
-        this.input.addEventListener("keyup", this.EventKeyUp);
-        this.currencySpan.textContent = user.settings.currency;
-        this.lb.className = "cost";
-        this.title = title;
-        this.rb.addEventListener("click", this.EventClick);
-
-        this.lb.appendChild(this.input);
-        this.lb.appendChild(this.currencySpan);
-        this.obj.appendChild(this.rb);
-        this.obj.appendChild(this.lb);
-        this.obj.className = "root-list";
-        this.ref.listContainer.insertBefore(this.obj, this.ref.addingList.el);
-    }
-
-    get title() {
-        return this.rb.textContent.slice(0, -1);
-    }
-
-    set title(title) {
-        this.rb.textContent = title + ":";
-    }
-
-    get value() {
-        return Tools.DeformatNumber(this.input.value);
-    }
-
-    set value(val) {
-        this.input.value = Tools.FormatNumber(val);
-    }
-
-    Delete() {
-        this.ref.lists.splice(this.index, 1);
-        this.ref.listContainer.removeChild(this.el);
-    }
-
-    // Duplicating this list title to input
-    EventClick = () => {
-        this.ref.addingList.titleInput.value = this.title;
-        this.ref.addingList.valueInput.focus();
-    }
-
-    EventFocusIn = () => {
-        this.input.value = Tools.DeformatNumber(this.input.value);
-        this.input.type = "number";
-        this.backupValue = this.input.value;
-    }
-
-    EventFocusOut = () => {
-        switch (true) {
-            case this.input.value === this.backupValue: {
-                this.input.type = "text";
-                this.input.value = Tools.FormatNumber(this.input.value);
-            } return;
-            case this.input.value === "0": {
-                this.Delete();
-
-                // Finalize 
-                this.ref.UpdateSum();
-                RootList.UpdateBalance();
-                UpdateChart();
-                Summarization();
-                Database.Update();
-            } return;
-            case this.input.value < 0 || !this.input.value: {
-                this.input.value = this.backupValue;
-            } return;
-        }
-
-        this.input.type = "text";
-        this.input.value = Tools.FormatNumber(this.input.value);
-        this.ref.UpdateSum();
-        RootList.UpdateBalance();
-        UpdateChart();
-        Summarization();
-
-        if (this.el) pendingList.Push(this.el);
-    
-        Database.Update();
-    }
-
-    EventKeyUp = (e) => {
-        if (e.keyCode === 13) this.input.blur();
-    }
-};
-
-function UpdateChart() {
-    records[records.length - 1] = [
-        new Date(...Tools.currentDate.split(".")),
-        finance.balance.result,
-        roots["exp"].total,
-        roots["inc"].total,
-        roots["len"].total,
-        roots["deb"].total
-    ];
-
-    detailRecords[detailRecords.length - 1] = [
-        roots["exp"].detail,
-        roots["inc"].detail,
-        roots["len"].detail,
-        roots["deb"].detail
-    ];
-
-    // redraw statistics chart
-    google.charts.setOnLoadCallback(GraphSet.History);
-}
-
-function Summarization() {
+export function Summarization() {
     let date = Tools.currentDate.split(".");
     let month = {expenditure: 0, income: 0};
     let spendingLists = {expenditure: {}, income: {}};
@@ -416,10 +98,8 @@ function Summarization() {
     }
 
     // redraw this month chart
-    google.charts.setOnLoadCallback(() => {
-        GraphSet.SummarizedThisMonth(Tools.Object2Array(spendingLists.expenditure), "stm-expenditure-graph");
-        GraphSet.SummarizedThisMonth(Tools.Object2Array(spendingLists.income), "stm-income-graph");
-    });
+    graph.Render("summarized-pie", Tools.Object2Array(spendingLists.expenditure), "#stm-expenditure-graph");
+    graph.Render("summarized-pie", Tools.Object2Array(spendingLists.income), "#stm-income-graph");
 
     /* #### SUMMARIZATION #### */
 
@@ -552,55 +232,161 @@ function Summarization() {
     }
 }
 
-const roots = {
-    exp: new RootList("exp"),
-    inc: new RootList("inc"),
-    len: new RootList("len"),
-    deb: new RootList("deb")
-};
+// ------------------- //
+//  Chart Interactions //
+// ---------- -------- //
+graph.Set("history", "line-chart", {
+    "Date": Date,
+    "Balance": Number,
+    "Expense": Number,
+    "Income": Number,
+    "Lending": Number,
+    "Debt": Number
+}, () => {
+    return {
+        title: "",
+        legend: {position: "bottom"},
+        fontName: "Sarabun",
+        backgroundColor: {fill: "transparent"},
+        colors: ["#85C1E9", "#d45079", "#4baea0", "#ffc70f", "#5D6D7E"],
+        animation: {
+            duration: 1000,
+            easing: 'out',
+        },
+    }
+});
+
+graph.Set("summarized-pie", "pie-chart", {
+    "list": String,
+    "spending": Number
+}, () => {
+    return {
+        title: "",
+        legend: "none",
+        pieSliceText: 'label',
+        fontName: "Sarabun",
+        height: document.getElementsByTagName("main")[0].offsetWidth / 2,
+        backgroundColor: { fill:"transparent" }
+    }
+});
 
 // ----------------------- //
 //  Interface Interactions //
 // ----------------------- //
 
+const shootError = (inputChannel) => {
+    inputChannel.focus();
+    inputChannel.classList.add("input-error");
+}
+
+// form
+elm.Add("#signin-userid", {
+    "keydown.enter": (e, el) => {
+        !el.value ? shootError(el) : document.getElementById("signin-password").focus();
+    },
+    "keydown": (e, el) => {
+        el.classList.remove("input-error");
+    }
+});
+
+elm.Add("#signin-password", {
+    "keydown.enter": (e, el) => {
+        !el.value ? shootError(el) : document.getElementsByClassName("comfirm-button")[0].click();
+    },
+    "keydown": (e, el) => {
+        el.classList.remove("input-error");
+    }
+});
+
+elm.Add("#goto-forget-password-form-button", {
+    "click": () => {
+
+    }
+});
+
+elm.Add("#goto-signup-form-button", {
+    "click": () => {
+        document.getElementById("signup-form").hidden = false;
+        document.getElementById("signin-form").hidden = true;
+        document.getElementById("forgotmypassword-form").hidden = true;
+    }
+});
+
+elm.Add("#goto-signin-form-button", {
+    "click": () => {
+        document.getElementById("signup-form").hidden = true;
+        document.getElementById("signin-form").hidden = false;
+        document.getElementById("forgotmypassword-form").hidden = true;
+    }
+});
+
+// sign in button
+elm.Add("#signin-button", {
+    "click": (e, el) => {
+        const inputPasswordEl = document.getElementById("signin-password");
+        const inputUsernameEl = document.getElementById("signin-userid");
+
+        // is requesting
+        if (inputUsernameEl.disabled || inputPasswordEl.disabled) return;
+
+        if (!inputUsernameEl.value) shootError(inputUsernameEl);
+        else if (!inputPasswordEl.value) shootError(inputPasswordEl);
+        else {
+            el.textContent = "Processing Request...";
+            inputUsernameEl.disabled = true;
+            inputPasswordEl.disabled = true;
+
+            db.Request("SIGNIN", {
+                "userid": inputUsernameEl.value,
+                "password": inputPasswordEl.value
+            });
+        }
+    }
+});
+
 // collapsible content
-for (const expandable of document.getElementsByClassName("collapsible-object")) {
-    expandable.addEventListener("click", function() {
-        let detailList = this.nextElementSibling;
-        detailList.style.maxHeight = (detailList.style.maxHeight === "0px") ? detailList.scrollHeight + "px" : 0;
-    });
-}
-
-// add list input on enter
-for (const element of document.getElementsByClassName("create-list-grid")) {
-    element.children[0].addEventListener("keydown", function() {
-        if (event.keyCode === 13)
-            this.nextElementSibling.focus();
-    });
-
-    element.children[1].addEventListener("keydown", function() {
-        if (event.keyCode === 13)
-            this.nextElementSibling.click();
-    });
-}
+elm.Add(".collapsible-object", {
+    "click": (e, el) => {
+        const detailList = el.nextElementSibling;
+        detailList.style.maxHeight = !parseInt(detailList.style.maxHeight) ? detailList.scrollHeight + "px" : 0;
+    }
+});
 
 // section view
-for (const element of document.getElementsByClassName("section-view-grid")) {
-    for (const rootChild of element.children) {
-        rootChild.addEventListener("click", function() {
-        
-            for (const child of this.parentElement.children)
-                child.classList.remove("viewed");
+elm.Add(".section-view-grid > aside", {
+    "click": (e, el) => {
+        for (const child of el.parentElement.children) child.classList.remove("viewed");
     
-            this.classList.add("viewed");
-        });
+        el.classList.add("viewed");
     }
-}
+});
+
+elm.Add("#statistics-view > *", {
+    "click": (e, el) => {
+        let queryRecords = [];
+        switch (el.textContent) {
+            case "All": {
+                queryRecords = records;
+            } break;
+            case "This Month": {
+                const thisMonth = +Tools.currentDate.split(".")[1];
+                for (const record of records) {
+                    if (record[0].getMonth() === thisMonth) queryRecords.push(record);
+                }
+            } break;
+            case "This Week": {
+                for (let z = records.length - 1; z > records.length - 8; z--) queryRecords.push(records[z]);
+            } break;
+        }
+
+        graph.Render("history", queryRecords, "#main_statistics");
+    }
+});
 
 // view mode
-for (const child of document.getElementById("view-mode").children) {
-    child.addEventListener("click", function() {
-        switch (this.textContent) {
+elm.Add("#view-mode > *", {
+    "click": (e, el) => {
+        switch (el.textContent) {
             case "This Month": {
                 document.getElementById("summarized-details").children[2].hidden = false;
                 document.getElementById("summarized-details").children[3].hidden = true;
@@ -610,5 +396,90 @@ for (const child of document.getElementById("view-mode").children) {
                 document.getElementById("summarized-details").children[3].hidden = false;
             } break;
         }
-    });
-}
+    }
+});
+
+// ---------------------- //
+//  Database Interactions //
+// ---------------------- //
+
+db.DefaultResponse(res => console.log(res));
+
+db.Response("SIGNIN", (res) => {
+    document.getElementById("signin-userid").disabled = false;
+    document.getElementById("signin-password").disabled = false;
+
+    if (res.res === "err") {
+        document.getElementsByClassName("comfirm-button")[0].textContent = "Username or password is incorrect.";
+    }
+    else if (res.res === "pass") { // if sign in form is corrected
+        // store user data
+        user.id = res.userData.USERID;
+        user.fullname = res.userData.FULLNAME;
+        user.email = res.userData.EMAIL;
+        user.settings = JSON.parse(res.userData.USER_SETTINGS);
+
+        // processing records
+        for (const dataRow of res.records) {
+            records.push([
+                new Date(...dataRow.DATE.split(".")),
+                dataRow.BALANCE,
+                dataRow.EXPENDITURE,
+                dataRow.INCOME,
+                dataRow.LENDING,
+                dataRow.DEBT
+            ]);
+
+            detailRecords.push([
+                dataRow.DETAIL_EXPENDITURE,
+                dataRow.DETAIL_INCOME,
+                dataRow.DETAIL_LENDING,
+                dataRow.DETAIL_DEBT
+            ]);
+
+            if (res.records.indexOf(dataRow) === res.records.length - 1) { // record list is today
+                roots["exp"].detail = dataRow.DETAIL_EXPENDITURE;
+                roots["inc"].detail = dataRow.DETAIL_INCOME;
+                roots["len"].detail = dataRow.DETAIL_LENDING;
+                roots["deb"].detail = dataRow.DETAIL_DEBT;
+            }
+            if (res.records.indexOf(dataRow) === res.records.length - 2) { // record list is previous day
+                balance.final = dataRow.BALANCE;
+            }
+        }
+
+        // functions after completing the data request precess
+        document.getElementsByClassName("viewed")[0].click();
+        RootList.UpdateBalance();
+        Summarization();
+
+        // display main screen
+        document.getElementsByTagName("main")[0].hidden = false;
+        document.getElementsByTagName("footer")[0].hidden = false;
+        document.getElementsByClassName("form-container")[0].hidden = true;
+        document.body.style.padding = "0 6px";
+
+        // init user settings
+        document.getElementsByTagName("title")[0].textContent = "Balpay - " + user.fullname;
+        document.getElementById("fullname").textContent = user.fullname;
+
+        // close all newly created list
+        for (const expandable of document.getElementsByClassName("collapsible-object")) expandable.nextElementSibling.style.maxHeight = 0;
+    }
+});
+
+db.DataRequestForm("UPDATE", () => {
+    return {
+        "user": user.id,
+        "date": Tools.currentDate,
+        "balance": balance.result,
+        "expenditure": roots["exp"].total,
+        "income": roots["inc"].total,
+        "lending": roots["len"].total,
+        "debt": roots["deb"].total,
+        "detail_expenditure": roots["exp"].detail,
+        "detail_income": roots["inc"].detail,
+        "detail_lending": roots["len"].detail,
+        "detail_debt": roots["deb"].detail
+    }
+});
