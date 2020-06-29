@@ -110,67 +110,65 @@ export class AddingList {
                 this.valueInput.focus();
             }
         });
+
         elm.Add(this.valueInput, {
             "keydown.enter": () => {
                 this.button.click();
             }
         });
-        elm.Add(this.button, { "click" : this.EventClick });
-    }
 
-    ClearInput() {
-        this.titleInput.value = "";
-        this.valueInput.value = "";
-        this.titleInput.blur();
-        this.valueInput.blur();
-    }
-
-    // create new list
-    EventClick = () => {
-        if (!this.titleInput.value || !this.valueInput.value || !parseFloat(this.valueInput.value)) return;
-
-        // check for duplicated title
-        let foundDuplicated = false;
-        for (const list of this.ref.lists) {
-            if (this.titleInput.value === list.title) {
-                const newVal = list.value + parseFloat(this.valueInput.value);
-                if (newVal > 0) {
-                    list.value = newVal;
+        elm.Add(this.button, {
+            "click": () => {
+                if (!this.titleInput.value || !this.valueInput.value || !parseFloat(this.valueInput.value)) return;
+        
+                // check for duplicated title
+                let foundDuplicated = false;
+                for (const list of this.ref.lists) {
+                    if (this.titleInput.value === list.title) {
+                        const newVal = list.value + parseFloat(this.valueInput.value);
+                        if (newVal > 0) {
+                            list.value = newVal;
+                        }
+                        else if (!newVal) {
+                            list.Delete();
+                        }
+                        else { // less than 0
+        
+                        }
+        
+                        foundDuplicated = true;
+                        break;
+                    }
                 }
-                else if (!newVal) {
-                    list.Delete();
+        
+                if (parseFloat(this.valueInput.value) < 0 && !foundDuplicated) return;
+                
+                if (!foundDuplicated) {
+                    const newList = new ListObject(this.ref, this.titleInput.value, this.valueInput.value);
+                    this.ref.lists.push(newList);
+        
+                    this.ref.listContainer.style.maxHeight = this.ref.listContainer.scrollHeight + "px";
                 }
-                else { // less than 0
-
-                }
-
-                foundDuplicated = true;
-                break;
+        
+                // clear input
+                this.titleInput.value = "";
+                this.valueInput.value = "";
+                this.titleInput.blur();
+                this.valueInput.blur();
+                
+                this.ref.UpdateSum();
+                RootList.UpdateBalance();
+                UpdateChart();
+                Summarization();
+                db.Request("UPDATE");
             }
-        }
-
-        if (parseFloat(this.valueInput.value) < 0 && !foundDuplicated) return;
-        
-        if (!foundDuplicated) {
-            const newList = new ListObject(this.ref, this.titleInput.value, this.valueInput.value);
-            this.ref.lists.push(newList);
-
-            this.ref.listContainer.style.maxHeight = this.ref.listContainer.scrollHeight + "px";
-        }
-
-        this.ClearInput();
-        
-        this.ref.UpdateSum();
-        RootList.UpdateBalance();
-        UpdateChart();
-        Summarization();
-        db.Request("UPDATE");
+        });
     }
 };
 
 export class ListObject {
     constructor(ref, title, amount) {
-        this.obj = document.createElement("div");
+        this.container = document.createElement("div");
         this.input = document.createElement("input");
         this.lb = document.createElement("li");
         this.rb = document.createElement("li");
@@ -187,19 +185,59 @@ export class ListObject {
         this.title = title;
 
         elm.Add(this.input, {
-            "focusin": this.EventFocusIn,
-            "focusout": this.EventFocusOut,
-            "keyup": this.EventKeyUp
+            "focus": (e, el) => {
+                el.value = Tools.DeformatNumber(el.value);
+                el.type = "number";
+                this.backupValue = el.value;
+                el.select();
+            },
+            "blur": (e, el) => {
+                switch (true) {
+                    case el.value === this.backupValue: {
+                        el.type = "text";
+                        el.value = Tools.FormatNumber(el.value);
+                    } return;
+                    case el.value === "0": {
+                        this.Delete();
+        
+                        // Finalize 
+                        this.ref.UpdateSum();
+                        RootList.UpdateBalance();
+                        UpdateChart();
+                        Summarization();
+                        db.Request("UPDATE");
+                    } return;
+                    case el.value < 0 || !el.value: {
+                        el.value = this.backupValue;
+                    } return;
+                }
+        
+                el.type = "text";
+                el.value = Tools.FormatNumber(el.value);
+                this.ref.UpdateSum();
+                RootList.UpdateBalance();
+                UpdateChart();
+                Summarization();
+                db.Request("UPDATE");
+            },
+            "keyup.enter": (e, el) => {
+                el.blur();
+            }
         });
 
-        elm.Add(this.rb, { "click" : this.EventClick });
+        elm.Add(this.rb, {
+            "click" : (e, el) => {
+                this.ref.addingList.titleInput.value = this.title;
+                this.ref.addingList.valueInput.focus();
+            }
+        });
 
         this.lb.appendChild(this.input);
         this.lb.appendChild(this.currencySpan);
-        this.obj.appendChild(this.rb);
-        this.obj.appendChild(this.lb);
-        this.obj.className = "root-list";
-        this.ref.listContainer.insertBefore(this.obj, this.ref.addingList.el);
+        this.container.appendChild(this.rb);
+        this.container.appendChild(this.lb);
+        this.container.className = "root-list";
+        this.ref.listContainer.insertBefore(this.container, this.ref.addingList.el);
     }
 
     get title() {
@@ -220,53 +258,7 @@ export class ListObject {
 
     Delete() {
         this.ref.lists.splice(this.index, 1);
-        this.ref.listContainer.removeChild(this.el);
-    }
-
-    // Duplicating this list title to input
-    EventClick = () => {
-        this.ref.addingList.titleInput.value = this.title;
-        this.ref.addingList.valueInput.focus();
-    }
-
-    EventFocusIn = () => {
-        this.input.value = Tools.DeformatNumber(this.input.value);
-        this.input.type = "number";
-        this.backupValue = this.input.value;
-    }
-
-    EventFocusOut = () => {
-        switch (true) {
-            case this.input.value === this.backupValue: {
-                this.input.type = "text";
-                this.input.value = Tools.FormatNumber(this.input.value);
-            } return;
-            case this.input.value === "0": {
-                this.Delete();
-
-                // Finalize 
-                this.ref.UpdateSum();
-                RootList.UpdateBalance();
-                UpdateChart();
-                Summarization();
-                db.Request("UPDATE");
-            } return;
-            case this.input.value < 0 || !this.input.value: {
-                this.input.value = this.backupValue;
-            } return;
-        }
-
-        this.input.type = "text";
-        this.input.value = Tools.FormatNumber(this.input.value);
-        this.ref.UpdateSum();
-        RootList.UpdateBalance();
-        UpdateChart();
-        Summarization();
-        db.Request("UPDATE");
-    }
-
-    EventKeyUp = (e) => {
-        if (e.keyCode === 13) this.input.blur();
+        this.ref.listContainer.removeChild(this.container);
     }
 };
 

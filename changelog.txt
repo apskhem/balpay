@@ -44,3 +44,5 @@ R2B010 - Sun. 28 Jun. 2020
 - Changed programming structure (not completed yet).
 R2B010.0h - Mon. 29 Jun. 2020
 - hotfixes.
+R2B010.1h - Mon. 29 Jun. 2020
+- hotfixes.
