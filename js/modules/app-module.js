@@ -145,10 +145,11 @@ export class AddingList {
                 }
 
                 foundDuplicated = true;
+                break;
             }
         }
 
-        if (parseFloat(this.valueInput.value) < 0) return;
+        if (parseFloat(this.valueInput.value) < 0 && !foundDuplicated) return;
         
         if (!foundDuplicated) {
             const newList = new ListObject(this.ref, this.titleInput.value, this.valueInput.value);

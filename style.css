@@ -201,6 +201,7 @@ i { cursor: pointer; }
 }
 
 .cost > input {
+    font-family: var(--std-font-family);
     padding: 0;
     font-size: 16px;
     text-align: right;

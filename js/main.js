@@ -246,7 +246,7 @@ graph.Set("history", "line-chart", {
     return {
         title: "",
         legend: {position: "bottom"},
-        fontName: "Sarabun",
+        fontName: "Cabin",
         backgroundColor: {fill: "transparent"},
         colors: ["#85C1E9", "#d45079", "#4baea0", "#ffc70f", "#5D6D7E"],
         animation: {
@@ -264,7 +264,7 @@ graph.Set("summarized-pie", "pie-chart", {
         title: "",
         legend: "none",
         pieSliceText: 'label',
-        fontName: "Sarabun",
+        fontName: "Cabin",
         height: document.getElementsByTagName("main")[0].offsetWidth / 2,
         backgroundColor: { fill:"transparent" }
     }
@@ -460,7 +460,7 @@ db.Response("SIGNIN", (res) => {
         document.body.style.padding = "0 6px";
 
         // init user settings
-        document.getElementsByTagName("title")[0].textContent = "Balpay - " + user.fullname;
+        document.getElementsByTagName("title")[0].textContent = "BalPay - " + user.fullname;
         document.getElementById("fullname").textContent = user.fullname;
 
         // close all newly created list
