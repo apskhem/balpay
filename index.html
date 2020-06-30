@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Cabin&display=swap">
-    <link href="https://fonts.googleapis.com/css?family=Sarabun&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Sarabun&display=swap">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.9.0/css/all.css" crossorigin="anonymous">
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -66,114 +66,124 @@
             </aside>
         </nav>
         <hr>
-        <section>
-            <div id="main-fiscal-panel">
-                <!-- INSERTING ROOT LIST -->
-                <div id="bal-root" class="root">
-                    <aside>Balance:</aside>
-                    <aside></aside>
+        <nav>
+            <section>
+                <div id="main-fiscal-panel">
+                    <!-- INSERTING ROOT LIST -->
+                    <div id="bal-root" class="root">
+                        <aside>Balance:</aside>
+                        <aside></aside>
+                    </div>
                 </div>
-            </div>
-            <hr>
-            <h1>Statistics</h1>
-            <div id="statistics-view" class="section-view-grid" style="width:300px;">
-                <aside class="viewed">All</aside>
-                <aside>This Month</aside>
-                <aside>This Week</aside>
-            </div>
-            <div id="main_statistics" style="height:340px">
-                <li>Loading Statistics...</li>
-            </div>
-            <hr>
-            <div id="summarized-details">
-                <h1>Summarized Details</h1>
-                <div id="view-mode" class="section-view-grid" style="width:200px;">
-                    <aside class="viewed">This Month</aside>
-                    <aside>Comparison</aside>
+                <hr>
+                <h1>Statistics</h1>
+                <nav id="statistics-view" class="section-view-grid" style="width:300px;">
+                    <aside class="viewed">All</aside>
+                    <aside>This Month</aside>
+                    <aside>This Week</aside>
+                </nav>
+                <div id="statistics-chart" style="height:340px"></div>
+                <hr>
+                <div>
+                    <h1>Details</h1>
+                    <nav id="view-mode" class="section-view-grid" style="width:200px;">
+                        <aside class="viewed" data-index="0">This Month</aside>
+                        <aside data-index="1">Comparison</aside>
+                    </nav>
+                    <nav id="details-sections">
+                        <section>
+                            <div class="summarized-grid border-list" id="stm-lists">
+                                <aside>
+                                    <span>Total Expense:</span>
+                                    <span id="stm-total-expenditure"></span>
+                                </aside>
+                                <aside>
+                                    <span>Total Income:</span>
+                                    <span id="stm-total-income"></span>
+                                </aside>
+                                <aside>
+                                    <span>Average Expense:</span>
+                                    <span id="stm-average-expenditure"></span>
+                                </aside>
+                                <aside>
+                                    <span>Average Income:</span>
+                                    <span id="stm-average-income"></span>
+                                </aside>
+                                <aside>
+                                    <span id="stm-total-balance-text">Balance:</span>
+                                    <span id="stm-total-balance"></span>
+                                </aside>
+                                <aside>
+                                    <span id="stm-average-balance-text">Average Balance:</span>
+                                    <span id="stm-average-balance"></span>
+                                </aside>
+                            </div>
+                            <div class="summarized-grid" id="stm-detail" style="padding-top:8px;">
+                                <div id="stm-expenditure-detail"></div>
+                                <div id="stm-income-detail"></div>
+                            </div>
+                            <div id="expense-bar-chart" class="bar-chart"></div>
+                            <div id="income-bar-chart" class="bar-chart"></div>
+                            <div class="summarized-grid" id="stm-graph" style="padding-top:8px;">
+                                <div id="stm-expenditure-graph"></div>
+                                <div id="stm-income-graph"></div>
+                            </div>
+                        </section>
+                        <section hidden>
+                            <div id="compare-option">
+                                <aside>Compare:</aside>
+                                <aside>This Month</aside>
+                                <aside>to</aside>
+                                <aside>Last Month</aside>
+                            </div>
+                            <li class="minor-header">By Time</li>
+                            <div class="summarized-grid">
+                                <aside id="by-time-expenditure">
+                                    <div>
+                                        <aside>Total Expense:</aside>
+                                        <aside></aside>
+                                        <aside>N/A</aside>
+                                    </div>
+                                </aside>
+                                <aside id="by-time-income">
+                                    <div>
+                                        <aside>Total Income:</aside>
+                                        <aside></aside>
+                                        <aside>N/A</aside>
+                                    </div>
+                                </aside>
+                            </div>
+                            <li class="minor-header">By Average</li>
+                            <div class="summarized-grid">
+                                <aside id="by-average-expenditure">
+                                    <div>
+                                        <aside>Total Expense:</aside>
+                                        <aside></aside>
+                                        <aside>N/A</aside>
+                                    </div>
+                                    <div>
+                                        
+                                    </div>
+                                </aside>
+                                <aside id="by-average-income">
+                                    <div>
+                                        <aside>Total Income:</aside>
+                                        <aside></aside>
+                                        <aside>N/A</aside>
+                                    </div>
+                                </aside>
+                            </div>
+                        </section>
+                    </nav>
                 </div>
-                <section>
-                    <div class="summarized-grid border-list" id="stm-lists">
-                        <aside>
-                            <span>Total Expense:</span>
-                            <span id="stm-total-expenditure"></span>
-                        </aside>
-                        <aside>
-                            <span>Total Income:</span>
-                            <span id="stm-total-income"></span>
-                        </aside>
-                        <aside>
-                            <span>Average Expense:</span>
-                            <span id="stm-average-expenditure"></span>
-                        </aside>
-                        <aside>
-                            <span>Average Income:</span>
-                            <span id="stm-average-income"></span>
-                        </aside>
-                        <aside>
-                            <span id="stm-total-balance-text">Balance:</span>
-                            <span id="stm-total-balance"></span>
-                        </aside>
-                        <aside>
-                            <span id="stm-average-balance-text">Average Balance:</span>
-                            <span id="stm-average-balance"></span>
-                        </aside>
-                    </div>
-                    <div class="summarized-grid" id="stm-detail" style="padding-top:8px;">
-                        <div id="stm-expenditure-detail"></div>
-                        <div id="stm-income-detail"></div>
-                    </div>
-                    <div class="summarized-grid" id="stm-graph" style="padding-top:8px;">
-                        <div id="stm-expenditure-graph"></div>
-                        <div id="stm-income-graph"></div>
-                    </div>
-                </section>
-                <section hidden>
-                    <div id="compare-option">
-                        <aside>Compare:</aside>
-                        <aside>This Month</aside>
-                        <aside>to</aside>
-                        <aside>Last Month</aside>
-                    </div>
-                    <li class="minor-header">By Time</li>
-                    <div class="summarized-grid">
-                        <aside id="by-time-expenditure">
-                            <div>
-                                <aside>Total Expense:</aside>
-                                <aside></aside>
-                                <aside>N/A</aside>
-                            </div>
-                        </aside>
-                        <aside id="by-time-income">
-                            <div>
-                                <aside>Total Income:</aside>
-                                <aside></aside>
-                                <aside>N/A</aside>
-                            </div>
-                        </aside>
-                    </div>
-                    <li class="minor-header">By Average</li>
-                    <div class="summarized-grid">
-                        <aside id="by-average-expenditure">
-                            <div>
-                                <aside>Total Expense:</aside>
-                                <aside></aside>
-                                <aside>N/A</aside>
-                            </div>
-                            <div>
-                                
-                            </div>
-                        </aside>
-                        <aside id="by-average-income">
-                            <div>
-                                <aside>Total Income:</aside>
-                                <aside></aside>
-                                <aside>N/A</aside>
-                            </div>
-                        </aside>
-                    </div>
-                </section>
-            </div>
-        </section>
+            </section>
+            <section>
+
+            </section>
+            <section>
+
+            </section>
+        </nav>
     </main>
     <footer hidden>
         <li>Made by <a href="https://apskhem.github.io/me" target="_blank" >Apisit Ritreungroj</a></li>

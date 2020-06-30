@@ -13,16 +13,13 @@ export class AutomaticSystem {
 
 export class Tools {
     static FormatNumber(num) {
-        num = parseFloat(num).toFixed(2).toString().split(".");
-        let textNum = num[0];
-        let sum = "";
+        const [whole, digit] = parseFloat(num).toFixed(2).toString().split(".");
+        let res = "";
     
-        let lastDigit = textNum.length - 1;
-        for (let i = 0; i < textNum.length; i++) {
-            sum += textNum[i] + (((lastDigit - i) % 3 === 0 && i != lastDigit) ? ",": "");
-        }
+        const lastLen = whole.length - 1;
+        for (let i = 0; i < whole.length; i++) res += whole[i] + ((!((lastLen - i) % 3) && i != lastLen) ? ",": "");
         
-        return `${sum}.${num[1]}`;
+        return `${res}.${digit}`;
     }
 
     static DeformatNumber = (readable) => parseFloat(readable.replace(/[,]/g, ""));
@@ -33,7 +30,7 @@ export class Tools {
     }
 
     static FormatDate(date) {
-        let d = date.split(".");
+        const d = date.split(".");
         switch (d[1]) {
             case "0": d[1] = "January"; break;
             case "1": d[1] = "February"; break;
@@ -54,18 +51,10 @@ export class Tools {
     static ParseDetail(detailRow, obj) {
         if (detailRow === "") return;
 
-        for (let pairVal of detailRow.split(";")) {
-            pairVal = pairVal.split("=");
+        for (const pairVal of detailRow.split(";")) {
+            const [key, val] = pairVal.split("=");
 
-            obj[pairVal[0]] = (obj[pairVal[0]] ? obj[pairVal[0]] : 0) + +pairVal[1];
+            obj[key] = (obj[key] ? obj[key] : 0) + +val;
         }
-    }
-
-    static Object2Array(obj) {
-        let arr = [];
-        for (let key in obj) {
-            arr.push([key, obj[key]]);
-        }
-        return arr;
     }
 }

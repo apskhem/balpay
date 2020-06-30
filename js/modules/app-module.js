@@ -85,7 +85,7 @@ export class RootList {
     }
 };
 
-export class AddingList {
+class AddingList {
     constructor(ref) {
         this.el = document.createElement("div");
         this.titleInput = document.createElement("input");
@@ -166,7 +166,7 @@ export class AddingList {
     }
 };
 
-export class ListObject {
+class ListObject {
     constructor(ref, title, amount) {
         this.container = document.createElement("div");
         this.input = document.createElement("input");
@@ -261,6 +261,12 @@ export class ListObject {
         this.ref.listContainer.removeChild(this.container);
     }
 };
+
+export class BarChart {
+    constructor(data, settings) {
+        
+    }
+}
 
 function UpdateChart() {
     records.splice(-1, 1, [

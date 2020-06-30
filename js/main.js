@@ -2,7 +2,7 @@ import EventListenerModule from "./modules/event-listener-module.js";
 import GoogleAppsScriptDB from "./modules/google-apps-script-db.js";
 import GoogleCharts from "./modules/google-charts.js";
 import { AppSystem, AutomaticSystem, Tools } from "./modules/misc.js";
-import { RootList } from "./modules/app-module.js";
+import { RootList, BarChart } from "./modules/app-module.js";
 
 export const elm = new EventListenerModule();
 export const db = new GoogleAppsScriptDB("https://script.google.com/macros/s/AKfycbx8PNkzqprtcF5xIjbkvHszP6P5ggWwaAsXdB-fpf7g9BA3bbHT/exec");
@@ -17,7 +17,7 @@ export const detailRecords = [];
 export const balance = {
     final: 0, // The balance that not include calulated result of exp. or inc --- form previous record.
     result: 0 // the balnce that include calulated result of exp. or inc.
-}
+};
 
 export const roots = {
     exp: new RootList("exp"),
@@ -25,6 +25,11 @@ export const roots = {
     len: new RootList("len"),
     deb: new RootList("deb")
 };
+
+const colorset = {
+    deficit: "#d45079",
+    surplus: "#4baea0"
+}
 
 // ------------------ //
 //  Initial Functions //
@@ -38,20 +43,19 @@ AutomaticSystem.Copyright(document.getElementById("copyright-year"), 2019);
 // --------------------------- //
 
 export function Summarization() {
-    let date = Tools.currentDate.split(".");
-    let month = {expenditure: 0, income: 0};
-    let spendingLists = {expenditure: {}, income: {}};
+    const [cy, cm, cd] = Tools.currentDate.split(".").map(val => +val);
+    const month = { expenditure: 0, income: 0 };
+    const spendingLists = { expenditure: {}, income: {} };
 
-    let cMonth = {expenditure: 0, income: 0};
-    let lastMonthSpendingLists = {expenditure: {}, income: {}};
+    const cMonth = { expenditure: 0, income: 0 };
+    const lastMonthSpendingLists = { expenditure: {}, income: {} };
     
-    const thisMonth = +date[1];
-    let tcMonth = thisMonth - 1 < 0 ? 11 : thisMonth - 1;
+    const tcMonth = cm - 1 < 0 ? 11 : cm - 1; // month of last year
     let totalComDate = 0;
 
     for (let z = records.length - 1; z >= 0; z--) {
         // get this month data
-        if (records[z][0].getMonth() === thisMonth) {
+        if (records[z][0].getMonth() === cm) {
             month.expenditure += records[z][2];
             month.income += records[z][3];
             Tools.ParseDetail(detailRecords[z][0], spendingLists.expenditure);
@@ -59,37 +63,39 @@ export function Summarization() {
         }
 
         // get last month data
-        if (records[z][0].getMonth() === tcMonth) {
+        else if (records[z][0].getMonth() === tcMonth) {
             cMonth.expenditure += records[z][2];
             cMonth.income += records[z][3];
             Tools.ParseDetail(detailRecords[z][0], lastMonthSpendingLists.expenditure);
             Tools.ParseDetail(detailRecords[z][1], lastMonthSpendingLists.income);
             totalComDate++;
         }
+
+        else break;
     }
 
-    document.getElementById("stm-total-expenditure").textContent = Tools.FormatNumber(month.expenditure) + " " + user.settings.currency;
-    document.getElementById("stm-total-income").textContent = Tools.FormatNumber(month.income) + " " + user.settings.currency;
-    document.getElementById("stm-average-expenditure").textContent = Tools.FormatNumber(month.expenditure / +date[2]) + " " + user.settings.currency;
-    document.getElementById("stm-average-income").textContent = Tools.FormatNumber(month.income / +date[2]) + " " + user.settings.currency;
+    document.getElementById("stm-total-expenditure").textContent = Tools.FormatNumber(month.expenditure) + user.settings.currency;
+    document.getElementById("stm-total-income").textContent = Tools.FormatNumber(month.income) + user.settings.currency;
+    document.getElementById("stm-average-expenditure").textContent = Tools.FormatNumber(month.expenditure / cd) + user.settings.currency;
+    document.getElementById("stm-average-income").textContent = Tools.FormatNumber(month.income / cd) + user.settings.currency;
 
     document.getElementById("stm-total-balance-text").textContent = month.income >= month.expenditure ? "Surplus" : "Deficit";
-    document.getElementById("stm-total-balance-text").parentElement.style.color = month.income >= month.expenditure ? "#4baea0" : "#d45079";
-    document.getElementById("stm-total-balance").textContent = Tools.FormatNumber(Math.abs(month.expenditure - month.income)) + " " + user.settings.currency;
+    document.getElementById("stm-total-balance-text").parentElement.style.color = month.income >= month.expenditure ? colorset.surplus : colorset.deficit;
+    document.getElementById("stm-total-balance").textContent = Tools.FormatNumber(Math.abs(month.expenditure - month.income)) + user.settings.currency;
     document.getElementById("stm-average-balance-text").textContent = "Daily Average " + (month.income >= month.expenditure ? "Surplus" : "Deficit");
-    document.getElementById("stm-average-balance-text").parentElement.style.color = month.income >= month.expenditure ? "#4baea0" : "#d45079";
-    document.getElementById("stm-average-balance").textContent = Tools.FormatNumber(Math.abs(month.expenditure - month.income)/ +date[2]) + " " + user.settings.currency;
+    document.getElementById("stm-average-balance-text").parentElement.style.color = month.income >= month.expenditure ? colorset.surplus : colorset.deficit;
+    document.getElementById("stm-average-balance").textContent = Tools.FormatNumber(Math.abs(month.expenditure - month.income)/ cd) + user.settings.currency;
 
     // create detail list for sdm
-    for (let type in spendingLists) {
+    for (const type in spendingLists) {
         document.getElementById(`stm-${type}-detail`).innerHTML = "";
-        for (let list in spendingLists[type]) {
-            let block = document.createElement("div");
-            let li1 = document.createElement("li");
-            let li2 = document.createElement("li");
+        for (const list in spendingLists[type]) {
+            const block = document.createElement("div");
+            const li1 = document.createElement("li");
+            const li2 = document.createElement("li");
     
             li1.textContent = list + ":";
-            li2.textContent = Tools.FormatNumber(spendingLists[type][list]) + " " + user.settings.currency;
+            li2.textContent = Tools.FormatNumber(spendingLists[type][list]) + user.settings.currency;
             block.appendChild(li1);
             block.appendChild(li2);
 
@@ -98,8 +104,8 @@ export function Summarization() {
     }
 
     // redraw this month chart
-    graph.Render("summarized-pie", Tools.Object2Array(spendingLists.expenditure), "#stm-expenditure-graph");
-    graph.Render("summarized-pie", Tools.Object2Array(spendingLists.income), "#stm-income-graph");
+    graph.Render("summarized-pie", Object.entries(spendingLists.expenditure), "#stm-expenditure-graph");
+    graph.Render("summarized-pie", Object.entries(spendingLists.income), "#stm-income-graph");
 
     /* #### SUMMARIZATION #### */
 
@@ -107,8 +113,8 @@ export function Summarization() {
 
     ComparisonBarExpenditure("expenditure", document.getElementById("by-time-expenditure").children[0].children[1], month.expenditure, cMonth.expenditure);
     ComparisonBarExpenditure("income", document.getElementById("by-time-income").children[0].children[1], month.income, cMonth.income);
-    ComparisonBarExpenditure("expenditure", document.getElementById("by-average-expenditure").children[0].children[1], month.expenditure / +date[2], cMonth.expenditure / totalComDate);
-    ComparisonBarExpenditure("income", document.getElementById("by-average-income").children[0].children[1], month.income / +date[2], cMonth.income / totalComDate);
+    ComparisonBarExpenditure("expenditure", document.getElementById("by-average-expenditure").children[0].children[1], month.expenditure / cd, cMonth.expenditure / totalComDate);
+    ComparisonBarExpenditure("income", document.getElementById("by-average-income").children[0].children[1], month.income / cd, cMonth.income / totalComDate);
 
     // create detail list for comparison
     for (const type in spendingLists) {
@@ -119,10 +125,10 @@ export function Summarization() {
         
         // by-time expenditure and income
         for (const list in spendingLists[type]) {
-            let block = document.createElement("div");
-            let aside1 = document.createElement("aside");
-            let aside2 = document.createElement("aside");
-            let aside3 = document.createElement("aside");
+            const block = document.createElement("div");
+            const aside1 = document.createElement("aside");
+            const aside2 = document.createElement("aside");
+            const aside3 = document.createElement("aside");
 
             if (lastMonthSpendingLists[type][list]) {
                 const last = lastMonthSpendingLists[type][list];
@@ -130,19 +136,19 @@ export function Summarization() {
                 let color;
 
                 if (current < last) {
-                    color = type === "expenditure" ? "#4baea0" : "#d45079";
-                    aside3.textContent = `-${Tools.FormatNumber((last - current) / last * 100)}%`;
+                    color = type === "expenditure" ? colorset.surplus : colorset.deficit;
+                    aside3.textContent = `-${Tools.FormatNumber((1 - current / last) * 100)}%`;
                     aside2.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${current / last * 100}%, ${color} 0)`;
                 }
                 else {
-                    color = type === "expenditure" ? "#d45079" : "#4baea0";
-                    aside3.textContent = `+${Tools.FormatNumber((current - last) / current * 100)}%`;
+                    color = type === "expenditure" ? colorset.deficit : colorset.surplus;
+                    aside3.textContent = `+${Tools.FormatNumber((current / last - 1) * 100)}%`;
                     aside2.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${last / current * 100}%, ${color} 0)`;
                 }
                 aside3.style.color = aside3.textContent === "+0.00%" ? "black" : color;
             }
             else {
-                aside3.style.color = aside2.style.backgroundColor = type === "expenditure" ? "#d45079" : "#4baea0";
+                aside3.style.color = aside2.style.backgroundColor = type === "expenditure" ? colorset.deficit : colorset.surplus;
                 aside3.textContent = "NEW";
             }
     
@@ -156,30 +162,30 @@ export function Summarization() {
 
         // by-average expenditure and income
         for (const list in spendingLists[type]) {
-            let block = document.createElement("div");
-            let aside1 = document.createElement("aside");
-            let aside2 = document.createElement("aside");
-            let aside3 = document.createElement("aside");
+            const block = document.createElement("div");
+            const aside1 = document.createElement("aside");
+            const aside2 = document.createElement("aside");
+            const aside3 = document.createElement("aside");
 
             if (lastMonthSpendingLists[type][list]) {
-                const last = lastMonthSpendingLists[type][list] / totalComDate;
-                const current = spendingLists[type][list] / +date[2];
+                const last = lastMonthSpendingLists[type][list];
+                const current = spendingLists[type][list] * (totalComDate / cd);
                 let color;
 
                 if (current < last) {
-                    color = type === "expenditure" ? "#4baea0" : "#d45079";
-                    aside3.textContent = `-${Tools.FormatNumber((last - current) / last * 100)}%`;
+                    color = type === "expenditure" ? colorset.surplus : colorset.deficit;
+                    aside3.textContent = `-${Tools.FormatNumber((1 - current / last) * 100)}%`;
                     aside2.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${current / last * 100}%, ${color} 0)`;
                 }
                 else {
-                    color = type === "expenditure" ? "#d45079" : "#4baea0";
-                    aside3.textContent = `+${Tools.FormatNumber((current - last) / current * 100)}%`;
+                    color = type === "expenditure" ? colorset.deficit : colorset.surplus;
+                    aside3.textContent = `+${Tools.FormatNumber((current / last - 1) * 100)}%`;
                     aside2.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${last / current * 100}%, ${color} 0)`;
                 }
                 aside3.style.color = aside3.textContent === "+0.00%" ? "black" : color;
             }
             else {
-                aside3.style.color = aside2.style.backgroundColor = type === "expenditure" ? "#d45079" : "#4baea0";
+                aside3.style.color = aside2.style.backgroundColor = type === "expenditure" ? colorset.deficit : colorset.surplus;
                 aside3.textContent = "NEW";
             }
 
@@ -198,7 +204,7 @@ export function Summarization() {
                 let aside2 = document.createElement("aside");
                 let aside3 = document.createElement("aside");
     
-                aside2.style.backgroundColor = aside3.style.color = type === "expenditure" ? "#4baea0" : "#d45079";
+                aside2.style.backgroundColor = aside3.style.color = type === "expenditure" ? colorset.surplus : colorset.deficit;
                 aside3.textContent = "-100%";
     
                 aside1.textContent = list + ":";
@@ -216,7 +222,7 @@ export function Summarization() {
         if (refNum < comNum) {
             const base = (comNum - refNum) / comNum * 100;
             const over = refNum / comNum * 100;
-            const color = type === "expenditure" ? "#4baea0" : "#d45079";
+            const color = type === "expenditure" ? colorset.surplus : colorset.deficit;
             barElement.nextElementSibling.textContent = `-${Tools.FormatNumber(base)}%`;
             barElement.nextElementSibling.style.color = color;
             barElement.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${over}%, ${color} 0)`;
@@ -224,7 +230,7 @@ export function Summarization() {
         else {
             const base = comNum / refNum * 100;
             const over = (refNum - comNum) / refNum * 100;
-            const color = type === "expenditure" ? "#d45079" : "#4baea0";
+            const color = type === "expenditure" ? colorset.deficit : colorset.surplus;
             barElement.nextElementSibling.textContent = `+${Tools.FormatNumber(over)}%`;
             barElement.nextElementSibling.style.color = color;
             barElement.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${base}%, ${color} 0)`;
@@ -248,7 +254,7 @@ graph.Set("history", "line-chart", {
         legend: {position: "bottom"},
         fontName: "Cabin",
         backgroundColor: {fill: "transparent"},
-        colors: ["#85C1E9", "#d45079", "#4baea0", "#ffc70f", "#5D6D7E"],
+        colors: ["#85C1E9", colorset.deficit, colorset.surplus, "#ffc70f", "#5D6D7E"],
         animation: {
             duration: 1000,
             easing: 'out',
@@ -347,55 +353,36 @@ elm.Add("#signin-button", {
 // collapsible content
 elm.Add(".collapsible-object", {
     "click": (e, el) => {
-        const detailList = el.nextElementSibling;
-        detailList.style.maxHeight = !parseInt(detailList.style.maxHeight) ? detailList.scrollHeight + "px" : 0;
+        el = el.nextElementSibling;
+        el.style.maxHeight = !parseInt(el.style.maxHeight) ? el.scrollHeight + "px" : 0;
     }
 });
 
 // section view
 elm.Add(".section-view-grid > aside", {
     "click": (e, el) => {
-        for (const child of el.parentElement.children) child.classList.remove("viewed");
+        for (const child of el.parentElement.children) child.className = null;
     
-        el.classList.add("viewed");
+        el.className = "viewed";
     }
 });
 
 elm.Add("#statistics-view > *", {
     "click": (e, el) => {
-        let queryRecords = [];
         switch (el.textContent) {
-            case "All": {
-                queryRecords = records;
-            } break;
-            case "This Month": {
-                const thisMonth = +Tools.currentDate.split(".")[1];
-                for (const record of records) {
-                    if (record[0].getMonth() === thisMonth) queryRecords.push(record);
-                }
-            } break;
-            case "This Week": {
-                for (let z = records.length - 1; z > records.length - 8; z--) queryRecords.push(records[z]);
-            } break;
+            case "All": graph.Render("history", records, "#statistics-chart"); break;
+            case "This Month": graph.Render("history", records.slice(-Tools.currentDate.split(".")[2]), "#statistics-chart"); break;
+            case "This Week": graph.Render("history", records.slice(-7), "#statistics-chart"); break;
         }
-
-        graph.Render("history", queryRecords, "#main_statistics");
     }
 });
 
 // view mode
 elm.Add("#view-mode > *", {
     "click": (e, el) => {
-        switch (el.textContent) {
-            case "This Month": {
-                document.getElementById("summarized-details").children[2].hidden = false;
-                document.getElementById("summarized-details").children[3].hidden = true;
-            } break;
-            case "Comparison": {
-                document.getElementById("summarized-details").children[2].hidden = true;
-                document.getElementById("summarized-details").children[3].hidden = false;
-            } break;
-        }
+        for (const el of document.getElementById("details-sections").children) el.hidden = true;
+
+        document.getElementById("details-sections").children[el.dataset.index].hidden = false;
     }
 });
 
@@ -449,7 +436,7 @@ db.Response("SIGNIN", (res) => {
         }
 
         // functions after completing the data request precess
-        document.getElementsByClassName("viewed")[0].click();
+        graph.Render("history", records, "#statistics-chart");
         RootList.UpdateBalance();
         Summarization();
 
