@@ -380,6 +380,8 @@ elm.Add("#statistics-view > *", {
 // view mode
 elm.Add("#view-mode > *", {
     "click": (e, el) => {
+        if (!el.dataset.index) return;
+
         for (const el of document.getElementById("details-sections").children) el.hidden = true;
 
         document.getElementById("details-sections").children[el.dataset.index].hidden = false;
@@ -436,7 +438,7 @@ db.Response("SIGNIN", (res) => {
         }
 
         // functions after completing the data request precess
-        graph.Render("history", records, "#statistics-chart");
+        document.getElementById("statistics-view").getElementsByClassName("viewed")[0].click();
         RootList.UpdateBalance();
         Summarization();
 

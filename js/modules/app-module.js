@@ -286,5 +286,5 @@ function UpdateChart() {
     ]);
 
     // redraw statistics chart
-    document.getElementsByClassName("viewed")[0].click();
+    document.getElementById("statistics-view").getElementsByClassName("viewed")[0].click();
 }
