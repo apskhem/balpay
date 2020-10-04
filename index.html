@@ -13,7 +13,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="icon.png"/>
 </head>
 <body>
-    <div class="form-container">
+    <div id="form-module" class="form-container">
         <form>
             <section id="signin-form">
                 <li class="head-text">SIGN IN TO BALPAY</li>
@@ -27,7 +27,7 @@
                 </div>
                 <div id="signin-button" class="comfirm-button">Sign In</div>
             </section>
-            <section id="signup-form" hidden>
+            <section id="signup-form">
                 <li class="head-text">SIGN UP</li>
                 <label for="signup-fullname">Full Name</label>
                 <input id="signup-fullname" type="text" placeholder="Full Name" maxlength="50">
@@ -38,14 +38,14 @@
                 <label for="signup-email">Email</label>
                 <input id="signup-email" type="email" placeholder="Email" maxlength="50">
                 <label for="signup-currency">Currency</label>
-                <input id="signup-currency" type="text" placeholder="Currency THB, USD, GBP etc." maxlength="3">
+                <input id="signup-currency" type="text" placeholder="Currency THB, USD, GBP etc. (THB by default)" maxlength="3">
                 <div class="form-options">
                     <span></span>
                     <span id="goto-signin-form-button">Sign In</span>
                 </div>
-                <div class="comfirm-button">Sign Up</div>
+                <div id="signup-button" class="comfirm-button">Sign Up</div>
             </section>
-            <section id="forgotmypassword-form" hidden>
+            <section id="forgotmypassword-form">
             
             </section>
         </form>
@@ -185,11 +185,11 @@
             </section>
         </nav>
     </main>
-    <footer hidden>
-        <li>Made by <a href="https://apskhem.github.io/me" target="_blank" >Apisit Ritreungroj</a></li>
+    <footer class="absolute-footer">
+        <li>v0.9 public beta | Made by <a href="https://apskhem.github.io/" target="_blank" >Apisit Ritreungroj</a></li>
         <li><span id="copyright-year"></span> &copy BalPay All Rights Reserved.</li>
     </footer>
 
-    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/__main__.js"></script>
 </body>
 </html>

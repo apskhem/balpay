@@ -50,3 +50,6 @@ R2B011 - Tue. 30 Jun. 2020
 - Minor updates.
 R2B011.0h - Thu. 2 Jul. 2020
 - hotfixes.
+
+v0.9 - Sun. 4 Oct, 2020
+- TypeScript

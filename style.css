@@ -71,21 +71,26 @@ footer {
     text-align: center;
 }
 
+.absolute-footer {
+    position: absolute;
+    width: 100%;
+    margin-top: -72px;
+}
+
 main {
     margin: 0 auto;
     margin-top: 12px;
     max-width: 1000px;
-    border-radius: 8px;
     background-color: var(--body-theme-color);
     
-    padding: 10px;
-    border: 1px solid var(--std-border-color);;
+    padding: 12px;
     box-shadow: 0 0 6px 0px var(--light-black-color);
 }
 
 i { cursor: pointer; }
 
 /* inside parts */
+
 #user-panel {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -96,8 +101,16 @@ i { cursor: pointer; }
 }
 
 #user-panel > aside:last-child > i {
+    padding: 0 2px;
     cursor: pointer;
     transition: 0.2s;
+}
+
+#fullname {
+    margin-left: 6px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .selected {
@@ -113,92 +126,53 @@ i { cursor: pointer; }
 }
 
 .root {
-    background-color: var(--root-color);
-    border: 1px solid var(--std-border-color);
-    border-radius: 6px;
-    padding: 8px;
     margin-bottom: 12px;
-    transition: 0.2s;
-}
 
-.root:not(:last-child):hover {
-    box-shadow: 0 0 5px -2px black;
+    background-color: var(--root-color);
 }
 
 .root > nav {
-    display: grid;
-    grid-template-columns: 50% 50%;
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    border-width: 2px;
+    border-style: solid;
 
     font-weight: bold;
     font-size: x-large;
     cursor: pointer;
+    transition: 0.2s;
 }
 
-.root > nav > aside:last-child {
-    text-align: right;
+.root > nav:hover {
+    box-shadow: 0 0 5px -2px black;
 }
 
-.subroot {
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 0.3s;
-}
+#exp-root > nav { border-color: var(--custom-exp-color); }
+#exp-root > nav:hover { box-shadow: 0 0 6px -2px var(--custom-exp-color); }
+#inc-root > nav { border-color: var(--custom-inc-color); }
+#inc-root > nav:hover { box-shadow: 0 0 8px -2px var(--custom-inc-color); }
+#len-root > nav { border-color: var(--custom-len-color); }
+#len-root > nav:hover { box-shadow: 0 0 8px -2px var(--custom-len-color); }
+#deb-root > nav { border-color: var(--custom-deb-color); }
+#deb-root > nav:hover { box-shadow: 0 0 8px -2px var(--custom-deb-color); }
+#bal-root > nav { border-color: var(--selected-color); }
 
-.detail-list {
-    padding-top: 12px;
-    padding-left: 12px;
-}
-
-.rootcost {
-    transition: 0.25s;
-}
-
-.list-adding-btn {
-    color: white;
-    border: 1px solid var(--std-border-color);;
-    padding: 4px;
-    border-radius: 4px;
-    text-align: center;
-    cursor: pointer;
-}
-
-.list-adding-btn::before {
-    content: "ADD";
-}
-
-#exp-root aside,
-#exp-root .list-adding-btn {
-    color: var(--custom-exp-color);
-}
-
-#inc-root aside,
-#inc-root .list-adding-btn {
-    color: var(--custom-inc-color);
-}
-
-#len-root aside,
-#len-root .list-adding-btn  {
-    color: var(--custom-len-color);
-}
-
-#deb-root aside,
-#deb-root .list-adding-btn {
-    color: var(--custom-deb-color);
-}
+/* (balance root) */
 
 #bal-root {
-    display: grid;
-    grid-template-columns: 50% 50%;
+    display: flex;
+    padding: 8px;
+    border: 2px solid var(--selected-color);
+    background-color: #EAEDED;
+    justify-content: space-between;
+    pointer-events: none;
 }
 
 #bal-root > aside {
     color: var(--selected-color);
     font-weight: bold;
     font-size: x-large;
-}
-
-#bal-root > aside:last-child {
-    text-align: right;
 }
 
 .cost > input {
@@ -211,13 +185,67 @@ i { cursor: pointer; }
     width: 120px;
 }
 
-/* cost detail list */
+/* (sub-root) */
+
+.subroot {
+    padding: 0 12px;
+    overflow: hidden;
+    transition: max-height 0.3s;
+}
+
+.detail-list {
+    padding-top: 12px;
+    padding-left: 12px;
+}
+
+.rootcost {
+    transition: 0.25s;
+}
+
+/* header and btn color */
+
+#exp-root nav {
+    color: var(--custom-exp-color);
+}
+
+#exp-root .thumb-dot,
+#exp-root .thumb-line {
+    background-color: var(--custom-exp-color);
+}
+
+#inc-root nav {
+    color: var(--custom-inc-color);
+}
+
+#inc-root .thumb-dot,
+#inc-root .thumb-line {
+    background-color: var(--custom-inc-color);
+}
+
+#len-root nav  {
+    color: var(--custom-len-color);
+}
+
+#len-root .thumb-dot,
+#len-root .thumb-line {
+    background-color: var(--custom-len-color);
+}
+
+#deb-root nav {
+    color: var(--custom-deb-color);
+}
+
+#deb-root .thumb-dot,
+#deb-root .thumb-line {
+    background-color: var(--custom-deb-color);
+}
+
+/* (cost detail list) */
+
 .root-list {
-    padding: 0 6px;
-    border-radius: 4px;
-    
     display: grid;
-    grid-template-columns: auto 160px;
+    grid-template-columns: 34px 1fr 160px;
+    grid-gap: 8px;
 }
 
 .root-list:hover {
@@ -225,13 +253,76 @@ i { cursor: pointer; }
     background: lightgrey;
 }
 
-.create-list-grid {
-    margin-top: 8px;
+.root-list .thumb-block {
+    position: relative;
+}
 
+.root-list .thumb-line {
+    position: absolute;
+    width: 8px;
+    height: 100%;
+
+    left: 13px;
+}
+
+.root-list .thumb-dot {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+
+    left: 10px;
+    top: 5px;
+}
+
+.root-list .thumb-icon {
+    position: absolute;
+    color: white;
+
+    left: 13.75px;
+    top: 7px;
+
+    font-size: x-small;
+}
+
+/* (adding cost detail list) */
+
+.create-list-grid {
     display: grid;
     grid-gap: 8px;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    grid-template-rows: repeat(auto-fit, auto);
+    grid-template-columns: 34px repeat(2, 1fr);
+}
+
+.create-list-grid .thumb-block {
+    position: relative;
+}
+
+.create-list-grid .thumb-line {
+    position: absolute;
+    width: 8px;
+    height: 50%;
+
+    left: 13px;
+}
+
+.create-list-grid .thumb-dot {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+
+    left: 8px;
+    top: 8px;
+}
+
+.create-list-grid .thumb-icon {
+    position: absolute;
+    color: white;
+
+    left: 11.5px;
+    top: 11px;
+
+    font-size: small;
 }
 
 .create-list-grid > input {
@@ -239,18 +330,26 @@ i { cursor: pointer; }
     background-color: transparent;
     font-size: 16px;
     padding: 6px 8px;
-    border: 1px solid #5D6D7E;
-    border-radius: 4px;
+    border: 0;
+    border-bottom: 1px dashed #5D6D7E;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
-/* statistics view */
+.create-list-grid > input[type=number] {
+    text-align: end;
+}
+
+/* (statistics view) */
+
 .section-view-grid {
     margin: 0 auto;
     display: grid;
     grid-template-columns: repeat(auto-fit, 100px);
 
     border: 1px solid #5D6D7E;
-    border-radius: 4px;
     overflow: hidden;
 }
 
@@ -283,7 +382,6 @@ i { cursor: pointer; }
 /* decorative class */
 .border-list > aside {
     padding: 4px;
-    border-radius: 4px;
     border: 1px solid #5D6D7E;
 
     display: flex;
@@ -307,12 +405,10 @@ form {
 }
 
 form > section {
-    border: 2px solid var(--std-border-color);;
-    box-shadow: 0 0 6px 0px var(--light-black-color);
-
-    border-radius: 16px;
     padding: 16px;
+
     background-color: var(--body-theme-color);
+    box-shadow: 0 0 6px 0px var(--light-black-color);
 }
 
 .head-text {
@@ -368,10 +464,8 @@ form > section input:disabled {
     display: flex;
     justify-content: space-between;
 
-    margin: 0 auto;
-    width: calc(100% - 16px);
     font-size: small;
-    padding: 6px 0;
+    padding: 6px 8px;
 }
 
 .form-options > span {
@@ -409,10 +503,9 @@ form > section input:disabled {
     margin: 0 auto;
     max-width: 400px;
     display: grid;
-    grid-template-columns: 25% 32.5% 10% 32.5%;
+    grid-template-columns: 84px 1fr 32px 1fr;
 
     border: 1px solid #5D6D7E;
-    border-radius: 4px;
 }
 
 #compare-option > aside:not(:last-child) {border-right: 1px solid #5D6D7E;}
@@ -431,7 +524,7 @@ form > section input:disabled {
 .summarized-grid > aside > div {
     display: grid;
     align-items: center;
-    grid-template-columns: 35% 45% 20%;
+    grid-template-columns: 120px 1fr 100px;
 }
 
 .summarized-grid > aside > div:first-child > aside:first-child {
@@ -441,7 +534,6 @@ form > section input:disabled {
 .summarized-grid > aside > div > aside:nth-child(2) {
     height: 12px;
     border: 2px solid #5D6D7E;
-    border-radius: 4px;
 }
 
 .summarized-grid > aside > div > aside:last-child {

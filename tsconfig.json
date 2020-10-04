@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "watch": false,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "alwaysStrict": true,
+    "strict": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2020"],
+    "outDir": "js/"
+  },
+  "include": [
+    "ts/*"
+  ]
+}
