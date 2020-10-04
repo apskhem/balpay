@@ -1,6 +1,6 @@
 var _a;
 import { App } from "./applib.js";
-import { db, roots, user, records, detailRecords, balance, colorset, graph } from "./__main__.js";
+import { db, roots, user, records, detailRecords, balance, colorset, graph } from "../main.js";
 ;
 export class Form {
     static AlertInputError(input) {
