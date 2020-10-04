@@ -1,8 +1,8 @@
-import GoogleAppsScriptDB from "./google-apps-script-db.js";
-import GoogleCharts from "./google-charts.js";
-import { App } from "./applib.js";
-import { RootList } from "./app-module.js";
-import { Form, GraphSection, Main, SummarizedSecton, UserPanel } from "./app-panels.js";
+import GoogleAppsScriptDB from "./js/google-apps-script-db.js";
+import GoogleCharts from "./js/google-charts.js";
+import { App } from "./js/applib.js";
+import { RootList } from "./js/app-module.js";
+import { Form, GraphSection, Main, SummarizedSecton, UserPanel } from "./js/app-panels.js";
 export const db = new GoogleAppsScriptDB("https://script.google.com/macros/s/AKfycbx8PNkzqprtcF5xIjbkvHszP6P5ggWwaAsXdB-fpf7g9BA3bbHT/exec");
 export const graph = new GoogleCharts("corechart", "line");
 export const user = {

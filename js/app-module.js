@@ -1,6 +1,6 @@
 import { GraphSection, SummarizedSecton } from "./app-panels.js";
 import { App } from "./applib.js";
-import { db, roots, user, balance } from "./__main__.js";
+import { db, roots, user, balance } from "../main.js";
 export class RootList {
     constructor(type) {
         this.wrapper = document.createElement("div");
