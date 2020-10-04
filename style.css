@@ -539,3 +539,80 @@ form > section input:disabled {
 .summarized-grid > aside > div > aside:last-child {
     text-align: right;
 }
+
+/* (loading page) */
+#loading-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+
+    color: white;
+    font-size: xx-large;
+    background-color: var(--html-bg-color);
+}
+
+#loading-animation {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    height: 64px;
+}
+
+#loading-animation > aside {
+    display: flex;
+    align-items: flex-end;
+}
+
+#loading-animation > aside > div {
+    width: 100%;
+}
+
+#loading-animation > aside:nth-child(1) > div {
+    background-color: yellowgreen;
+    animation: bar-moving 2s infinite ease-in-out;
+}
+
+#loading-animation > aside:nth-child(2) > div {
+    background-color: lavender;
+    animation: bar-moving 0.8s infinite ease-in-out;
+}
+
+#loading-animation > aside:nth-child(3) > div {
+    background-color: palevioletred;
+    animation: bar-moving 1.8s infinite ease-in-out;
+}
+
+#loading-animation > aside:nth-child(4) > div {
+    background-color: cornflowerblue;
+    animation: bar-moving 2.5s infinite ease-in-out;
+}
+
+#loading-animation > aside:nth-child(5) > div {
+    background-color: wheat;
+    animation: bar-moving 1.4s infinite ease-in-out;
+}
+
+#loading-animation > aside:nth-child(6) > div {
+    background-color: plum;
+    animation: bar-moving 3.2s infinite ease-in-out;
+}
+
+@keyframes bar-moving {
+    0% {height: 5%;}
+    50% {height: 100%;}
+    100% {height: 5%;}
+  }
+
+#loading-color-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin: 6px 0;
+    height: 4px;
+}
+
+#loading-color-bar > aside:nth-child(1) { background-color: #22a7c3; }
+#loading-color-bar > aside:nth-child(2) { background-color: #c3226e; }
+#loading-color-bar > aside:nth-child(3) { background-color: #c2c322; }
+#loading-color-bar > aside:nth-child(4) { background-color: #22c337; }

@@ -1,8 +1,8 @@
-import GoogleAppsScriptDB from "./js/google-apps-script-db.js";
-import GoogleCharts from "./js/google-charts.js";
-import { App } from "./js/applib.js";
-import { RootList } from "./js/app-module.js";
-import { Form, GraphSection, Main, SummarizedSecton, UserPanel } from "./js/app-panels.js";
+import GoogleAppsScriptDB from "./google-apps-script-db.js";
+import GoogleCharts from "./google-charts.js";
+import { App } from "./applib.js";
+import { RootList } from "./app-module.js";
+import { Form, GraphSection, Main, SummarizedSecton, UserPanel } from "./app-panels.js";
 export const db = new GoogleAppsScriptDB("https://script.google.com/macros/s/AKfycbx8PNkzqprtcF5xIjbkvHszP6P5ggWwaAsXdB-fpf7g9BA3bbHT/exec");
 export const graph = new GoogleCharts("corechart", "line");
 export const user = {
@@ -33,7 +33,7 @@ window.onerror = (msg, url, lineNo, columnNo, error) => {
     alert(`${msg}\nAT: ${lineNo}-${columnNo} ${url === null || url === void 0 ? void 0 : url.split("/").pop()}`);
 };
 window.onload = () => {
-    var _a, _b;
+    var _a, _b, _c;
     UserPanel.todayDateEl.textContent = App.Utils.FormatDate(App.Utils.todayDate);
     App.Utils.Copyright("copyright-year", 2019);
     graph.Set("history", "line-chart", {
@@ -193,5 +193,6 @@ window.onload = () => {
         };
     });
     Main.Init();
+    (_c = document.getElementById("loading-page")) === null || _c === void 0 ? void 0 : _c.remove();
     window.onload = null;
 };

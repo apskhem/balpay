@@ -247,5 +247,8 @@ window.onload = () => {
 
     Main.Init();
 
+    // remove loading screen
+    document.getElementById("loading-page")?.remove();
+
     window.onload = null;
 }

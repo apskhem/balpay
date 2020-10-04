@@ -53,3 +53,6 @@ R2B011.0h - Thu. 2 Jul. 2020
 
 v0.9 - Sun. 4 Oct, 2020
 - TypeScript
+
+v0.9.2 - Sun. 4 Oct, 2020
+- added loading screen
