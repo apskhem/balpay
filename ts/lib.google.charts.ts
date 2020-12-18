@@ -33,7 +33,7 @@ export default class GoogleCharts {
     public readonly charts: ChartData = {};
     public readonly src: Google = google;
 
-    constructor(...packages: string[]) {
+    public constructor(...packages: string[]) {
         this.packages = packages;
         this.charts = {};
         this.src = google;
@@ -41,7 +41,7 @@ export default class GoogleCharts {
         this.src.charts.load("current", { "packages": packages });
     }
 
-    Set(chartName: string, type: string, dataForm: DataForm, options: Function, defaultDataForm?: {}, defaultRenderEl?: HTMLLIElement) {
+    public set(chartName: string, type: string, dataForm: DataForm, options: Function, defaultDataForm?: {}, defaultRenderEl?: HTMLLIElement): void {
         this.charts[chartName] = {
             "type": type,
             "form": dataForm,
@@ -51,7 +51,7 @@ export default class GoogleCharts {
         };
     }
 
-    Render(chartName: string, data: {}, toRenderEl: HTMLElement) {
+    public render(chartName: string, data: {}, toRenderEl: HTMLElement): void {
         this.src.charts.setOnLoadCallback(() => {
             const prototype = this.charts[chartName];
             const dataTable = new this.src.visualization.DataTable();

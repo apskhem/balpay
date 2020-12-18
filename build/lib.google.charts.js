@@ -7,7 +7,7 @@ export default class GoogleCharts {
         this.src = google;
         this.src.charts.load("current", { "packages": packages });
     }
-    Set(chartName, type, dataForm, options, defaultDataForm, defaultRenderEl) {
+    set(chartName, type, dataForm, options, defaultDataForm, defaultRenderEl) {
         this.charts[chartName] = {
             "type": type,
             "form": dataForm,
@@ -16,7 +16,7 @@ export default class GoogleCharts {
             "element": defaultRenderEl !== null && defaultRenderEl !== void 0 ? defaultRenderEl : null
         };
     }
-    Render(chartName, data, toRenderEl) {
+    render(chartName, data, toRenderEl) {
         this.src.charts.setOnLoadCallback(() => {
             const prototype = this.charts[chartName];
             const dataTable = new this.src.visualization.DataTable();

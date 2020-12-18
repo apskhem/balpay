@@ -1,42 +1,41 @@
 var _a;
-import { App } from "./applib.js";
-import { db, roots, user, records, detailRecords, balance, colorset, graph } from "../main.js";
-;
+import { App } from "./lib.core.js";
+import { db, roots, user, records, detailRecords, balance, colorset, graph } from "./main.js";
 export class Form {
-    static AlertInputError(input) {
+    static alertFormError(input) {
         input.focus();
         input.classList.add("input-error");
     }
-    static Init() {
-        this.SetActiveSection("singin");
+    static init() {
+        this.setActiveSection("singin");
         this.usernameInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
-                !this.usernameInput.value ? this.AlertInputError(this.usernameInput) : this.passwordInput.focus();
+                !this.usernameInput.value ? this.alertFormError(this.usernameInput) : this.passwordInput.focus();
             }
             this.usernameInput.classList.remove("input-error");
         });
         this.passwordInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
-                !this.passwordInput.value ? this.AlertInputError(this.passwordInput) : this.signInProceedBtn.click();
+                !this.passwordInput.value ? this.alertFormError(this.passwordInput) : this.signInProceedBtn.click();
             }
             this.passwordInput.classList.remove("input-error");
         });
-        this.gotoForgotPasswordBtn.addEventListener("click", () => this.SetActiveSection("forgotpassword"));
-        this.gotoSignUpBtn.addEventListener("click", () => this.SetActiveSection("singup"));
-        this.gotoSignInBtn.addEventListener("click", () => this.SetActiveSection('singin'));
+        this.gotoForgotPasswordBtn.addEventListener("click", () => this.setActiveSection("forgotpassword"));
+        this.gotoSignUpBtn.addEventListener("click", () => this.setActiveSection("singup"));
+        this.gotoSignInBtn.addEventListener("click", () => this.setActiveSection('singin'));
         this.signInProceedBtn.addEventListener("click", () => {
             if (this.usernameInput.disabled || this.passwordInput.disabled)
                 return;
             if (!this.usernameInput.value) {
-                this.AlertInputError(this.usernameInput);
+                this.alertFormError(this.usernameInput);
             }
             else if (!this.passwordInput.value) {
-                this.AlertInputError(this.passwordInput);
+                this.alertFormError(this.passwordInput);
             }
             else {
                 this.signInProceedBtn.textContent = "Processing Request...";
                 this.activeInputs = false;
-                db.Request("SIGNIN", {
+                db.request("SIGNIN", {
                     "userid": this.usernameInput.value,
                     "password": this.passwordInput.value
                 });
@@ -44,17 +43,17 @@ export class Form {
         });
         this.signUpProceedBtn.addEventListener("click", () => {
             if (!this.signUpFullNameInput.value)
-                this.AlertInputError(this.signUpFullNameInput);
+                this.alertFormError(this.signUpFullNameInput);
             else if (!this.signUpUsernameInput.value)
-                this.AlertInputError(this.signUpUsernameInput);
+                this.alertFormError(this.signUpUsernameInput);
             else if (!this.signUpPasswordInput.value)
-                this.AlertInputError(this.signUpPasswordInput);
+                this.alertFormError(this.signUpPasswordInput);
             else if (!this.signUpEmailInput.value)
-                this.AlertInputError(this.signUpEmailInput);
+                this.alertFormError(this.signUpEmailInput);
             else {
                 this.signUpProceedBtn.textContent = "Processing Request...";
                 this.activeInputs = false;
-                db.Request("SIGNUP", {
+                db.request("SIGNUP", {
                     "userid": this.signUpUsernameInput.value,
                     "password": this.signUpPasswordInput.value,
                     "fullname": this.signUpFullNameInput.value,
@@ -64,7 +63,7 @@ export class Form {
             }
         });
     }
-    static SetActiveSection(section) {
+    static setActiveSection(section) {
         this.signInSection.remove();
         this.signUpSection.remove();
         this.forgotPasswordSection.remove();
@@ -119,7 +118,7 @@ Form.gotoForgotPasswordBtn = document.getElementById("goto-forget-password-form-
 Form.signInProceedBtn = document.getElementById("signin-button");
 Form.signUpProceedBtn = document.getElementById("signup-button");
 export class Main {
-    static Init() {
+    static init() {
         this.pane.removeAttribute("hidden");
         this.active = false;
     }
@@ -139,7 +138,7 @@ export class UserPanel {
 UserPanel.fullNameEl = document.getElementById("fullname");
 UserPanel.todayDateEl = document.getElementById("today-date");
 export class GraphSection {
-    static UpdateChart() {
+    static updateChart() {
         records.splice(-1, 1, [
             new Date(...App.Utils.todayDate.split(".")),
             balance.result,
@@ -154,9 +153,9 @@ export class GraphSection {
             roots["len"].detail,
             roots["deb"].detail
         ]);
-        this.SetActiveMode(1);
+        this.setActiveModeTo(1);
     }
-    static SetActiveMode(mode) {
+    static setActiveModeTo(mode) {
         for (const el of this.statModeSelections) {
             el.classList.remove("viewed");
         }
@@ -177,7 +176,7 @@ class ColComparisonBar {
         this.wrapper.appendChild(this.aside3);
         chennelEl.appendChild(this.wrapper);
     }
-    Remove() {
+    remove() {
         this.wrapper.remove();
     }
 }
@@ -190,12 +189,12 @@ class ByTimeColComparisonBar extends ColComparisonBar {
             let color;
             if (current < last) {
                 color = type === "expenditure" ? colorset.surplus : colorset.deficit;
-                this.aside3.textContent = `-${App.Utils.FormatNumber((1 - current / last) * 100)}%`;
+                this.aside3.textContent = `-${((1 - current / last) * 100).toLocaleString("en")}%`;
                 this.aside2.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${current / last * 100}%, ${color} 0)`;
             }
             else {
                 color = type === "expenditure" ? colorset.deficit : colorset.surplus;
-                this.aside3.textContent = `+${App.Utils.FormatNumber((current / last - 1) * 100)}%`;
+                this.aside3.textContent = `+${((current / last - 1) * 100).toLocaleString("en")}%`;
                 this.aside2.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${last / current * 100}%, ${color} 0)`;
             }
             this.aside3.style.color = this.aside3.textContent === "+0.00%" ? "black" : color;
@@ -216,12 +215,12 @@ class ByAvgColComparisonBar extends ColComparisonBar {
             let color;
             if (current < last) {
                 color = type === "expenditure" ? colorset.surplus : colorset.deficit;
-                this.aside3.textContent = `-${App.Utils.FormatNumber((1 - current / last) * 100)}%`;
+                this.aside3.textContent = `-${((1 - current / last) * 100).toLocaleString("en")}%`;
                 this.aside2.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${current / last * 100}%, ${color} 0)`;
             }
             else {
                 color = type === "expenditure" ? colorset.deficit : colorset.surplus;
-                this.aside3.textContent = `+${App.Utils.FormatNumber((current / last - 1) * 100)}%`;
+                this.aside3.textContent = `+${((current / last - 1) * 100).toLocaleString("en")}%`;
                 this.aside2.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${last / current * 100}%, ${color} 0)`;
             }
             this.aside3.style.color = this.aside3.textContent === "+0.00%" ? "black" : color;
@@ -234,7 +233,7 @@ class ByAvgColComparisonBar extends ColComparisonBar {
     }
 }
 export class SummarizedSecton {
-    static UpdateSummarization() {
+    static updateConclusion() {
         var _a, _b;
         const [cy, cm, cd] = App.Utils.todayDate.split(".").map(val => +val);
         const month = { expenditure: 0, income: 0 };
@@ -247,31 +246,31 @@ export class SummarizedSecton {
             if (records[z][0].getMonth() === cm) {
                 month.expenditure += records[z][2];
                 month.income += records[z][3];
-                App.Utils.ParseDetail(detailRecords[z][0], spendingLists.expenditure);
-                App.Utils.ParseDetail(detailRecords[z][1], spendingLists.income);
+                App.Utils.parseDetail(detailRecords[z][0], spendingLists.expenditure);
+                App.Utils.parseDetail(detailRecords[z][1], spendingLists.income);
             }
             else if (records[z][0].getMonth() === tcMonth) {
                 cMonth.expenditure += records[z][2];
                 cMonth.income += records[z][3];
-                App.Utils.ParseDetail(detailRecords[z][0], lastMonthSpendingLists.expenditure);
-                App.Utils.ParseDetail(detailRecords[z][1], lastMonthSpendingLists.income);
+                App.Utils.parseDetail(detailRecords[z][0], lastMonthSpendingLists.expenditure);
+                App.Utils.parseDetail(detailRecords[z][1], lastMonthSpendingLists.income);
                 totalAccDate++;
             }
             else
                 break;
         }
-        this.stmTtlExpEl.textContent = App.Utils.FormatNumber(month.expenditure) + user.settings.currency;
-        this.stmTtlIncEl.textContent = App.Utils.FormatNumber(month.income) + user.settings.currency;
-        this.stmAvgExpTextEl.textContent = App.Utils.FormatNumber(month.expenditure / cd) + user.settings.currency;
-        this.stmAvgIncTextEl.textContent = App.Utils.FormatNumber(month.income / cd) + user.settings.currency;
+        this.stmTtlExpEl.textContent = month.expenditure.toLocaleString("en") + user.settings.currency;
+        this.stmTtlIncEl.textContent = month.income.toLocaleString("en") + user.settings.currency;
+        this.stmAvgExpTextEl.textContent = (month.expenditure / cd).toLocaleString("en") + user.settings.currency;
+        this.stmAvgIncTextEl.textContent = (month.income / cd).toLocaleString("en") + user.settings.currency;
         this.stmTtlBalanceTextEl.textContent = month.income >= month.expenditure ? "Surplus" : "Deficit";
         if (this.stmTtlBalanceTextEl.parentElement)
             this.stmTtlBalanceTextEl.parentElement.style.color = month.income >= month.expenditure ? colorset.surplus : colorset.deficit;
-        this.stmTtlBalanceEl.textContent = App.Utils.FormatNumber(Math.abs(month.expenditure - month.income)) + user.settings.currency;
+        this.stmTtlBalanceEl.textContent = (Math.abs(month.expenditure - month.income)).toLocaleString("en") + user.settings.currency;
         this.stmAvgBalanceTextEl.textContent = "Daily Average " + (month.income >= month.expenditure ? "Surplus" : "Deficit");
         if (this.stmAvgBalanceTextEl.parentElement)
             this.stmAvgBalanceTextEl.parentElement.style.color = month.income >= month.expenditure ? colorset.surplus : colorset.deficit;
-        this.stmAvgBalanceEl.textContent = App.Utils.FormatNumber(Math.abs(month.expenditure - month.income) / cd) + user.settings.currency;
+        this.stmAvgBalanceEl.textContent = (Math.abs(month.expenditure - month.income) / cd).toLocaleString("en") + user.settings.currency;
         for (const type in spendingLists) {
             const detailEl = type === "expenditure" ? this.stmExpDetailEl : this.stmIncDetailEl;
             detailEl.innerHTML = "";
@@ -281,24 +280,24 @@ export class SummarizedSecton {
                 const li2 = document.createElement("li");
                 const temp = spendingLists[type];
                 li1.textContent = list + ":";
-                li2.textContent = App.Utils.FormatNumber(temp[list]) + user.settings.currency;
+                li2.textContent = temp[list].toLocaleString("en") + user.settings.currency;
                 block.appendChild(li1);
                 block.appendChild(li2);
                 detailEl.appendChild(block);
             }
         }
-        graph.Render("summarized-pie", Object.entries(spendingLists.expenditure), this.stmExpGraphEl);
-        graph.Render("summarized-pie", Object.entries(spendingLists.income), this.stmIncGraphEl);
+        graph.render("summarized-pie", Object.entries(spendingLists.expenditure), this.stmExpGraphEl);
+        graph.render("summarized-pie", Object.entries(spendingLists.income), this.stmIncGraphEl);
         if (!totalAccDate)
             return;
-        SummarizedSecton.ComparisonBarExpenditure("expenditure", this.byTimeExpEl.children[0].children[1], month.expenditure, cMonth.expenditure);
-        SummarizedSecton.ComparisonBarExpenditure("income", this.byTimeIncEl.children[0].children[1], month.income, cMonth.income);
-        SummarizedSecton.ComparisonBarExpenditure("expenditure", this.byAvgExpEl.children[0].children[1], month.expenditure / cd, cMonth.expenditure / totalAccDate);
-        SummarizedSecton.ComparisonBarExpenditure("income", this.byAvgIncEl.children[0].children[1], month.income / cd, cMonth.income / totalAccDate);
+        SummarizedSecton.comparisonBarExpenditure("expenditure", this.byTimeExpEl.children[0].children[1], month.expenditure, cMonth.expenditure);
+        SummarizedSecton.comparisonBarExpenditure("income", this.byTimeIncEl.children[0].children[1], month.income, cMonth.income);
+        SummarizedSecton.comparisonBarExpenditure("expenditure", this.byAvgExpEl.children[0].children[1], month.expenditure / cd, cMonth.expenditure / totalAccDate);
+        SummarizedSecton.comparisonBarExpenditure("income", this.byAvgIncEl.children[0].children[1], month.income / cd, cMonth.income / totalAccDate);
         while (this.byTimeList.length)
-            (_a = this.byTimeList.pop()) === null || _a === void 0 ? void 0 : _a.Remove();
+            (_a = this.byTimeList.pop()) === null || _a === void 0 ? void 0 : _a.remove();
         while (this.byAvgList.length)
-            (_b = this.byAvgList.pop()) === null || _b === void 0 ? void 0 : _b.Remove();
+            (_b = this.byAvgList.pop()) === null || _b === void 0 ? void 0 : _b.remove();
         for (const type in spendingLists) {
             for (const list in spendingLists[type]) {
                 this.byTimeList.push(new ByTimeColComparisonBar(type === "expenditure" ? this.byTimeExpEl : this.byTimeIncEl, list, type, lastMonthSpendingLists, spendingLists));
@@ -331,14 +330,14 @@ export class SummarizedSecton {
             }
         }
     }
-    static ComparisonBarExpenditure(type, barElement, refNum, comNum) {
+    static comparisonBarExpenditure(type, barElement, refNum, comNum) {
         var _a, _b, _c, _d;
         const nextSibling = barElement.nextElementSibling;
         if (refNum < comNum) {
             const base = (_a = (comNum - refNum) / comNum * 100) !== null && _a !== void 0 ? _a : 0;
             const over = (_b = refNum / comNum * 100) !== null && _b !== void 0 ? _b : 0;
             const color = type === "expenditure" ? colorset.surplus : colorset.deficit;
-            nextSibling.textContent = `-${App.Utils.FormatNumber(base)}%`;
+            nextSibling.textContent = `-${base.toLocaleString("en")}%`;
             nextSibling.style.color = color;
             barElement.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${over}%, ${color} 0)`;
         }
@@ -346,7 +345,7 @@ export class SummarizedSecton {
             const base = (_c = comNum / refNum * 100) !== null && _c !== void 0 ? _c : 0;
             const over = (_d = (refNum - comNum) / refNum * 100) !== null && _d !== void 0 ? _d : 0;
             const color = type === "expenditure" ? colorset.deficit : colorset.surplus;
-            nextSibling.textContent = `+${App.Utils.FormatNumber(over)}%`;
+            nextSibling.textContent = `+${over.toLocaleString("en")}%`;
             nextSibling.style.color = color;
             barElement.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${base}%, ${color} 0)`;
         }

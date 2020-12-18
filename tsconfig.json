@@ -10,9 +10,9 @@
     "alwaysStrict": true,
     "strict": true,
     "lib": ["DOM", "DOM.Iterable", "ES2020"],
-    "outDir": "js/"
+    "outDir": "build/"
   },
   "include": [
-    "ts/*"
+    "ts/*.ts"
   ]
 }

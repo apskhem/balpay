@@ -1,17 +1,17 @@
-import { GraphSection, SummarizedSecton } from "./app-panels.js";
-import { App } from "./applib.js";
-import { db, roots, user, balance } from "./__main__.js";
+import { GraphSection, SummarizedSecton } from "./app.panels.js";
+import { App } from "./lib.core.js";
+import { db, roots, user, balance } from "./main.js";
 
 export class RootList {
 
-    public static readonly mainFiscalPanel: HTMLElement = document.getElementById("main-fiscal-panel") as HTMLElement;
-    public static readonly balanceEl: HTMLElement = document.getElementById("bal-root") as HTMLElement;
+    public static readonly mainFiscalPanel = document.getElementById("main-fiscal-panel") as HTMLElement;
+    public static readonly balanceEl = document.getElementById("bal-root") as HTMLElement;
 
-    public readonly wrapper: HTMLElement = document.createElement("div");
-    public readonly nav: HTMLElement = document.createElement("nav");
-    public readonly asideHeader: HTMLLIElement = document.createElement("li");
-    public readonly asideTotal: HTMLLIElement = document.createElement("li");
-    public readonly listContainer: HTMLElement = document.createElement("div");
+    public readonly wrapper = document.createElement("div");
+    public readonly nav = document.createElement("nav");
+    public readonly asideHeader = document.createElement("li");
+    public readonly asideTotal = document.createElement("li");
+    public readonly listContainer = document.createElement("div");
     public readonly lists: ListObject[] = [];
 
     public readonly addingList = new AddingList(this);
@@ -47,11 +47,11 @@ export class RootList {
     }
 
     public get total(): number {
-        return App.Utils.DeformatNumber(this.asideTotal.textContent ?? "");
+        return App.Utils.deformatNumber(this.asideTotal.textContent ?? "");
     }
 
     public set total(value: number) {
-        this.asideTotal.textContent = (App.Utils.FormatNumber(value) || 0) + user.settings.currency;
+        this.asideTotal.textContent = (value.toLocaleString("en") || 0) + user.settings.currency;
     }
 
     public get detail(): string {
@@ -74,10 +74,10 @@ export class RootList {
             }
         }
 
-        this.UpdateSum();
+        this.updateSum();
     }
 
-    public UpdateSum(): void {
+    public updateSum(): void {
         let total = 0;
         for (const list of this.lists) total += list.value;
 
@@ -86,22 +86,26 @@ export class RootList {
 
     public static UpdateBalance(): void {
         balance.result = balance.final - roots["exp"].total + roots["inc"].total;
-        this.balanceEl.children[1].textContent = App.Utils.FormatNumber(balance.result) + user.settings.currency;
+        this.balanceEl.children[1].textContent = balance.result.toLocaleString("en") + user.settings.currency;
     }
 }
 
 class AddingList {
 
-    public readonly el: HTMLElement = document.createElement("div");
-    public readonly titleInput: HTMLInputElement = document.createElement("input");
-    public readonly valueInput: HTMLInputElement = document.createElement("input");
+    public readonly el = document.createElement("div");
+    public readonly titleInput = document.createElement("input");
+    public readonly valueInput = document.createElement("input");
 
-    public readonly thumbContainerEl: HTMLElement = document.createElement("div");
-    public readonly thumbDotEl: HTMLElement = document.createElement("div");
-    public readonly thumbIcon: HTMLElement = document.createElement("i");
-    public readonly thumbLineEl: HTMLElement = document.createElement("div");
+    public readonly thumbContainerEl = document.createElement("div");
+    public readonly thumbDotEl = document.createElement("div");
+    public readonly thumbIcon = document.createElement("i");
+    public readonly thumbLineEl = document.createElement("div");
 
-    public constructor(public readonly ref: RootList) {
+    public readonly ref: RootList;
+
+    public constructor(ref: RootList) {
+        this.ref = ref;
+
         this.titleInput.type = "text";
         this.titleInput.placeholder = "Title";
         this.valueInput.type = "number";
@@ -148,7 +152,7 @@ class AddingList {
                         list.value = newVal;
                     }
                     else if (!newVal) {
-                        list.Delete();
+                        list.delete();
                     }
                     else { // less than 0
     
@@ -174,56 +178,61 @@ class AddingList {
             this.titleInput.blur();
             this.valueInput.blur();
             
-            this.ref.UpdateSum();
+            this.ref.updateSum();
             RootList.UpdateBalance();
-            GraphSection.UpdateChart();
-            SummarizedSecton.UpdateSummarization();
-            db.Request("UPDATE");
+            GraphSection.updateChart();
+            SummarizedSecton.updateConclusion();
+            db.request("UPDATE");
         });
     }
 }
 
 class ListObject {
 
-    public readonly container: HTMLElement = document.createElement("div") as HTMLElement;
-    public readonly input: HTMLInputElement = document.createElement("input") as HTMLInputElement;
-    public readonly lb: HTMLLIElement = document.createElement("li") as HTMLLIElement;
-    public readonly rb: HTMLLIElement = document.createElement("li") as HTMLLIElement;
+    public readonly container = document.createElement("div") as HTMLElement;
+    public readonly input = document.createElement("input") as HTMLInputElement;
+    public readonly lb = document.createElement("li") as HTMLLIElement;
+    public readonly rb = document.createElement("li") as HTMLLIElement;
     public readonly currencySpan: HTMLSpanElement = document.createElement("span") as HTMLSpanElement;
 
-    public readonly thumbContainerEl: HTMLElement = document.createElement("div");
-    public readonly thumbDotEl: HTMLElement = document.createElement("div");
-    public readonly thumbIcon: HTMLElement = document.createElement("i");
-    public readonly thumbLineEl: HTMLElement = document.createElement("div");
+    public readonly thumbContainerEl = document.createElement("div");
+    public readonly thumbDotEl = document.createElement("div");
+    public readonly thumbIcon = document.createElement("i");
+    public readonly thumbLineEl = document.createElement("div");
     
     public backupValue: string = "0";
-    public readonly index = this.ref.lists.length;
+    
+    public readonly index: number;
+    public readonly ref: RootList;
 
-    public constructor(public readonly ref: RootList, title: string, amount: number) {
+    public constructor(ref: RootList, title: string, amount: number) {
+        this.ref = ref;
+        this.index = this.ref.lists.length;
+
         this.thumbContainerEl.className = "thumb-block";
         this.thumbIcon.className = "fas fa-times thumb-icon";
         this.thumbDotEl.className = "thumb-dot";
         this.thumbLineEl.className = "thumb-line";
 
-        this.input.value = App.Utils.FormatNumber(amount);
+        this.input.value = amount.toLocaleString("en");
         this.input.min = "0";
         this.currencySpan.textContent = user.settings.currency;
         this.lb.className = "cost";
         this.title = title;
 
         this.thumbIcon.addEventListener("click", () => {
-            this.Delete();
+            this.delete();
     
             // Finalize 
-            this.ref.UpdateSum();
+            this.ref.updateSum();
             RootList.UpdateBalance();
-            GraphSection.UpdateChart();
-            SummarizedSecton.UpdateSummarization();
-            db.Request("UPDATE");
+            GraphSection.updateChart();
+            SummarizedSecton.updateConclusion();
+            db.request("UPDATE");
         });
 
         this.input.addEventListener("focus", () => {
-            this.input.value = App.Utils.DeformatNumber(this.input.value) + "";
+            this.input.value = App.Utils.deformatNumber(this.input.value) + "";
             this.input.type = "number";
             this.backupValue = this.input.value;
             this.input.select();
@@ -233,7 +242,7 @@ class ListObject {
             switch (true) {
                 case this.input.value === this.backupValue: {
                     this.input.type = "text";
-                    this.input.value = App.Utils.FormatNumber(+this.input.value);
+                    this.input.value = (+this.input.value).toLocaleString("en");
                 } return;
                 case this.input.value === "0": {
                     this.thumbIcon.click();
@@ -244,12 +253,12 @@ class ListObject {
             }
     
             this.input.type = "text";
-            this.input.value = App.Utils.FormatNumber(+this.input.value);
-            this.ref.UpdateSum();
+            this.input.value = (+this.input.value).toLocaleString("en");
+            this.ref.updateSum();
             RootList.UpdateBalance();
-            GraphSection.UpdateChart();
-            SummarizedSecton.UpdateSummarization();
-            db.Request("UPDATE");
+            GraphSection.updateChart();
+            SummarizedSecton.updateConclusion();
+            db.request("UPDATE");
         });
 
         this.input.addEventListener("keyup", (e: KeyboardEvent) => {
@@ -284,14 +293,14 @@ class ListObject {
     }
 
     public get value(): number {
-        return App.Utils.DeformatNumber(this.input.value);
+        return App.Utils.deformatNumber(this.input.value);
     }
 
     public set value(value: number) {
-        this.input.value = App.Utils.FormatNumber(value);
+        this.input.value = value.toLocaleString("en");
     }
 
-    public Delete() {
+    public delete() {
         this.ref.lists.splice(this.index, 1);
         this.ref.listContainer.removeChild(this.container);
     }

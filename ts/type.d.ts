@@ -1,0 +1,1 @@
+type anyobj = { [d: string]: any };

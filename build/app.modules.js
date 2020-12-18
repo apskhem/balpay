@@ -1,6 +1,6 @@
-import { GraphSection, SummarizedSecton } from "./app-panels.js";
-import { App } from "./applib.js";
-import { db, roots, user, balance } from "../main.js";
+import { GraphSection, SummarizedSecton } from "./app.panels.js";
+import { App } from "./lib.core.js";
+import { db, roots, user, balance } from "./main.js";
 export class RootList {
     constructor(type) {
         this.wrapper = document.createElement("div");
@@ -45,10 +45,10 @@ export class RootList {
     }
     get total() {
         var _a;
-        return App.Utils.DeformatNumber((_a = this.asideTotal.textContent) !== null && _a !== void 0 ? _a : "");
+        return App.Utils.deformatNumber((_a = this.asideTotal.textContent) !== null && _a !== void 0 ? _a : "");
     }
     set total(value) {
-        this.asideTotal.textContent = (App.Utils.FormatNumber(value) || 0) + user.settings.currency;
+        this.asideTotal.textContent = (value.toLocaleString("en") || 0) + user.settings.currency;
     }
     get detail() {
         let detail = "";
@@ -68,9 +68,9 @@ export class RootList {
                 this.lists.push(new ListObject(this, title, amount));
             }
         }
-        this.UpdateSum();
+        this.updateSum();
     }
-    UpdateSum() {
+    updateSum() {
         let total = 0;
         for (const list of this.lists)
             total += list.value;
@@ -78,14 +78,13 @@ export class RootList {
     }
     static UpdateBalance() {
         balance.result = balance.final - roots["exp"].total + roots["inc"].total;
-        this.balanceEl.children[1].textContent = App.Utils.FormatNumber(balance.result) + user.settings.currency;
+        this.balanceEl.children[1].textContent = balance.result.toLocaleString("en") + user.settings.currency;
     }
 }
 RootList.mainFiscalPanel = document.getElementById("main-fiscal-panel");
 RootList.balanceEl = document.getElementById("bal-root");
 class AddingList {
     constructor(ref) {
-        this.ref = ref;
         this.el = document.createElement("div");
         this.titleInput = document.createElement("input");
         this.valueInput = document.createElement("input");
@@ -93,6 +92,7 @@ class AddingList {
         this.thumbDotEl = document.createElement("div");
         this.thumbIcon = document.createElement("i");
         this.thumbLineEl = document.createElement("div");
+        this.ref = ref;
         this.titleInput.type = "text";
         this.titleInput.placeholder = "Title";
         this.valueInput.type = "number";
@@ -132,7 +132,7 @@ class AddingList {
                         list.value = newVal;
                     }
                     else if (!newVal) {
-                        list.Delete();
+                        list.delete();
                     }
                     else {
                     }
@@ -151,17 +151,16 @@ class AddingList {
             this.valueInput.value = "";
             this.titleInput.blur();
             this.valueInput.blur();
-            this.ref.UpdateSum();
+            this.ref.updateSum();
             RootList.UpdateBalance();
-            GraphSection.UpdateChart();
-            SummarizedSecton.UpdateSummarization();
-            db.Request("UPDATE");
+            GraphSection.updateChart();
+            SummarizedSecton.updateConclusion();
+            db.request("UPDATE");
         });
     }
 }
 class ListObject {
     constructor(ref, title, amount) {
-        this.ref = ref;
         this.container = document.createElement("div");
         this.input = document.createElement("input");
         this.lb = document.createElement("li");
@@ -172,26 +171,27 @@ class ListObject {
         this.thumbIcon = document.createElement("i");
         this.thumbLineEl = document.createElement("div");
         this.backupValue = "0";
+        this.ref = ref;
         this.index = this.ref.lists.length;
         this.thumbContainerEl.className = "thumb-block";
         this.thumbIcon.className = "fas fa-times thumb-icon";
         this.thumbDotEl.className = "thumb-dot";
         this.thumbLineEl.className = "thumb-line";
-        this.input.value = App.Utils.FormatNumber(amount);
+        this.input.value = amount.toLocaleString("en");
         this.input.min = "0";
         this.currencySpan.textContent = user.settings.currency;
         this.lb.className = "cost";
         this.title = title;
         this.thumbIcon.addEventListener("click", () => {
-            this.Delete();
-            this.ref.UpdateSum();
+            this.delete();
+            this.ref.updateSum();
             RootList.UpdateBalance();
-            GraphSection.UpdateChart();
-            SummarizedSecton.UpdateSummarization();
-            db.Request("UPDATE");
+            GraphSection.updateChart();
+            SummarizedSecton.updateConclusion();
+            db.request("UPDATE");
         });
         this.input.addEventListener("focus", () => {
-            this.input.value = App.Utils.DeformatNumber(this.input.value) + "";
+            this.input.value = App.Utils.deformatNumber(this.input.value) + "";
             this.input.type = "number";
             this.backupValue = this.input.value;
             this.input.select();
@@ -201,7 +201,7 @@ class ListObject {
                 case this.input.value === this.backupValue:
                     {
                         this.input.type = "text";
-                        this.input.value = App.Utils.FormatNumber(+this.input.value);
+                        this.input.value = (+this.input.value).toLocaleString("en");
                     }
                     return;
                 case this.input.value === "0":
@@ -216,12 +216,12 @@ class ListObject {
                     return;
             }
             this.input.type = "text";
-            this.input.value = App.Utils.FormatNumber(+this.input.value);
-            this.ref.UpdateSum();
+            this.input.value = (+this.input.value).toLocaleString("en");
+            this.ref.updateSum();
             RootList.UpdateBalance();
-            GraphSection.UpdateChart();
-            SummarizedSecton.UpdateSummarization();
-            db.Request("UPDATE");
+            GraphSection.updateChart();
+            SummarizedSecton.updateConclusion();
+            db.request("UPDATE");
         });
         this.input.addEventListener("keyup", (e) => {
             if (e.key === "Enter") {
@@ -251,12 +251,12 @@ class ListObject {
         this.rb.textContent = value + ":";
     }
     get value() {
-        return App.Utils.DeformatNumber(this.input.value);
+        return App.Utils.deformatNumber(this.input.value);
     }
     set value(value) {
-        this.input.value = App.Utils.FormatNumber(value);
+        this.input.value = value.toLocaleString("en");
     }
-    Delete() {
+    delete() {
         this.ref.lists.splice(this.index, 1);
         this.ref.listContainer.removeChild(this.container);
     }

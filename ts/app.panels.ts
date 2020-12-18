@@ -1,43 +1,41 @@
-import { App } from "./applib.js";
-import { db, roots, user, records, detailRecords, balance, colorset, graph } from "./__main__.js"
-
-type anyobj = { [d: string]: any };;
+import { App } from "./lib.core.js";
+import { db, roots, user, records, detailRecords, balance, colorset, graph } from "./main.js";
 
 export class Form {
 
-    public static readonly pane: HTMLElement = document.getElementById("form-module") as HTMLElement;
-    public static readonly form: HTMLFormElement = document.getElementsByTagName("form")[0] as HTMLFormElement;
+    public static readonly pane = document.getElementById("form-module") as HTMLElement;
+    public static readonly form = document.getElementsByTagName("form")[0] as HTMLFormElement;
 
-    public static readonly usernameInput: HTMLInputElement = document.getElementById("signin-userid") as HTMLInputElement;
-    public static readonly passwordInput: HTMLInputElement = document.getElementById("signin-password") as HTMLInputElement;
+    public static readonly usernameInput = document.getElementById("signin-userid") as HTMLInputElement;
+    public static readonly passwordInput = document.getElementById("signin-password") as HTMLInputElement;
 
-    public static readonly signUpFullNameInput: HTMLInputElement = document.getElementById("signup-fullname") as HTMLInputElement;
-    public static readonly signUpUsernameInput: HTMLInputElement = document.getElementById("signup-userid") as HTMLInputElement;
-    public static readonly signUpPasswordInput: HTMLInputElement = document.getElementById("signup-password") as HTMLInputElement;
-    public static readonly signUpEmailInput: HTMLInputElement = document.getElementById("signup-email") as HTMLInputElement;
-    public static readonly signUpCurrencyInput: HTMLInputElement = document.getElementById("signup-currency") as HTMLInputElement;
+    public static readonly signUpFullNameInput = document.getElementById("signup-fullname") as HTMLInputElement;
+    public static readonly signUpUsernameInput = document.getElementById("signup-userid") as HTMLInputElement;
+    public static readonly signUpPasswordInput = document.getElementById("signup-password") as HTMLInputElement;
+    public static readonly signUpEmailInput = document.getElementById("signup-email") as HTMLInputElement;
+    public static readonly signUpCurrencyInput = document.getElementById("signup-currency") as HTMLInputElement;
 
-    public static readonly signInSection: HTMLElement = document.getElementById("signin-form") as HTMLElement;
-    public static readonly signUpSection: HTMLElement = document.getElementById("signup-form") as HTMLElement;
-    public static readonly forgotPasswordSection: HTMLElement = document.getElementById("forgotmypassword-form") as HTMLElement;
+    public static readonly signInSection = document.getElementById("signin-form") as HTMLElement;
+    public static readonly signUpSection = document.getElementById("signup-form") as HTMLElement;
+    public static readonly forgotPasswordSection = document.getElementById("forgotmypassword-form") as HTMLElement;
 
-    public static readonly gotoSignUpBtn: HTMLElement = document.getElementById("goto-signup-form-button") as HTMLElement;
-    public static readonly gotoSignInBtn: HTMLElement = document.getElementById("goto-signin-form-button") as HTMLElement;
-    public static readonly gotoForgotPasswordBtn: HTMLElement = document.getElementById("goto-forget-password-form-button") as HTMLElement;
-    public static readonly signInProceedBtn: HTMLElement = document.getElementById("signin-button") as HTMLElement;
-    public static readonly signUpProceedBtn: HTMLElement = document.getElementById("signup-button") as HTMLElement;
+    public static readonly gotoSignUpBtn = document.getElementById("goto-signup-form-button") as HTMLElement;
+    public static readonly gotoSignInBtn = document.getElementById("goto-signin-form-button") as HTMLElement;
+    public static readonly gotoForgotPasswordBtn = document.getElementById("goto-forget-password-form-button") as HTMLElement;
+    public static readonly signInProceedBtn = document.getElementById("signin-button") as HTMLElement;
+    public static readonly signUpProceedBtn = document.getElementById("signup-button") as HTMLElement;
 
-    public static AlertInputError(input: HTMLInputElement): void {
+    public static alertFormError(input: HTMLInputElement): void {
         input.focus();
         input.classList.add("input-error");
     }
 
-    public static Init(): void {
-        this.SetActiveSection("singin");
+    public static init(): void {
+        this.setActiveSection("singin");
 
         this.usernameInput.addEventListener("keydown", (e: KeyboardEvent) => {
             if (e.key === "Enter") {
-                !this.usernameInput.value ? this.AlertInputError(this.usernameInput) : this.passwordInput.focus();
+                !this.usernameInput.value ? this.alertFormError(this.usernameInput) : this.passwordInput.focus();
             }
             
             this.usernameInput.classList.remove("input-error");
@@ -45,32 +43,32 @@ export class Form {
         
         this.passwordInput.addEventListener("keydown", (e: KeyboardEvent) => {
             if (e.key === "Enter") {
-                !this.passwordInput.value ? this.AlertInputError(this.passwordInput) : this.signInProceedBtn.click();
+                !this.passwordInput.value ? this.alertFormError(this.passwordInput) : this.signInProceedBtn.click();
             }
             
             this.passwordInput.classList.remove("input-error");
         });
         
-        this.gotoForgotPasswordBtn.addEventListener("click", () => this.SetActiveSection("forgotpassword"));
-        this.gotoSignUpBtn.addEventListener("click", () => this.SetActiveSection("singup"));
-        this.gotoSignInBtn.addEventListener("click", () => this.SetActiveSection('singin'));
+        this.gotoForgotPasswordBtn.addEventListener("click", () => this.setActiveSection("forgotpassword"));
+        this.gotoSignUpBtn.addEventListener("click", () => this.setActiveSection("singup"));
+        this.gotoSignInBtn.addEventListener("click", () => this.setActiveSection('singin'));
         
         this.signInProceedBtn.addEventListener("click", () => {
             // is requesting
             if (this.usernameInput.disabled || this.passwordInput.disabled) return;
         
             if (!this.usernameInput.value) {
-                this.AlertInputError(this.usernameInput);
+                this.alertFormError(this.usernameInput);
             }
             else if (!this.passwordInput.value) {
-                this.AlertInputError(this.passwordInput);
+                this.alertFormError(this.passwordInput);
             }
             else {
                 this.signInProceedBtn.textContent = "Processing Request...";
                 
                 this.activeInputs = false;
         
-                db.Request("SIGNIN", {
+                db.request("SIGNIN", {
                     "userid": this.usernameInput.value,
                     "password": this.passwordInput.value
                 });
@@ -78,16 +76,16 @@ export class Form {
         });
 
         this.signUpProceedBtn.addEventListener("click", () => {
-            if (!this.signUpFullNameInput.value) this.AlertInputError(this.signUpFullNameInput);
-            else if (!this.signUpUsernameInput.value) this.AlertInputError(this.signUpUsernameInput);
-            else if (!this.signUpPasswordInput.value) this.AlertInputError(this.signUpPasswordInput);
-            else if (!this.signUpEmailInput.value) this.AlertInputError(this.signUpEmailInput);
+            if (!this.signUpFullNameInput.value) this.alertFormError(this.signUpFullNameInput);
+            else if (!this.signUpUsernameInput.value) this.alertFormError(this.signUpUsernameInput);
+            else if (!this.signUpPasswordInput.value) this.alertFormError(this.signUpPasswordInput);
+            else if (!this.signUpEmailInput.value) this.alertFormError(this.signUpEmailInput);
             else {
                 this.signUpProceedBtn.textContent = "Processing Request...";
 
                 this.activeInputs = false;
 
-                db.Request("SIGNUP", {
+                db.request("SIGNUP", {
                     "userid": this.signUpUsernameInput.value,
                     "password": this.signUpPasswordInput.value,
                     "fullname": this.signUpFullNameInput.value,
@@ -98,7 +96,7 @@ export class Form {
         });
     }
 
-    public static SetActiveSection(section: "singin" | "singup" | "forgotpassword"): void {
+    public static setActiveSection(section: "singin" | "singup" | "forgotpassword"): void {
         this.signInSection.remove();
         this.signUpSection.remove();
         this.forgotPasswordSection.remove();
@@ -138,10 +136,10 @@ export class Form {
 
 export class Main {
 
-    public static readonly pane: HTMLElement = document.getElementsByTagName("main")[0] as HTMLElement;
-    public static readonly footer: HTMLElement = document.getElementsByTagName("footer")[0] as HTMLElement;
+    public static readonly pane = document.getElementsByTagName("main")[0] as HTMLElement;
+    public static readonly footer = document.getElementsByTagName("footer")[0] as HTMLElement;
 
-    public static Init(): void {
+    public static init(): void {
         this.pane.removeAttribute("hidden");
         this.active = false;
     }
@@ -159,17 +157,17 @@ export class Main {
 
 export class UserPanel {
     
-    public static readonly fullNameEl: HTMLElement = document.getElementById("fullname") as HTMLElement;
-    public static readonly todayDateEl: HTMLElement = document.getElementById("today-date") as HTMLElement;
+    public static readonly fullNameEl = document.getElementById("fullname") as HTMLElement;
+    public static readonly todayDateEl = document.getElementById("today-date") as HTMLElement;
 
 }
 
 export class GraphSection {
 
-    public static readonly statViewEl: HTMLElement = document.getElementById("statistics-view") as HTMLElement;
+    public static readonly statViewEl = document.getElementById("statistics-view") as HTMLElement;
     public static readonly statModeSelections: HTMLCollectionOf<HTMLElement> = document.getElementById("statistics-view")?.children as HTMLCollectionOf<HTMLElement>;
 
-    public static UpdateChart() {
+    public static updateChart(): void {
         records.splice(-1, 1, [
             new Date(...App.Utils.todayDate.split(".") as []),
             balance.result,
@@ -187,10 +185,10 @@ export class GraphSection {
         ]);
     
         // redraw statistics chart
-        this.SetActiveMode(1);
+        this.setActiveModeTo(1);
     }
 
-    public static SetActiveMode(mode: 1 | 2 | 3): void {
+    public static setActiveModeTo(mode: 1 | 2 | 3): void {
         for (const el of this.statModeSelections) {
             el.classList.remove("viewed");
         }
@@ -203,9 +201,9 @@ export class GraphSection {
 abstract class ColComparisonBar {
 
     public readonly wrapper: HTMLDivElement = document.createElement("div") as HTMLDivElement;
-    public readonly aside1: HTMLElement = document.createElement("aside") as HTMLElement;
-    public readonly aside2: HTMLElement = document.createElement("aside") as HTMLElement;
-    public readonly aside3: HTMLElement = document.createElement("aside") as HTMLElement;
+    public readonly aside1 = document.createElement("aside") as HTMLElement;
+    public readonly aside2 = document.createElement("aside") as HTMLElement;
+    public readonly aside3 = document.createElement("aside") as HTMLElement;
 
     public constructor(chennelEl: HTMLElement) {
         this.wrapper.appendChild(this.aside1);
@@ -215,7 +213,7 @@ abstract class ColComparisonBar {
         chennelEl.appendChild(this.wrapper);
     }
 
-    public Remove(): void {
+    public remove(): void {
         this.wrapper.remove();
     }
 }
@@ -232,12 +230,12 @@ class ByTimeColComparisonBar extends ColComparisonBar {
 
             if (current < last) {
                 color = type === "expenditure" ? colorset.surplus : colorset.deficit;
-                this.aside3.textContent = `-${App.Utils.FormatNumber((1 - current / last) * 100)}%`;
+                this.aside3.textContent = `-${((1 - current / last) * 100).toLocaleString("en")}%`;
                 this.aside2.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${current / last * 100}%, ${color} 0)`;
             }
             else {
                 color = type === "expenditure" ? colorset.deficit : colorset.surplus;
-                this.aside3.textContent = `+${App.Utils.FormatNumber((current / last - 1) * 100)}%`;
+                this.aside3.textContent = `+${((current / last - 1) * 100).toLocaleString("en")}%`;
                 this.aside2.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${last / current * 100}%, ${color} 0)`;
             }
             this.aside3.style.color = this.aside3.textContent === "+0.00%" ? "black" : color;
@@ -256,6 +254,7 @@ class ByAvgColComparisonBar extends ColComparisonBar {
 
     public constructor(chennelEl: HTMLElement, list: string, type: "expenditure" | "income", lastMonthSpendingLists: anyobj, spendingLists: anyobj, totalAccDate: number, cd: number) {
         super(chennelEl);
+
         if (lastMonthSpendingLists[type][list]) {
             const last = lastMonthSpendingLists[type][list];
             const current = spendingLists[type][list] * (totalAccDate / cd);
@@ -263,12 +262,12 @@ class ByAvgColComparisonBar extends ColComparisonBar {
 
             if (current < last) {
                 color = type === "expenditure" ? colorset.surplus : colorset.deficit;
-                this.aside3.textContent = `-${App.Utils.FormatNumber((1 - current / last) * 100)}%`;
+                this.aside3.textContent = `-${((1 - current / last) * 100).toLocaleString("en")}%`;
                 this.aside2.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${current / last * 100}%, ${color} 0)`;
             }
             else {
                 color = type === "expenditure" ? colorset.deficit : colorset.surplus;
-                this.aside3.textContent = `+${App.Utils.FormatNumber((current / last - 1) * 100)}%`;
+                this.aside3.textContent = `+${((current / last - 1) * 100).toLocaleString("en")}%`;
                 this.aside2.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${last / current * 100}%, ${color} 0)`;
             }
             this.aside3.style.color = this.aside3.textContent === "+0.00%" ? "black" : color;
@@ -284,30 +283,30 @@ class ByAvgColComparisonBar extends ColComparisonBar {
 
 export class SummarizedSecton {
     
-    public static readonly stmTtlExpEl: HTMLElement = document.getElementById("stm-total-expenditure") as HTMLElement;
-    public static readonly stmTtlIncEl: HTMLElement = document.getElementById("stm-total-income") as HTMLElement;
-    public static readonly stmAvgExpTextEl: HTMLElement = document.getElementById("stm-average-expenditure") as HTMLElement;
-    public static readonly stmAvgIncTextEl: HTMLElement = document.getElementById("stm-average-income") as HTMLElement;
-    public static readonly stmTtlBalanceTextEl: HTMLElement = document.getElementById("stm-total-balance-text") as HTMLElement;
-    public static readonly stmTtlBalanceEl: HTMLElement = document.getElementById("stm-total-balance") as HTMLElement;
-    public static readonly stmAvgBalanceTextEl: HTMLElement = document.getElementById("stm-average-balance-text") as HTMLElement;
-    public static readonly stmAvgBalanceEl: HTMLElement = document.getElementById("stm-average-balance") as HTMLElement;
+    public static readonly stmTtlExpEl = document.getElementById("stm-total-expenditure") as HTMLElement;
+    public static readonly stmTtlIncEl = document.getElementById("stm-total-income") as HTMLElement;
+    public static readonly stmAvgExpTextEl = document.getElementById("stm-average-expenditure") as HTMLElement;
+    public static readonly stmAvgIncTextEl = document.getElementById("stm-average-income") as HTMLElement;
+    public static readonly stmTtlBalanceTextEl = document.getElementById("stm-total-balance-text") as HTMLElement;
+    public static readonly stmTtlBalanceEl = document.getElementById("stm-total-balance") as HTMLElement;
+    public static readonly stmAvgBalanceTextEl = document.getElementById("stm-average-balance-text") as HTMLElement;
+    public static readonly stmAvgBalanceEl = document.getElementById("stm-average-balance") as HTMLElement;
 
-    public static readonly byTimeExpEl: HTMLElement = document.getElementById("by-time-expenditure") as HTMLElement;
-    public static readonly byTimeIncEl: HTMLElement = document.getElementById("by-time-income") as HTMLElement;
-    public static readonly byAvgExpEl: HTMLElement = document.getElementById("by-average-expenditure") as HTMLElement;
-    public static readonly byAvgIncEl: HTMLElement = document.getElementById("by-average-income") as HTMLElement;
+    public static readonly byTimeExpEl = document.getElementById("by-time-expenditure") as HTMLElement;
+    public static readonly byTimeIncEl = document.getElementById("by-time-income") as HTMLElement;
+    public static readonly byAvgExpEl = document.getElementById("by-average-expenditure") as HTMLElement;
+    public static readonly byAvgIncEl = document.getElementById("by-average-income") as HTMLElement;
 
-    public static readonly stmExpGraphEl: HTMLElement = document.getElementById("stm-expenditure-graph") as HTMLElement;
-    public static readonly stmIncGraphEl: HTMLElement = document.getElementById("stm-income-graph") as HTMLElement;
+    public static readonly stmExpGraphEl = document.getElementById("stm-expenditure-graph") as HTMLElement;
+    public static readonly stmIncGraphEl = document.getElementById("stm-income-graph") as HTMLElement;
 
-    public static readonly stmExpDetailEl: HTMLElement = document.getElementById("stm-expenditure-detail") as HTMLElement;
-    public static readonly stmIncDetailEl: HTMLElement = document.getElementById("stm-income-detail") as HTMLElement;
+    public static readonly stmExpDetailEl = document.getElementById("stm-expenditure-detail") as HTMLElement;
+    public static readonly stmIncDetailEl = document.getElementById("stm-income-detail") as HTMLElement;
 
     public static readonly byTimeList: ByTimeColComparisonBar[] = [];
     public static readonly byAvgList: ByTimeColComparisonBar[] = [];
 
-    public static UpdateSummarization(): void {
+    public static updateConclusion(): void {
         const [cy, cm, cd] = App.Utils.todayDate.split(".").map(val => +val);
         const month = { expenditure: 0, income: 0 };
         const spendingLists = { expenditure: {}, income: {} };
@@ -323,37 +322,37 @@ export class SummarizedSecton {
             if (records[z][0].getMonth() === cm) {
                 month.expenditure += records[z][2];
                 month.income += records[z][3];
-                App.Utils.ParseDetail(detailRecords[z][0], spendingLists.expenditure);
-                App.Utils.ParseDetail(detailRecords[z][1], spendingLists.income);
+                App.Utils.parseDetail(detailRecords[z][0], spendingLists.expenditure);
+                App.Utils.parseDetail(detailRecords[z][1], spendingLists.income);
             }
     
             // get last month data
             else if (records[z][0].getMonth() === tcMonth) {
                 cMonth.expenditure += records[z][2];
                 cMonth.income += records[z][3];
-                App.Utils.ParseDetail(detailRecords[z][0], lastMonthSpendingLists.expenditure);
-                App.Utils.ParseDetail(detailRecords[z][1], lastMonthSpendingLists.income);
+                App.Utils.parseDetail(detailRecords[z][0], lastMonthSpendingLists.expenditure);
+                App.Utils.parseDetail(detailRecords[z][1], lastMonthSpendingLists.income);
                 totalAccDate++;
             }
     
             else break;
         }
     
-        this.stmTtlExpEl.textContent = App.Utils.FormatNumber(month.expenditure) + user.settings.currency;
-        this.stmTtlIncEl.textContent = App.Utils.FormatNumber(month.income) + user.settings.currency;
-        this.stmAvgExpTextEl.textContent = App.Utils.FormatNumber(month.expenditure / cd) + user.settings.currency;
-        this.stmAvgIncTextEl.textContent = App.Utils.FormatNumber(month.income / cd) + user.settings.currency;
+        this.stmTtlExpEl.textContent = month.expenditure.toLocaleString("en") + user.settings.currency;
+        this.stmTtlIncEl.textContent = month.income.toLocaleString("en") + user.settings.currency;
+        this.stmAvgExpTextEl.textContent = (month.expenditure / cd).toLocaleString("en") + user.settings.currency;
+        this.stmAvgIncTextEl.textContent = (month.income / cd).toLocaleString("en") + user.settings.currency;
     
         this.stmTtlBalanceTextEl.textContent = month.income >= month.expenditure ? "Surplus" : "Deficit";
 
         if (this.stmTtlBalanceTextEl.parentElement)
             this.stmTtlBalanceTextEl.parentElement.style.color = month.income >= month.expenditure ? colorset.surplus : colorset.deficit;
-        this.stmTtlBalanceEl.textContent = App.Utils.FormatNumber(Math.abs(month.expenditure - month.income)) + user.settings.currency;
+        this.stmTtlBalanceEl.textContent = (Math.abs(month.expenditure - month.income)).toLocaleString("en") + user.settings.currency;
         this.stmAvgBalanceTextEl.textContent = "Daily Average " + (month.income >= month.expenditure ? "Surplus" : "Deficit");
 
         if (this.stmAvgBalanceTextEl.parentElement)
             this.stmAvgBalanceTextEl.parentElement.style.color = month.income >= month.expenditure ? colorset.surplus : colorset.deficit;
-        this.stmAvgBalanceEl.textContent = App.Utils.FormatNumber(Math.abs(month.expenditure - month.income)/ cd) + user.settings.currency;
+        this.stmAvgBalanceEl.textContent = (Math.abs(month.expenditure - month.income) / cd).toLocaleString("en") + user.settings.currency;
     
         // create detail list for sdm
         for (const type in spendingLists) {
@@ -365,10 +364,10 @@ export class SummarizedSecton {
                 const li1 = document.createElement("li");
                 const li2 = document.createElement("li");
 
-                const temp = spendingLists[type as "expenditure" | "income"] as any;
+                const temp = spendingLists[type as "expenditure" | "income"] as { [key: string]: number };
         
                 li1.textContent = list + ":";
-                li2.textContent = App.Utils.FormatNumber(temp[list]) + user.settings.currency;
+                li2.textContent = temp[list].toLocaleString("en") + user.settings.currency;
                 block.appendChild(li1);
                 block.appendChild(li2);
     
@@ -377,21 +376,21 @@ export class SummarizedSecton {
         }
     
         // redraw this month chart
-        graph.Render("summarized-pie", Object.entries(spendingLists.expenditure), this.stmExpGraphEl);
-        graph.Render("summarized-pie", Object.entries(spendingLists.income), this.stmIncGraphEl);
+        graph.render("summarized-pie", Object.entries(spendingLists.expenditure), this.stmExpGraphEl);
+        graph.render("summarized-pie", Object.entries(spendingLists.income), this.stmIncGraphEl);
     
         /* #### SUMMARIZATION #### */
     
         if (!totalAccDate) return;
     
-        SummarizedSecton.ComparisonBarExpenditure("expenditure", this.byTimeExpEl.children[0].children[1] as HTMLElement, month.expenditure, cMonth.expenditure);
-        SummarizedSecton.ComparisonBarExpenditure("income", this.byTimeIncEl.children[0].children[1] as HTMLElement, month.income, cMonth.income);
-        SummarizedSecton.ComparisonBarExpenditure("expenditure", this.byAvgExpEl.children[0].children[1] as HTMLElement, month.expenditure / cd, cMonth.expenditure / totalAccDate);
-        SummarizedSecton.ComparisonBarExpenditure("income", this.byAvgIncEl.children[0].children[1] as HTMLElement, month.income / cd, cMonth.income / totalAccDate);
+        SummarizedSecton.comparisonBarExpenditure("expenditure", this.byTimeExpEl.children[0].children[1] as HTMLElement, month.expenditure, cMonth.expenditure);
+        SummarizedSecton.comparisonBarExpenditure("income", this.byTimeIncEl.children[0].children[1] as HTMLElement, month.income, cMonth.income);
+        SummarizedSecton.comparisonBarExpenditure("expenditure", this.byAvgExpEl.children[0].children[1] as HTMLElement, month.expenditure / cd, cMonth.expenditure / totalAccDate);
+        SummarizedSecton.comparisonBarExpenditure("income", this.byAvgIncEl.children[0].children[1] as HTMLElement, month.income / cd, cMonth.income / totalAccDate);
 
         // remove old lists
-        while (this.byTimeList.length) this.byTimeList.pop()?.Remove();
-        while (this.byAvgList.length) this.byAvgList.pop()?.Remove();
+        while (this.byTimeList.length) this.byTimeList.pop()?.remove();
+        while (this.byAvgList.length) this.byAvgList.pop()?.remove();
     
         // create detail list for comparison
         for (const type in spendingLists) {
@@ -448,14 +447,14 @@ export class SummarizedSecton {
         }
     }
 
-    public static ComparisonBarExpenditure(type: string, barElement: HTMLElement, refNum: number, comNum: number) {
+    public static comparisonBarExpenditure(type: string, barElement: HTMLElement, refNum: number, comNum: number) {
         const nextSibling = barElement.nextElementSibling as HTMLElement;
 
         if (refNum < comNum) {
             const base = (comNum - refNum) / comNum * 100 ?? 0;
             const over = refNum / comNum * 100 ?? 0;
             const color = type === "expenditure" ? colorset.surplus : colorset.deficit;
-            nextSibling.textContent = `-${App.Utils.FormatNumber(base)}%`;
+            nextSibling.textContent = `-${base.toLocaleString("en")}%`;
             nextSibling.style.color = color;
             barElement.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${over}%, ${color} 0)`;
         }
@@ -463,7 +462,7 @@ export class SummarizedSecton {
             const base = comNum / refNum * 100 ?? 0;
             const over = (refNum - comNum) / refNum * 100 ?? 0;
             const color = type === "expenditure" ? colorset.deficit : colorset.surplus;
-            nextSibling.textContent = `+${App.Utils.FormatNumber(over)}%`;
+            nextSibling.textContent = `+${over.toLocaleString("en")}%`;
             nextSibling.style.color = color;
             barElement.style.backgroundImage = `linear-gradient(to right, #5D6D7E ${base}%, ${color} 0)`;
         }
