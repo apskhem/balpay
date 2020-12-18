@@ -68,7 +68,7 @@ export class Form {
                 
                 this.activeInputs = false;
         
-                db.request("SIGNIN", {
+                db.doGetRequest("SIGNIN", {
                     "userid": this.usernameInput.value,
                     "password": this.passwordInput.value
                 });
@@ -85,7 +85,7 @@ export class Form {
 
                 this.activeInputs = false;
 
-                db.request("SIGNUP", {
+                db.doGetRequest("SIGNUP", {
                     "userid": this.signUpUsernameInput.value,
                     "password": this.signUpPasswordInput.value,
                     "fullname": this.signUpFullNameInput.value,

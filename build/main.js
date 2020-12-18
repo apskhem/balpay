@@ -120,17 +120,17 @@ class BalPayApp {
                     Form.signUpProceedBtn.textContent = "Email is already taken.";
                 }
             }
-            else if (res.res === "done") {
+            else if (res.done) {
                 Form.signUpProceedBtn.textContent = "Proceeding is done, please return to sign in.";
             }
         });
         db.setResponseAction("SIGNIN", (res) => {
             Form.usernameInput.disabled = false;
             Form.passwordInput.disabled = false;
-            if (res.res === "err") {
+            if (res.err) {
                 Form.signInProceedBtn.textContent = "Username or password is incorrect.";
             }
-            else if (res.res === "pass") {
+            else if (res.pass) {
                 user.id = res.userData.USERID;
                 user.fullname = res.userData.FULLNAME;
                 user.email = res.userData.EMAIL;

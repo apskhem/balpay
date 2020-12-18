@@ -126,7 +126,7 @@ class BalPayApp {
                 }
 
                 (detailSectionEl.children[+el.dataset.index] as HTMLElement).hidden = false;
-            })
+            });
         }
 
         /* init database interaction */
@@ -141,7 +141,7 @@ class BalPayApp {
                     Form.signUpProceedBtn.textContent = "Email is already taken.";
                 }
             }
-            else if (res.res === "done") {
+            else if (res.done) {
                 Form.signUpProceedBtn.textContent = "Proceeding is done, please return to sign in.";
             }
         });
@@ -150,10 +150,10 @@ class BalPayApp {
             Form.usernameInput.disabled = false;
             Form.passwordInput.disabled = false;
 
-            if (res.res === "err") {
+            if (res.err) {
                 Form.signInProceedBtn.textContent = "Username or password is incorrect.";
             }
-            else if (res.res === "pass") { // if sign in form is corrected
+            else if (res.pass) {
                 // store user data
                 user.id = res.userData.USERID;
                 user.fullname = res.userData.FULLNAME;

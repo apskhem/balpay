@@ -182,7 +182,7 @@ class AddingList {
             RootList.UpdateBalance();
             GraphSection.updateChart();
             SummarizedSecton.updateConclusion();
-            db.request("UPDATE");
+            db.doGetRequest("UPDATE");
         });
     }
 }
@@ -228,7 +228,7 @@ class ListObject {
             RootList.UpdateBalance();
             GraphSection.updateChart();
             SummarizedSecton.updateConclusion();
-            db.request("UPDATE");
+            db.doGetRequest("UPDATE");
         });
 
         this.input.addEventListener("focus", () => {
@@ -258,7 +258,7 @@ class ListObject {
             RootList.UpdateBalance();
             GraphSection.updateChart();
             SummarizedSecton.updateConclusion();
-            db.request("UPDATE");
+            db.doGetRequest("UPDATE");
         });
 
         this.input.addEventListener("keyup", (e: KeyboardEvent) => {

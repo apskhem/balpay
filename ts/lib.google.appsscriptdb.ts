@@ -1,13 +1,3 @@
-declare const axios: any; // for supporting axios
-
-interface ServerResponse {
-    data: ServerData;
-}
-
-interface ServerData {
-    [data: string]: any;
-}
-
 interface RequestParamFormat {
     [key: string]: string | [] | {};
 }
@@ -44,24 +34,59 @@ export default class GoogleAppsScriptDB {
         return url;
     }
 
-    public request(action: string, data?: RequestParamFormat, callbackfn?: CallbackFunction): void {
+    public doGetRequest(action: string, data?: RequestParamFormat, callbackfn?: CallbackFunction): void {
         const d = this.dataRequestForms.get(action)?.();
 
         if (!data && !d) throw new Error("The action hasn't been specified.");
 
         const url = this.formatRequestURL(data ?? d as RequestParamFormat, action);
+        const req = new XMLHttpRequest();
 
-        axios.get(url).then((res: ServerResponse) => {
-            if (callbackfn) {
-                callbackfn(res.data, data ?? d);
+        req.responseType = "json";
+        
+        req.open("GET", url, true);
+        req.onload = (e) => {
+            const cur = e.currentTarget as XMLHttpRequest;
+
+            if (req.readyState === 4 && (req.status === 200 || !req.status)) {
+                if (callbackfn) {
+                    callbackfn(cur.response, data ?? d);
+                }
+                else if (this.callbackfnMap.get(action)) {
+                    this.callbackfnMap.get(action)?.(cur.response, data ?? d);
+                }
+                else if (this.defaultResponsefn) {
+                    this.defaultResponsefn(cur.response, data ?? d);
+                }
             }
-            else if (this.callbackfnMap.get(action)) {
-                this.callbackfnMap.get(action)?.(res.data, data ?? d);
+            else {
+                throw new Error("Request is unsuccessful");
             }
-            else if (this.defaultResponsefn) {
-                this.defaultResponsefn(res.data, data ?? d);
+        }
+        req.send();
+    }
+
+    public doPostRequest(action: string, data?: RequestParamFormat, callbackfn?: CallbackFunction): void {
+        const d = this.dataRequestForms.get(action)?.();
+
+        if (!data && !d) throw new Error("The action hasn't been specified.");
+
+        const req = new XMLHttpRequest();
+
+        req.responseType = "json";
+        req.setRequestHeader("Content-Type", "application/json");
+        req.open("POST", `${this.link}?action=${action}`, true);
+        req.onload = (e) => {
+            const cur = e.currentTarget as XMLHttpRequest;
+
+            if (req.readyState === 4 && (req.status === 200 || !req.status)) {
+                
             }
-        });
+            else {
+                throw new Error("Request is unsuccessful");
+            }
+        }
+        req.send(JSON.stringify(data ?? d));
     }
 
     public setResponseAction(action: string, callbackfn: CallbackFunction | null): void {

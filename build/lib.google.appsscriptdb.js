@@ -24,18 +24,28 @@ export default class GoogleAppsScriptDB {
         if (!data && !d)
             throw new Error("The action hasn't been specified.");
         const url = this.formatRequestURL(data !== null && data !== void 0 ? data : d, action);
-        axios.get(url).then((res) => {
+        const req = new XMLHttpRequest();
+        req.open("GET", url, true);
+        req.onload = (e) => {
             var _a;
-            if (callbackfn) {
-                callbackfn(res.data, data !== null && data !== void 0 ? data : d);
+            const cur = e.currentTarget;
+            if (req.readyState === 4 && (req.status === 200 || !req.status)) {
+                const resData = JSON.parse(cur.response);
+                if (callbackfn) {
+                    callbackfn(resData, data !== null && data !== void 0 ? data : d);
+                }
+                else if (this.callbackfnMap.get(action)) {
+                    (_a = this.callbackfnMap.get(action)) === null || _a === void 0 ? void 0 : _a(resData, data !== null && data !== void 0 ? data : d);
+                }
+                else if (this.defaultResponsefn) {
+                    this.defaultResponsefn(resData, data !== null && data !== void 0 ? data : d);
+                }
             }
-            else if (this.callbackfnMap.get(action)) {
-                (_a = this.callbackfnMap.get(action)) === null || _a === void 0 ? void 0 : _a(res.data, data !== null && data !== void 0 ? data : d);
+            else {
+                throw new Error("Request is unsuccessful");
             }
-            else if (this.defaultResponsefn) {
-                this.defaultResponsefn(res.data, data !== null && data !== void 0 ? data : d);
-            }
-        });
+        };
+        req.send();
     }
     setResponseAction(action, callbackfn) {
         if (callbackfn) {
