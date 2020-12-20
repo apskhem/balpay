@@ -1,165 +1,308 @@
 import { App } from "./lib.core.js";
 import { db, roots, user, records, detailRecords, balance, colorset, graph } from "./main.js";
 
-export class Form {
+type FormSectionType = "singin" | "singup" | "forgotpassword";
 
-    public static readonly pane = document.getElementById("form-module") as HTMLElement;
-    public static readonly form = document.getElementsByTagName("form")[0] as HTMLFormElement;
+abstract class FormSection {
 
-    public static readonly usernameInput = document.getElementById("signin-userid") as HTMLInputElement;
-    public static readonly passwordInput = document.getElementById("signin-password") as HTMLInputElement;
+    public readonly el: HTMLElement;
 
-    public static readonly signUpFullNameInput = document.getElementById("signup-fullname") as HTMLInputElement;
-    public static readonly signUpUsernameInput = document.getElementById("signup-userid") as HTMLInputElement;
-    public static readonly signUpPasswordInput = document.getElementById("signup-password") as HTMLInputElement;
-    public static readonly signUpEmailInput = document.getElementById("signup-email") as HTMLInputElement;
-    public static readonly signUpCurrencyInput = document.getElementById("signup-currency") as HTMLInputElement;
+    public onsectionchange: ((type: FormSectionType) => void) | null = null;
 
-    public static readonly signInSection = document.getElementById("signin-form") as HTMLElement;
-    public static readonly signUpSection = document.getElementById("signup-form") as HTMLElement;
-    public static readonly forgotPasswordSection = document.getElementById("forgotmypassword-form") as HTMLElement;
+    public constructor(id: string) {
+        const t = document.getElementById(id);
 
-    public static readonly gotoSignUpBtn = document.getElementById("goto-signup-form-button") as HTMLElement;
-    public static readonly gotoSignInBtn = document.getElementById("goto-signin-form-button") as HTMLElement;
-    public static readonly gotoForgotPasswordBtn = document.getElementById("goto-forget-password-form-button") as HTMLElement;
-    public static readonly signInProceedBtn = document.getElementById("signin-button") as HTMLElement;
-    public static readonly signUpProceedBtn = document.getElementById("signup-button") as HTMLElement;
+        if (!t) throw new Error("Cannot find the specific element");
 
-    public static alertFormError(input: HTMLInputElement): void {
+        this.el = t;
+    }
+
+    public alertFormError(input: HTMLInputElement): void {
         input.focus();
         input.classList.add("input-error");
     }
+}
 
-    public static init(): void {
-        this.setActiveSection("singin");
+class SignInSection extends FormSection {
 
-        this.usernameInput.addEventListener("keydown", (e: KeyboardEvent) => {
+    private static __instance__: SignInSection | null = null;
+    public static getInstance(): SignInSection {
+        return this.__instance__ ?? (this.__instance__ = new SignInSection());
+    }
+
+    public readonly usernameInput = document.getElementById("signin-userid") as HTMLInputElement;
+    public readonly passwordInput = document.getElementById("signin-password") as HTMLInputElement;
+
+    public readonly gotoSignUpBtn = document.getElementById("goto-signup-form-button") as HTMLElement;
+    public readonly gotoForgotPasswordBtn = document.getElementById("goto-forget-password-form-button") as HTMLElement;
+
+    public readonly confirmBtn = document.getElementById("signin-button") as HTMLElement;
+
+    private constructor() {
+        super("signin-form");
+
+        this.usernameInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
-                !this.usernameInput.value ? this.alertFormError(this.usernameInput) : this.passwordInput.focus();
+                e.preventDefault();
+                this.passwordInput.focus();
             }
             
             this.usernameInput.classList.remove("input-error");
         });
         
-        this.passwordInput.addEventListener("keydown", (e: KeyboardEvent) => {
+        this.passwordInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
-                !this.passwordInput.value ? this.alertFormError(this.passwordInput) : this.signInProceedBtn.click();
+                e.preventDefault();
+                this.confirmBtn.click();
             }
             
             this.passwordInput.classList.remove("input-error");
         });
-        
-        this.gotoForgotPasswordBtn.addEventListener("click", () => this.setActiveSection("forgotpassword"));
-        this.gotoSignUpBtn.addEventListener("click", () => this.setActiveSection("singup"));
-        this.gotoSignInBtn.addEventListener("click", () => this.setActiveSection('singin'));
-        
-        this.signInProceedBtn.addEventListener("click", () => {
-            // is requesting
-            if (this.usernameInput.disabled || this.passwordInput.disabled) return;
-        
-            if (!this.usernameInput.value) {
-                this.alertFormError(this.usernameInput);
-            }
-            else if (!this.passwordInput.value) {
-                this.alertFormError(this.passwordInput);
-            }
-            else {
-                this.signInProceedBtn.textContent = "Processing Request...";
-                
-                this.activeInputs = false;
-        
-                db.doGetRequest("SIGNIN", {
-                    "userid": this.usernameInput.value,
-                    "password": this.passwordInput.value
-                });
-            }
-        });
 
-        this.signUpProceedBtn.addEventListener("click", () => {
-            if (!this.signUpFullNameInput.value) this.alertFormError(this.signUpFullNameInput);
-            else if (!this.signUpUsernameInput.value) this.alertFormError(this.signUpUsernameInput);
-            else if (!this.signUpPasswordInput.value) this.alertFormError(this.signUpPasswordInput);
-            else if (!this.signUpEmailInput.value) this.alertFormError(this.signUpEmailInput);
-            else {
-                this.signUpProceedBtn.textContent = "Processing Request...";
+        this.gotoForgotPasswordBtn.addEventListener("click", () => this.onsectionchange?.("forgotpassword"));
+        this.gotoSignUpBtn.addEventListener("click", () => this.onsectionchange?.("singup"));
 
-                this.activeInputs = false;
-
-                db.doGetRequest("SIGNUP", {
-                    "userid": this.signUpUsernameInput.value,
-                    "password": this.signUpPasswordInput.value,
-                    "fullname": this.signUpFullNameInput.value,
-                    "email": this.signUpEmailInput.value,
-                    "setting": this.signUpCurrencyInput.value || "THB"
-                });
-            }
+        this.confirmBtn.addEventListener("click", () => {
+            if (this.isRequesting || !this.validate()) return;
+        
+            this.confirmBtn.textContent = "Processing Request...";
+            this.isRequesting = true;
+            this.unfocus();
+    
+            db.doGetRequest("SIGNIN", {
+                "userid": this.usernameInput.value,
+                "password": this.passwordInput.value
+            });
         });
     }
 
-    public static setActiveSection(section: "singin" | "singup" | "forgotpassword"): void {
-        this.signInSection.remove();
-        this.signUpSection.remove();
-        this.forgotPasswordSection.remove();
+    public get isRequesting(): boolean {
+        return this.el.classList.contains("requesting");
+    }
+
+    public set isRequesting(value: boolean) {
+        value ? this.el.classList.add("requesting") : this.el.classList.remove("requesting");
+    }
+
+    public validate(): boolean {
+        if (!this.usernameInput.value) {
+            this.alertFormError(this.usernameInput);
+            return false;
+        }
+        else if (!this.passwordInput.value) {
+            this.alertFormError(this.passwordInput);
+            return false;
+        }
+
+        return true;
+    }
+
+    public unfocus(): void {
+        this.usernameInput.blur();
+        this.passwordInput.blur();
+    }
+}
+
+class SignUpSection extends FormSection {
+
+    private static __instance__: SignUpSection | null = null;
+    public static getInstance(): SignUpSection {
+        return this.__instance__ ?? (this.__instance__ = new SignUpSection());
+    }
+
+    public readonly fullNameInput = document.getElementById("signup-fullname") as HTMLInputElement;
+    public readonly usernameInput = document.getElementById("signup-userid") as HTMLInputElement;
+    public readonly passwordInput = document.getElementById("signup-password") as HTMLInputElement;
+    public readonly emailInput = document.getElementById("signup-email") as HTMLInputElement;
+    public readonly currencyInput = document.getElementById("signup-currency") as HTMLInputElement;
+
+    public readonly gotoSignInBtn = document.getElementById("goto-signin-form-button") as HTMLElement;
+
+    public readonly confirmBtn = document.getElementById("signup-button") as HTMLElement;
+    
+    private constructor() {
+        super("signup-form");
+
+        this.confirmBtn.addEventListener("click", () => {
+            if (this.isRequesting || !this.validate()) return;
+
+            this.confirmBtn.textContent = "Processing Request...";
+            this.isRequesting = true;
+            this.unfocus();
+
+            db.doGetRequest("SIGNUP", {
+                "userid": this.usernameInput.value,
+                "password": this.passwordInput.value,
+                "fullname": this.fullNameInput.value,
+                "email": this.emailInput.value,
+                "setting": this.currencyInput.value || "THB"
+            });
+        });
+
+        this.gotoSignInBtn.addEventListener("click", () => this.onsectionchange?.("singin"));
+    }
+
+    public get isRequesting(): boolean {
+        return this.el.classList.contains("requesting");
+    }
+
+    public set isRequesting(value: boolean) {
+        value ? this.el.classList.add("requesting") : this.el.classList.remove("requesting");
+    }
+
+    public set loggingText(value: string | number) {
+        this.confirmBtn.textContent = `${value}`;
+    }
+
+    public reset(): void {
+        this.usernameInput.value = "";
+        this.passwordInput.value = "";
+        this.fullNameInput.value = "";
+        this.emailInput.value = "";
+        this.currencyInput.value = "";
+    }
+
+    public validate(): boolean {
+        if (!this.fullNameInput.value) {
+            this.alertFormError(this.fullNameInput);
+            return false;
+        }
+        else if (!this.usernameInput.value) {
+            this.alertFormError(this.usernameInput);
+            return false;
+        }
+        else if (!this.passwordInput.value) {
+            this.alertFormError(this.passwordInput);
+            return false;
+        }
+        else if (!this.emailInput.value) {
+            this.alertFormError(this.emailInput);
+            return false;
+        }
+
+        return true;
+    }
+
+    public unfocus(): void {
+        this.fullNameInput.blur();
+        this.usernameInput.blur();
+        this.passwordInput.blur();
+        this.emailInput.blur();
+        this.currencyInput.blur();
+    }
+}
+
+class ForgotPasswordSection extends FormSection {
+
+    private static __instance__: ForgotPasswordSection | null = null;
+    public static getInstance(): ForgotPasswordSection {
+        return this.__instance__ ?? (this.__instance__ = new ForgotPasswordSection());
+    }
+
+    public readonly gotoSignInBtn = document.getElementById("goto-signin-from-forgotpass") as HTMLElement;
+    
+    private constructor() {
+        super("forgotmypassword-form");
+
+        this.gotoSignInBtn.addEventListener("click", () => this.onsectionchange?.("singin"));
+    }
+}
+
+export class FormPane {
+
+    public static readonly pane = document.getElementById("form-module") as HTMLElement;
+    public static readonly form = document.getElementsByTagName("form")[0] as HTMLFormElement;
+
+    public static readonly signInSection = SignInSection.getInstance();
+    public static readonly signUpSection  = SignUpSection.getInstance();
+    public static readonly forgotPasswordSection = ForgotPasswordSection.getInstance();
+
+    public static init(): void {
+        this.setActiveSection("singin");
+
+        this.signInSection.onsectionchange = (type) => this.setActiveSection(type);
+        this.signUpSection.onsectionchange = (type) => this.setActiveSection(type);
+        this.forgotPasswordSection.onsectionchange = (type) => this.setActiveSection(type);
+    }
+
+    public static setActiveSection(section: FormSectionType): void {
+        this.signInSection.el.remove();
+        this.signUpSection.el.remove();
+        this.forgotPasswordSection.el.remove();
 
         switch (section) {
-            case "singin": this.form.appendChild(this.signInSection); break;
-            case "singup": this.form.appendChild(this.signUpSection); break;
-            case "forgotpassword": this.form.appendChild(this.forgotPasswordSection); break;
+            case "singin": this.form.appendChild(this.signInSection.el); break;
+            case "singup": this.form.appendChild(this.signUpSection.el); break;
+            case "forgotpassword": this.form.appendChild(this.forgotPasswordSection.el); break;
         }
     }
 
-    public static get activeInputs(): boolean {
-        return this.usernameInput.disabled;
-    }
-
-    public static set activeInputs(value: boolean) {
-        this.usernameInput.disabled = true;
-        this.passwordInput.disabled = true;
-
-        this.signUpUsernameInput.disabled = true;
-        this.signUpPasswordInput.disabled = true;
-        this.signUpFullNameInput.disabled = true;
-        this.signUpEmailInput.disabled = true;
-        this.signUpCurrencyInput.disabled = true;
-    }
-
-    public static get active(): boolean {
+    public static get present(): boolean {
         return document.body.contains(this.pane);
     }
 
-    public static set active(value: boolean) {
+    public static set present(value: boolean) {
         value
         ? document.body.appendChild(this.pane)
         : this.pane.remove();
     }
 }
 
-export class Main {
+export class MainPane {
 
     public static readonly pane = document.getElementsByTagName("main")[0] as HTMLElement;
     public static readonly footer = document.getElementsByTagName("footer")[0] as HTMLElement;
 
     public static init(): void {
         this.pane.removeAttribute("hidden");
-        this.active = false;
+        this.present = false;
     }
 
-    public static get active(): boolean {
+    public static get present(): boolean {
         return document.body.contains(this.pane);
     }
 
-    public static set active(value: boolean) {
+    public static set present(value: boolean) {
         value
         ? document.body.insertBefore(this.pane, this.footer)
         : this.pane.remove();
     }
 }
 
-export class UserPanel {
+export class UserRibbonSection {
     
     public static readonly fullNameEl = document.getElementById("fullname") as HTMLElement;
     public static readonly todayDateEl = document.getElementById("today-date") as HTMLElement;
 
+    public static readonly overviewIcon  = document.getElementById("user-overview-icon") as HTMLElement;
+    public static readonly historyIcon = document.getElementById("user-history-icon") as HTMLElement;
+    public static readonly settingIcon = document.getElementById("user-setting-icon") as HTMLElement;
+    public static readonly signOutIcon = document.getElementById("user-sign-out-icon") as HTMLElement;
+
+    public static init(): void {
+        this.overviewIcon.addEventListener("click", () => {
+
+        });
+
+        this.historyIcon.addEventListener("click", () => {
+
+        });
+
+        this.settingIcon.addEventListener("click", () => {
+
+        });
+
+        this.signOutIcon.addEventListener("click", () => {
+            localStorage.clear();
+
+            MainPane.present = false;
+            FormPane.present = true;
+
+            document.head.title = "BalPay - Sign In";
+
+            document.body.appendChild(document.getElementsByTagName("footer")[0]);
+        });
+    }
 }
 
 export class GraphSection {
@@ -281,7 +424,7 @@ class ByAvgColComparisonBar extends ColComparisonBar {
     }
 }
 
-export class SummarizedSecton {
+export class ConclusionSection {
     
     public static readonly stmTtlExpEl = document.getElementById("stm-total-expenditure") as HTMLElement;
     public static readonly stmTtlIncEl = document.getElementById("stm-total-income") as HTMLElement;
@@ -383,10 +526,10 @@ export class SummarizedSecton {
     
         if (!totalAccDate) return;
     
-        SummarizedSecton.comparisonBarExpenditure("expenditure", this.byTimeExpEl.children[0].children[1] as HTMLElement, month.expenditure, cMonth.expenditure);
-        SummarizedSecton.comparisonBarExpenditure("income", this.byTimeIncEl.children[0].children[1] as HTMLElement, month.income, cMonth.income);
-        SummarizedSecton.comparisonBarExpenditure("expenditure", this.byAvgExpEl.children[0].children[1] as HTMLElement, month.expenditure / cd, cMonth.expenditure / totalAccDate);
-        SummarizedSecton.comparisonBarExpenditure("income", this.byAvgIncEl.children[0].children[1] as HTMLElement, month.income / cd, cMonth.income / totalAccDate);
+        ConclusionSection.comparisonBarExpenditure("expenditure", this.byTimeExpEl.children[0].children[1] as HTMLElement, month.expenditure, cMonth.expenditure);
+        ConclusionSection.comparisonBarExpenditure("income", this.byTimeIncEl.children[0].children[1] as HTMLElement, month.income, cMonth.income);
+        ConclusionSection.comparisonBarExpenditure("expenditure", this.byAvgExpEl.children[0].children[1] as HTMLElement, month.expenditure / cd, cMonth.expenditure / totalAccDate);
+        ConclusionSection.comparisonBarExpenditure("income", this.byAvgIncEl.children[0].children[1] as HTMLElement, month.income / cd, cMonth.income / totalAccDate);
 
         // remove old lists
         while (this.byTimeList.length) this.byTimeList.pop()?.remove();

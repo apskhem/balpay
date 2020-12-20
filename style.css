@@ -32,6 +32,10 @@ html, body {
 	-webkit-text-size-adjust: 100%
 }
 
+body {
+    padding: 0 6px;
+}
+
 [hidden] { display: none; }
 
 *:not(input) {
@@ -71,12 +75,6 @@ footer {
     text-align: center;
 }
 
-.absolute-footer {
-    position: absolute;
-    width: 100%;
-    margin-top: -72px;
-}
-
 main {
     margin: 0 auto;
     margin-top: 12px;
@@ -97,11 +95,13 @@ i { cursor: pointer; }
 }
 
 #user-panel > aside:last-child {
-    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 #user-panel > aside:last-child > i {
-    padding: 0 2px;
+    padding: 0 4px;
     cursor: pointer;
     transition: 0.2s;
 }
@@ -113,7 +113,7 @@ i { cursor: pointer; }
     overflow: hidden;
 }
 
-.selected {
+.sel {
     color: var(--selected-color);
 }
 
@@ -392,7 +392,7 @@ i { cursor: pointer; }
 .form-container:not([hidden]) {
     display: flex;
     width: 100%;
-    height: 100vh;
+    height: calc(100vh - 72px);
 
     align-items: center;
     justify-content: center;
@@ -400,15 +400,7 @@ i { cursor: pointer; }
 
 form {
     max-width: 600px;
-    padding: 6px;
     width: 100%;
-}
-
-form > section {
-    padding: 16px;
-
-    background-color: var(--body-theme-color);
-    box-shadow: 0 0 6px 0px var(--light-black-color);
 }
 
 .head-text {
@@ -422,6 +414,13 @@ form label {
     margin-top: 12px;
 }
 
+form > section {
+    padding: 16px;
+
+    background-color: var(--body-theme-color);
+    box-shadow: 0 0 6px 0px var(--light-black-color);
+}
+
 form > section input {
     width: calc(100% - 16px);
     font-size: 16px;
@@ -433,8 +432,8 @@ form > section input {
     transition: 0.3s;
 }
 
-form > section input:disabled {
-    opacity: 0.6;
+form > section.requesting {
+    pointer-events: none;
 }
 
 .input-error {

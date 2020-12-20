@@ -2,7 +2,7 @@ import GoogleAppsScriptDB from "./lib.google.appsscriptdb.js";
 import GoogleCharts from "./lib.google.charts.js";
 import { App } from "./lib.core.js";
 import { RootList } from "./app.modules.js";
-import { Form, GraphSection, Main, SummarizedSecton, UserPanel } from "./app.panels.js";
+import { FormPane, GraphSection, MainPane, ConclusionSection, UserRibbonSection } from "./app.panels.js";
 export const db = new GoogleAppsScriptDB("https://script.google.com/macros/s/AKfycbx8PNkzqprtcF5xIjbkvHszP6P5ggWwaAsXdB-fpf7g9BA3bbHT/exec");
 export const graph = new GoogleCharts("corechart", "line");
 export const user = {
@@ -32,7 +32,7 @@ export const colorset = {
 class BalPayApp {
     static start() {
         var _a, _b, _c;
-        UserPanel.todayDateEl.textContent = App.Utils.formatDate(App.Utils.todayDate);
+        UserRibbonSection.todayDateEl.textContent = App.Utils.formatDate(App.Utils.todayDate);
         App.Utils.initCopyRight(document.getElementById("copyright-year"), 2019);
         graph.set("history", "line-chart", {
             "Date": Date,
@@ -67,7 +67,7 @@ class BalPayApp {
                 backgroundColor: { fill: "transparent" }
             };
         });
-        Form.init();
+        FormPane.init();
         for (const el of document.getElementsByClassName("collapsible-object")) {
             el.addEventListener("click", function () {
                 const nextSiblingEl = el.nextElementSibling;
@@ -112,68 +112,72 @@ class BalPayApp {
         }
         db.defaultResponsefn = (res) => console.log(res);
         db.setResponseAction("SIGNUP", (res) => {
+            FormPane.signUpSection.isRequesting = false;
             if (res.err) {
-                if (res.err === "id") {
-                    Form.signUpProceedBtn.textContent = "Username is already taken.";
-                }
-                else {
-                    Form.signUpProceedBtn.textContent = "Email is already taken.";
+                switch (res.err) {
+                    case "id":
+                        FormPane.signUpSection.loggingText = "Username is already taken.";
+                        break;
+                    default: FormPane.signUpSection.loggingText = "Email is already taken.";
                 }
             }
             else if (res.done) {
-                Form.signUpProceedBtn.textContent = "Proceeding is done, please return to sign in.";
+                FormPane.signUpSection.loggingText = "Proceeding is done, please return to sign in.";
             }
         });
-        db.setResponseAction("SIGNIN", (res) => {
-            Form.usernameInput.disabled = false;
-            Form.passwordInput.disabled = false;
-            if (res.err) {
-                Form.signInProceedBtn.textContent = "Username or password is incorrect.";
+        db.setResponseAction("SIGNIN", (res, old) => {
+            var _a;
+            FormPane.signInSection.isRequesting = false;
+            if (res.err || !res.pass) {
+                FormPane.signInSection.confirmBtn.textContent = "Username or password is incorrect.";
+                return;
             }
-            else if (res.pass) {
-                user.id = res.userData.USERID;
-                user.fullname = res.userData.FULLNAME;
-                user.email = res.userData.EMAIL;
-                user.settings = JSON.parse(res.userData.USER_SETTINGS);
-                for (const dataRow of res.records) {
-                    records.push([
-                        new Date(...dataRow.DATE.split(".")),
-                        dataRow.BALANCE,
-                        dataRow.EXPENDITURE,
-                        dataRow.INCOME,
-                        dataRow.LENDING,
-                        dataRow.DEBT
-                    ]);
-                    detailRecords.push([
-                        dataRow.DETAIL_EXPENDITURE,
-                        dataRow.DETAIL_INCOME,
-                        dataRow.DETAIL_LENDING,
-                        dataRow.DETAIL_DEBT
-                    ]);
-                    if (res.records.indexOf(dataRow) === res.records.length - 1) {
-                        roots["exp"].detail = dataRow.DETAIL_EXPENDITURE;
-                        roots["inc"].detail = dataRow.DETAIL_INCOME;
-                        roots["len"].detail = dataRow.DETAIL_LENDING;
-                        roots["deb"].detail = dataRow.DETAIL_DEBT;
-                    }
-                    if (res.records.indexOf(dataRow) === res.records.length - 2) {
-                        balance.final = dataRow.BALANCE;
-                    }
+            user.id = res.userData.USERID;
+            user.fullname = res.userData.FULLNAME;
+            user.email = res.userData.EMAIL;
+            user.settings = JSON.parse(res.userData.USER_SETTINGS);
+            for (const dataRow of res.records) {
+                records.push([
+                    new Date(...dataRow.DATE.split(".")),
+                    dataRow.BALANCE,
+                    dataRow.EXPENDITURE,
+                    dataRow.INCOME,
+                    dataRow.LENDING,
+                    dataRow.DEBT
+                ]);
+                detailRecords.push([
+                    dataRow.DETAIL_EXPENDITURE,
+                    dataRow.DETAIL_INCOME,
+                    dataRow.DETAIL_LENDING,
+                    dataRow.DETAIL_DEBT
+                ]);
+                if (res.records.indexOf(dataRow) === res.records.length - 1) {
+                    roots["exp"].detail = dataRow.DETAIL_EXPENDITURE;
+                    roots["inc"].detail = dataRow.DETAIL_INCOME;
+                    roots["len"].detail = dataRow.DETAIL_LENDING;
+                    roots["deb"].detail = dataRow.DETAIL_DEBT;
                 }
-                Main.active = true;
-                Form.active = false;
-                Main.footer.classList.remove("absolute-footer");
-                document.body.style.padding = "0 6px";
-                RootList.UpdateBalance();
-                SummarizedSecton.updateConclusion();
-                GraphSection.setActiveModeTo(1);
-                document.head.title = "BalPay - " + user.fullname;
-                UserPanel.fullNameEl.textContent = user.fullname;
-                for (const expandable of document.getElementsByClassName("collapsible-object")) {
-                    const nextSiblingEl = expandable.nextElementSibling;
-                    nextSiblingEl.style.maxHeight = "0";
+                if (res.records.indexOf(dataRow) === res.records.length - 2) {
+                    balance.final = dataRow.BALANCE;
                 }
             }
+            MainPane.present = true;
+            FormPane.present = false;
+            RootList.UpdateBalance();
+            ConclusionSection.updateConclusion();
+            GraphSection.setActiveModeTo(1);
+            document.head.title = "BalPay - " + user.fullname;
+            UserRibbonSection.fullNameEl.textContent = user.fullname;
+            FormPane.signInSection.confirmBtn.textContent = "Sign In";
+            for (const expandable of document.getElementsByClassName("collapsible-object")) {
+                const nextSiblingEl = expandable.nextElementSibling;
+                nextSiblingEl.style.maxHeight = "0";
+            }
+            if (old) {
+                localStorage.setItem("userid", old.userid);
+                localStorage.setItem("password", old.password);
+            }
+            (_a = document.getElementById("loading-page")) === null || _a === void 0 ? void 0 : _a.remove();
         });
         db.setDataRequestForm("UPDATE", () => {
             return {
@@ -190,8 +194,19 @@ class BalPayApp {
                 "detail_debt": roots["deb"].detail
             };
         });
-        Main.init();
-        (_c = document.getElementById("loading-page")) === null || _c === void 0 ? void 0 : _c.remove();
+        MainPane.init();
+        UserRibbonSection.init();
+        if (!this.checkLocalStorage()) {
+            (_c = document.getElementById("loading-page")) === null || _c === void 0 ? void 0 : _c.remove();
+        }
+    }
+    static checkLocalStorage() {
+        const userid = localStorage.getItem("userid");
+        const password = localStorage.getItem("password");
+        if (!userid || !password)
+            return false;
+        db.doGetRequest("SIGNIN", { userid, password });
+        return true;
     }
 }
 window.onload = () => BalPayApp.start();

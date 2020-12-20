@@ -1,4 +1,4 @@
-import { GraphSection, SummarizedSecton } from "./app.panels.js";
+import { GraphSection, ConclusionSection } from "./app.panels.js";
 import { App } from "./lib.core.js";
 import { db, roots, user, balance } from "./main.js";
 
@@ -126,14 +126,14 @@ class AddingList {
 
         this.ref.listContainer.appendChild(this.el);
 
-        this.titleInput.addEventListener("keydown", (e: KeyboardEvent) => {
+        this.titleInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
                 e.preventDefault()
                 this.valueInput.focus();
             }
         });
 
-        this.valueInput.addEventListener("keydown", (e: KeyboardEvent) => {
+        this.valueInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
                 e.preventDefault()
                 this.thumbIcon.click();
@@ -181,7 +181,7 @@ class AddingList {
             this.ref.updateSum();
             RootList.UpdateBalance();
             GraphSection.updateChart();
-            SummarizedSecton.updateConclusion();
+            ConclusionSection.updateConclusion();
             db.doGetRequest("UPDATE");
         });
     }
@@ -227,7 +227,7 @@ class ListObject {
             this.ref.updateSum();
             RootList.UpdateBalance();
             GraphSection.updateChart();
-            SummarizedSecton.updateConclusion();
+            ConclusionSection.updateConclusion();
             db.doGetRequest("UPDATE");
         });
 
@@ -257,11 +257,11 @@ class ListObject {
             this.ref.updateSum();
             RootList.UpdateBalance();
             GraphSection.updateChart();
-            SummarizedSecton.updateConclusion();
+            ConclusionSection.updateConclusion();
             db.doGetRequest("UPDATE");
         });
 
-        this.input.addEventListener("keyup", (e: KeyboardEvent) => {
+        this.input.addEventListener("keyup", (e) => {
             if (e.key === "Enter") {
                 this.input.blur();
             }

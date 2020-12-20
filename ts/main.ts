@@ -2,7 +2,7 @@ import GoogleAppsScriptDB from "./lib.google.appsscriptdb.js";
 import GoogleCharts from "./lib.google.charts.js";
 import { App } from "./lib.core.js";
 import { RootList } from "./app.modules.js";
-import { Form, GraphSection, Main, SummarizedSecton, UserPanel } from "./app.panels.js";
+import { FormPane, GraphSection, MainPane, ConclusionSection, UserRibbonSection } from "./app.panels.js";
 
 export const db = new GoogleAppsScriptDB("https://script.google.com/macros/s/AKfycbx8PNkzqprtcF5xIjbkvHszP6P5ggWwaAsXdB-fpf7g9BA3bbHT/exec");
 export const graph = new GoogleCharts("corechart", "line");
@@ -41,7 +41,7 @@ class BalPayApp {
 
     public static start(): void {
         /* initialize */
-        UserPanel.todayDateEl.textContent = App.Utils.formatDate(App.Utils.todayDate);
+        UserRibbonSection.todayDateEl.textContent = App.Utils.formatDate(App.Utils.todayDate);
         App.Utils.initCopyRight(document.getElementById("copyright-year") as HTMLElement, 2019);
 
         /* init charts */
@@ -81,7 +81,7 @@ class BalPayApp {
         });
 
         /* init user-interfaces */
-        Form.init();
+        FormPane.init();
 
         // collapsible content
         for (const el of document.getElementsByClassName("collapsible-object") as HTMLCollectionOf<HTMLElement>) {
@@ -133,83 +133,89 @@ class BalPayApp {
         db.defaultResponsefn = (res) => console.log(res);
 
         db.setResponseAction("SIGNUP", (res) => {
+            FormPane.signUpSection.isRequesting = false;
+
             if (res.err) {
-                if (res.err === "id") {
-                    Form.signUpProceedBtn.textContent = "Username is already taken.";
-                }
-                else {
-                    Form.signUpProceedBtn.textContent = "Email is already taken.";
+                switch (res.err) {
+                    case "id": FormPane.signUpSection.loggingText = "Username is already taken."; break;
+                    default: FormPane.signUpSection.loggingText = "Email is already taken.";
                 }
             }
             else if (res.done) {
-                Form.signUpProceedBtn.textContent = "Proceeding is done, please return to sign in.";
+                FormPane.signUpSection.loggingText = "Proceeding is done, please return to sign in.";
             }
         });
 
-        db.setResponseAction("SIGNIN", (res) => {
-            Form.usernameInput.disabled = false;
-            Form.passwordInput.disabled = false;
+        db.setResponseAction("SIGNIN", (res, old) => {
+            FormPane.signInSection.isRequesting = false;
 
-            if (res.err) {
-                Form.signInProceedBtn.textContent = "Username or password is incorrect.";
+            if (res.err || !res.pass) {
+                FormPane.signInSection.confirmBtn.textContent = "Username or password is incorrect.";
+                return;
             }
-            else if (res.pass) {
-                // store user data
-                user.id = res.userData.USERID;
-                user.fullname = res.userData.FULLNAME;
-                user.email = res.userData.EMAIL;
-                user.settings = JSON.parse(res.userData.USER_SETTINGS);
 
-                // processing records
-                for (const dataRow of res.records) {
-                    records.push([
-                        new Date(...dataRow.DATE.split(".") as []),
-                        dataRow.BALANCE,
-                        dataRow.EXPENDITURE,
-                        dataRow.INCOME,
-                        dataRow.LENDING,
-                        dataRow.DEBT
-                    ]);
+            // store user data
+            user.id = res.userData.USERID;
+            user.fullname = res.userData.FULLNAME;
+            user.email = res.userData.EMAIL;
+            user.settings = JSON.parse(res.userData.USER_SETTINGS);
 
-                    detailRecords.push([
-                        dataRow.DETAIL_EXPENDITURE,
-                        dataRow.DETAIL_INCOME,
-                        dataRow.DETAIL_LENDING,
-                        dataRow.DETAIL_DEBT
-                    ]);
+            // processing records
+            for (const dataRow of res.records) {
+                records.push([
+                    new Date(...dataRow.DATE.split(".") as []),
+                    dataRow.BALANCE,
+                    dataRow.EXPENDITURE,
+                    dataRow.INCOME,
+                    dataRow.LENDING,
+                    dataRow.DEBT
+                ]);
 
-                    if (res.records.indexOf(dataRow) === res.records.length - 1) { // record list is today
-                        roots["exp"].detail = dataRow.DETAIL_EXPENDITURE;
-                        roots["inc"].detail = dataRow.DETAIL_INCOME;
-                        roots["len"].detail = dataRow.DETAIL_LENDING;
-                        roots["deb"].detail = dataRow.DETAIL_DEBT;
-                    }
-                    if (res.records.indexOf(dataRow) === res.records.length - 2) { // record list is previous day
-                        balance.final = dataRow.BALANCE;
-                    }
+                detailRecords.push([
+                    dataRow.DETAIL_EXPENDITURE,
+                    dataRow.DETAIL_INCOME,
+                    dataRow.DETAIL_LENDING,
+                    dataRow.DETAIL_DEBT
+                ]);
+
+                if (res.records.indexOf(dataRow) === res.records.length - 1) { // record list is today
+                    roots["exp"].detail = dataRow.DETAIL_EXPENDITURE;
+                    roots["inc"].detail = dataRow.DETAIL_INCOME;
+                    roots["len"].detail = dataRow.DETAIL_LENDING;
+                    roots["deb"].detail = dataRow.DETAIL_DEBT;
                 }
-
-                // display main screen
-                Main.active = true;
-                Form.active = false;
-                Main.footer.classList.remove("absolute-footer");
-                document.body.style.padding = "0 6px";
-
-                // functions after completing the data request precess
-                RootList.UpdateBalance();
-                SummarizedSecton.updateConclusion();
-                GraphSection.setActiveModeTo(1);
-
-                // init user settings
-                document.head.title = "BalPay - " + user.fullname;
-                UserPanel.fullNameEl.textContent = user.fullname;
-
-                // close all newly created list
-                for (const expandable of document.getElementsByClassName("collapsible-object") as HTMLCollectionOf<HTMLLIElement>) {
-                    const nextSiblingEl = expandable.nextElementSibling as HTMLElement;
-                    nextSiblingEl.style.maxHeight = "0";
+                if (res.records.indexOf(dataRow) === res.records.length - 2) { // record list is previous day
+                    balance.final = dataRow.BALANCE;
                 }
             }
+
+            // display main screen
+            MainPane.present = true;
+            FormPane.present = false;
+
+            // functions after completing the data request precess
+            RootList.UpdateBalance();
+            ConclusionSection.updateConclusion();
+            GraphSection.setActiveModeTo(1);
+
+            // init user settings
+            document.head.title = "BalPay - " + user.fullname;
+            UserRibbonSection.fullNameEl.textContent = user.fullname;
+            FormPane.signInSection.confirmBtn.textContent = "Sign In";
+
+            // close all newly created list
+            for (const expandable of document.getElementsByClassName("collapsible-object") as HTMLCollectionOf<HTMLLIElement>) {
+                const nextSiblingEl = expandable.nextElementSibling as HTMLElement;
+                nextSiblingEl.style.maxHeight = "0";
+            }
+
+            // save current user
+            if (old) {
+                localStorage.setItem("userid", old.userid);
+                localStorage.setItem("password", old.password);
+            }
+
+            document.getElementById("loading-page")?.remove();
         });
 
         db.setDataRequestForm("UPDATE", () => {
@@ -228,10 +234,23 @@ class BalPayApp {
             }
         });
 
-        Main.init();
+        MainPane.init();
+        UserRibbonSection.init();
 
-        /* clean up */
-        document.getElementById("loading-page")?.remove();
+        if (!this.checkLocalStorage()) {
+            document.getElementById("loading-page")?.remove();
+        }
+    }
+
+    public static checkLocalStorage(): boolean {
+        const userid = localStorage.getItem("userid");
+        const password = localStorage.getItem("password");
+
+        if (!userid || !password) return false;
+
+        db.doGetRequest("SIGNIN", { userid, password });
+
+        return true;
     }
 }
 

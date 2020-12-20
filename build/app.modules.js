@@ -1,4 +1,4 @@
-import { GraphSection, SummarizedSecton } from "./app.panels.js";
+import { GraphSection, ConclusionSection } from "./app.panels.js";
 import { App } from "./lib.core.js";
 import { db, roots, user, balance } from "./main.js";
 export class RootList {
@@ -154,8 +154,8 @@ class AddingList {
             this.ref.updateSum();
             RootList.UpdateBalance();
             GraphSection.updateChart();
-            SummarizedSecton.updateConclusion();
-            db.request("UPDATE");
+            ConclusionSection.updateConclusion();
+            db.doGetRequest("UPDATE");
         });
     }
 }
@@ -187,8 +187,8 @@ class ListObject {
             this.ref.updateSum();
             RootList.UpdateBalance();
             GraphSection.updateChart();
-            SummarizedSecton.updateConclusion();
-            db.request("UPDATE");
+            ConclusionSection.updateConclusion();
+            db.doGetRequest("UPDATE");
         });
         this.input.addEventListener("focus", () => {
             this.input.value = App.Utils.deformatNumber(this.input.value) + "";
@@ -220,8 +220,8 @@ class ListObject {
             this.ref.updateSum();
             RootList.UpdateBalance();
             GraphSection.updateChart();
-            SummarizedSecton.updateConclusion();
-            db.request("UPDATE");
+            ConclusionSection.updateConclusion();
+            db.doGetRequest("UPDATE");
         });
         this.input.addEventListener("keyup", (e) => {
             if (e.key === "Enter") {

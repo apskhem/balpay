@@ -3,7 +3,7 @@ export namespace App {
     export abstract class Utils {
 
         static get todayDate() {
-            let t = new Date();
+            const t = new Date();
             
             return t.getFullYear() + "." + t.getMonth() + "." + t.getDate();
         }
@@ -13,20 +13,20 @@ export namespace App {
         static formatDate(date: string): string {
             const d = date.split(".");
             switch (d[1]) {
-                case "0": d[1] = "January"; break;
-                case "1": d[1] = "February"; break;
-                case "2": d[1] = "March"; break;
-                case "3": d[1] = "April"; break;
+                case "0": d[1] = "Jan"; break;
+                case "1": d[1] = "Feb"; break;
+                case "2": d[1] = "Mar"; break;
+                case "3": d[1] = "Apr"; break;
                 case "4": d[1] = "May"; break;
-                case "5": d[1] = "June"; break;
-                case "6": d[1] = "July"; break;
-                case "7": d[1] = "August"; break;
-                case "8": d[1] = "September"; break;
-                case "9": d[1] = "October"; break;
-                case "10": d[1] = "November"; break;
-                case "11": d[1] = "December"; break;
+                case "5": d[1] = "Jun"; break;
+                case "6": d[1] = "Jul"; break;
+                case "7": d[1] = "Aug"; break;
+                case "8": d[1] = "Sep"; break;
+                case "9": d[1] = "Oct"; break;
+                case "10": d[1] = "Nov"; break;
+                case "11": d[1] = "Dec"; break;
             }
-            return `${d[2]} ${d[1]} ${d[0]}`;
+            return `${d[2]}, ${d[1]}. ${d[0]}`;
         }
     
         static getLastDayOfMonth(month: number, year: number): number {

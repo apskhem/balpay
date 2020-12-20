@@ -2,7 +2,7 @@ interface RequestParamFormat {
     [key: string]: string | [] | {};
 }
 
-type CallbackFunction = (responseData: { [key: string]: any }, oldData?: { [key: string]: any } ) => void;
+type CallbackFunction = (responseData: { [key: string]: any }, sentData?: { [key: string]: any } ) => void;
 type DataRequestFormFunction = () => RequestParamFormat;
 
 export default class GoogleAppsScriptDB {
@@ -87,6 +87,10 @@ export default class GoogleAppsScriptDB {
             }
         }
         req.send(JSON.stringify(data ?? d));
+    }
+
+    public getResponseAction(action: string): CallbackFunction | undefined {
+        return this.callbackfnMap.get(action);
     }
 
     public setResponseAction(action: string, callbackfn: CallbackFunction | null): void {

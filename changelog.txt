@@ -58,3 +58,5 @@ v0.9.3 - Fri. 18, Dec. 2020
 - refracted code structure
 v0.9.3h - Fri. 18, Dec. 2020
 - hotfixes
+v0.9.4 - Sun. 20, Dec. 2020
+- added localStorage feature for logging in

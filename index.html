@@ -4,12 +4,12 @@
     <title>BalPay - Sign In</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" media="screen" href="style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Cabin&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Sarabun&display=swap">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.9.0/css/all.css" crossorigin="anonymous">
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <link rel="shortcut icon" type="image/x-icon" href="./assets/img/icon.png"/>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <link rel="shortcut icon" href="./assets/img/icon.png"/>
 </head>
 <body>
     <div id="loading-page">
@@ -76,23 +76,30 @@
                 <div id="signup-button" class="comfirm-button">Sign Up</div>
             </section>
             <section id="forgotmypassword-form">
-            
+                <li class="head-text">FORGOT PASSWORD</li>
+                <label>Enter Username or Email</label>
+                <input type="text" placeholder="Username or Email" maxlength="50">
+                <div class="form-options">
+                    <span></span>
+                    <span id="goto-signin-from-forgotpass">Sign In</span>
+                </div>
             </section>
         </form>
     </div>
     <main hidden>
         <nav id="user-panel">
             <aside>
-                <i class="fas fa-user-circle" id="user-icon"></i>
+                <i id="user-icon" class="fas fa-user-circle"></i>
                 <span id="fullname">%fullname%</span>
             </aside>
             <aside>
                 <div id="today-date"></div>
             </aside>
             <aside>
-                <i class="fas fa-edit selected"></i>
-                <i class="fas fa-history"></i>
-                <i class="fas fa-cog"></i>
+                <i id="user-overview-icon" class="fas fa-edit sel"></i>
+                <i id="user-history-icon" class="fas fa-history"></i>
+                <i id="user-setting-icon" class="fas fa-cog"></i>
+                <i id="user-sign-out-icon" class="fas fa-sign-out-alt"></i>
             </aside>
         </nav>
         <hr>
@@ -215,8 +222,8 @@
             </section>
         </nav>
     </main>
-    <footer class="absolute-footer">
-        <li>v0.9 public beta | Made by <a href="https://apskhem.github.io/" target="_blank" >Apisit Ritreungroj</a></li>
+    <footer>
+        <li>v0.9.4 public beta | Made by <a href="https://apskhem.github.io/" target="_blank" >Apisit Ritreungroj</a></li>
         <li><span id="copyright-year"></span> &copy BalPay All Rights Reserved.</li>
     </footer>
 

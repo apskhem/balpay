@@ -1,142 +1,244 @@
 var _a;
 import { App } from "./lib.core.js";
 import { db, roots, user, records, detailRecords, balance, colorset, graph } from "./main.js";
-export class Form {
-    static alertFormError(input) {
+class FormSection {
+    constructor(id) {
+        this.onsectionchange = null;
+        const t = document.getElementById(id);
+        if (!t)
+            throw new Error("Cannot find the specific element");
+        this.el = t;
+    }
+    alertFormError(input) {
         input.focus();
         input.classList.add("input-error");
     }
-    static init() {
-        this.setActiveSection("singin");
+}
+class SignInSection extends FormSection {
+    constructor() {
+        super("signin-form");
+        this.usernameInput = document.getElementById("signin-userid");
+        this.passwordInput = document.getElementById("signin-password");
+        this.gotoSignUpBtn = document.getElementById("goto-signup-form-button");
+        this.gotoForgotPasswordBtn = document.getElementById("goto-forget-password-form-button");
+        this.confirmBtn = document.getElementById("signin-button");
         this.usernameInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
-                !this.usernameInput.value ? this.alertFormError(this.usernameInput) : this.passwordInput.focus();
+                e.preventDefault();
+                this.passwordInput.focus();
             }
             this.usernameInput.classList.remove("input-error");
         });
         this.passwordInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
-                !this.passwordInput.value ? this.alertFormError(this.passwordInput) : this.signInProceedBtn.click();
+                e.preventDefault();
+                this.confirmBtn.click();
             }
             this.passwordInput.classList.remove("input-error");
         });
-        this.gotoForgotPasswordBtn.addEventListener("click", () => this.setActiveSection("forgotpassword"));
-        this.gotoSignUpBtn.addEventListener("click", () => this.setActiveSection("singup"));
-        this.gotoSignInBtn.addEventListener("click", () => this.setActiveSection('singin'));
-        this.signInProceedBtn.addEventListener("click", () => {
-            if (this.usernameInput.disabled || this.passwordInput.disabled)
+        this.gotoForgotPasswordBtn.addEventListener("click", () => { var _a; return (_a = this.onsectionchange) === null || _a === void 0 ? void 0 : _a.call(this, "forgotpassword"); });
+        this.gotoSignUpBtn.addEventListener("click", () => { var _a; return (_a = this.onsectionchange) === null || _a === void 0 ? void 0 : _a.call(this, "singup"); });
+        this.confirmBtn.addEventListener("click", () => {
+            if (this.isRequesting || !this.validate())
                 return;
-            if (!this.usernameInput.value) {
-                this.alertFormError(this.usernameInput);
-            }
-            else if (!this.passwordInput.value) {
-                this.alertFormError(this.passwordInput);
-            }
-            else {
-                this.signInProceedBtn.textContent = "Processing Request...";
-                this.activeInputs = false;
-                db.request("SIGNIN", {
-                    "userid": this.usernameInput.value,
-                    "password": this.passwordInput.value
-                });
-            }
-        });
-        this.signUpProceedBtn.addEventListener("click", () => {
-            if (!this.signUpFullNameInput.value)
-                this.alertFormError(this.signUpFullNameInput);
-            else if (!this.signUpUsernameInput.value)
-                this.alertFormError(this.signUpUsernameInput);
-            else if (!this.signUpPasswordInput.value)
-                this.alertFormError(this.signUpPasswordInput);
-            else if (!this.signUpEmailInput.value)
-                this.alertFormError(this.signUpEmailInput);
-            else {
-                this.signUpProceedBtn.textContent = "Processing Request...";
-                this.activeInputs = false;
-                db.request("SIGNUP", {
-                    "userid": this.signUpUsernameInput.value,
-                    "password": this.signUpPasswordInput.value,
-                    "fullname": this.signUpFullNameInput.value,
-                    "email": this.signUpEmailInput.value,
-                    "setting": this.signUpCurrencyInput.value || "THB"
-                });
-            }
+            this.confirmBtn.textContent = "Processing Request...";
+            this.isRequesting = true;
+            this.unfocus();
+            db.doGetRequest("SIGNIN", {
+                "userid": this.usernameInput.value,
+                "password": this.passwordInput.value
+            });
         });
     }
+    static getInstance() {
+        var _a;
+        return (_a = this.__instance__) !== null && _a !== void 0 ? _a : (this.__instance__ = new SignInSection());
+    }
+    get isRequesting() {
+        return this.el.classList.contains("requesting");
+    }
+    set isRequesting(value) {
+        value ? this.el.classList.add("requesting") : this.el.classList.remove("requesting");
+    }
+    validate() {
+        if (!this.usernameInput.value) {
+            this.alertFormError(this.usernameInput);
+            return false;
+        }
+        else if (!this.passwordInput.value) {
+            this.alertFormError(this.passwordInput);
+            return false;
+        }
+        return true;
+    }
+    unfocus() {
+        this.usernameInput.blur();
+        this.passwordInput.blur();
+    }
+}
+SignInSection.__instance__ = null;
+class SignUpSection extends FormSection {
+    constructor() {
+        super("signup-form");
+        this.fullNameInput = document.getElementById("signup-fullname");
+        this.usernameInput = document.getElementById("signup-userid");
+        this.passwordInput = document.getElementById("signup-password");
+        this.emailInput = document.getElementById("signup-email");
+        this.currencyInput = document.getElementById("signup-currency");
+        this.gotoSignInBtn = document.getElementById("goto-signin-form-button");
+        this.confirmBtn = document.getElementById("signup-button");
+        this.confirmBtn.addEventListener("click", () => {
+            if (this.isRequesting || !this.validate())
+                return;
+            this.confirmBtn.textContent = "Processing Request...";
+            this.isRequesting = true;
+            this.unfocus();
+            db.doGetRequest("SIGNUP", {
+                "userid": this.usernameInput.value,
+                "password": this.passwordInput.value,
+                "fullname": this.fullNameInput.value,
+                "email": this.emailInput.value,
+                "setting": this.currencyInput.value || "THB"
+            });
+        });
+        this.gotoSignInBtn.addEventListener("click", () => { var _a; return (_a = this.onsectionchange) === null || _a === void 0 ? void 0 : _a.call(this, "singin"); });
+    }
+    static getInstance() {
+        var _a;
+        return (_a = this.__instance__) !== null && _a !== void 0 ? _a : (this.__instance__ = new SignUpSection());
+    }
+    get isRequesting() {
+        return this.el.classList.contains("requesting");
+    }
+    set isRequesting(value) {
+        value ? this.el.classList.add("requesting") : this.el.classList.remove("requesting");
+    }
+    set loggingText(value) {
+        this.confirmBtn.textContent = `${value}`;
+    }
+    reset() {
+        this.usernameInput.value = "";
+        this.passwordInput.value = "";
+        this.fullNameInput.value = "";
+        this.emailInput.value = "";
+        this.currencyInput.value = "";
+    }
+    validate() {
+        if (!this.fullNameInput.value) {
+            this.alertFormError(this.fullNameInput);
+            return false;
+        }
+        else if (!this.usernameInput.value) {
+            this.alertFormError(this.usernameInput);
+            return false;
+        }
+        else if (!this.passwordInput.value) {
+            this.alertFormError(this.passwordInput);
+            return false;
+        }
+        else if (!this.emailInput.value) {
+            this.alertFormError(this.emailInput);
+            return false;
+        }
+        return true;
+    }
+    unfocus() {
+        this.fullNameInput.blur();
+        this.usernameInput.blur();
+        this.passwordInput.blur();
+        this.emailInput.blur();
+        this.currencyInput.blur();
+    }
+}
+SignUpSection.__instance__ = null;
+class ForgotPasswordSection extends FormSection {
+    constructor() {
+        super("forgotmypassword-form");
+        this.gotoSignInBtn = document.getElementById("goto-signin-from-forgotpass");
+        this.gotoSignInBtn.addEventListener("click", () => { var _a; return (_a = this.onsectionchange) === null || _a === void 0 ? void 0 : _a.call(this, "singin"); });
+    }
+    static getInstance() {
+        var _a;
+        return (_a = this.__instance__) !== null && _a !== void 0 ? _a : (this.__instance__ = new ForgotPasswordSection());
+    }
+}
+ForgotPasswordSection.__instance__ = null;
+export class FormPane {
+    static init() {
+        this.setActiveSection("singin");
+        this.signInSection.onsectionchange = (type) => this.setActiveSection(type);
+        this.signUpSection.onsectionchange = (type) => this.setActiveSection(type);
+        this.forgotPasswordSection.onsectionchange = (type) => this.setActiveSection(type);
+    }
     static setActiveSection(section) {
-        this.signInSection.remove();
-        this.signUpSection.remove();
-        this.forgotPasswordSection.remove();
+        this.signInSection.el.remove();
+        this.signUpSection.el.remove();
+        this.forgotPasswordSection.el.remove();
         switch (section) {
             case "singin":
-                this.form.appendChild(this.signInSection);
+                this.form.appendChild(this.signInSection.el);
                 break;
             case "singup":
-                this.form.appendChild(this.signUpSection);
+                this.form.appendChild(this.signUpSection.el);
                 break;
             case "forgotpassword":
-                this.form.appendChild(this.forgotPasswordSection);
+                this.form.appendChild(this.forgotPasswordSection.el);
                 break;
         }
     }
-    static get activeInputs() {
-        return this.usernameInput.disabled;
-    }
-    static set activeInputs(value) {
-        this.usernameInput.disabled = true;
-        this.passwordInput.disabled = true;
-        this.signUpUsernameInput.disabled = true;
-        this.signUpPasswordInput.disabled = true;
-        this.signUpFullNameInput.disabled = true;
-        this.signUpEmailInput.disabled = true;
-        this.signUpCurrencyInput.disabled = true;
-    }
-    static get active() {
+    static get present() {
         return document.body.contains(this.pane);
     }
-    static set active(value) {
+    static set present(value) {
         value
             ? document.body.appendChild(this.pane)
             : this.pane.remove();
     }
 }
-Form.pane = document.getElementById("form-module");
-Form.form = document.getElementsByTagName("form")[0];
-Form.usernameInput = document.getElementById("signin-userid");
-Form.passwordInput = document.getElementById("signin-password");
-Form.signUpFullNameInput = document.getElementById("signup-fullname");
-Form.signUpUsernameInput = document.getElementById("signup-userid");
-Form.signUpPasswordInput = document.getElementById("signup-password");
-Form.signUpEmailInput = document.getElementById("signup-email");
-Form.signUpCurrencyInput = document.getElementById("signup-currency");
-Form.signInSection = document.getElementById("signin-form");
-Form.signUpSection = document.getElementById("signup-form");
-Form.forgotPasswordSection = document.getElementById("forgotmypassword-form");
-Form.gotoSignUpBtn = document.getElementById("goto-signup-form-button");
-Form.gotoSignInBtn = document.getElementById("goto-signin-form-button");
-Form.gotoForgotPasswordBtn = document.getElementById("goto-forget-password-form-button");
-Form.signInProceedBtn = document.getElementById("signin-button");
-Form.signUpProceedBtn = document.getElementById("signup-button");
-export class Main {
+FormPane.pane = document.getElementById("form-module");
+FormPane.form = document.getElementsByTagName("form")[0];
+FormPane.signInSection = SignInSection.getInstance();
+FormPane.signUpSection = SignUpSection.getInstance();
+FormPane.forgotPasswordSection = ForgotPasswordSection.getInstance();
+export class MainPane {
     static init() {
         this.pane.removeAttribute("hidden");
-        this.active = false;
+        this.present = false;
     }
-    static get active() {
+    static get present() {
         return document.body.contains(this.pane);
     }
-    static set active(value) {
+    static set present(value) {
         value
             ? document.body.insertBefore(this.pane, this.footer)
             : this.pane.remove();
     }
 }
-Main.pane = document.getElementsByTagName("main")[0];
-Main.footer = document.getElementsByTagName("footer")[0];
-export class UserPanel {
+MainPane.pane = document.getElementsByTagName("main")[0];
+MainPane.footer = document.getElementsByTagName("footer")[0];
+export class UserRibbonSection {
+    static init() {
+        this.overviewIcon.addEventListener("click", () => {
+        });
+        this.historyIcon.addEventListener("click", () => {
+        });
+        this.settingIcon.addEventListener("click", () => {
+        });
+        this.signOutIcon.addEventListener("click", () => {
+            localStorage.clear();
+            MainPane.present = false;
+            FormPane.present = true;
+            document.head.title = "BalPay - Sign In";
+            document.body.appendChild(document.getElementsByTagName("footer")[0]);
+        });
+    }
 }
-UserPanel.fullNameEl = document.getElementById("fullname");
-UserPanel.todayDateEl = document.getElementById("today-date");
+UserRibbonSection.fullNameEl = document.getElementById("fullname");
+UserRibbonSection.todayDateEl = document.getElementById("today-date");
+UserRibbonSection.overviewIcon = document.getElementById("user-overview-icon");
+UserRibbonSection.historyIcon = document.getElementById("user-history-icon");
+UserRibbonSection.settingIcon = document.getElementById("user-setting-icon");
+UserRibbonSection.signOutIcon = document.getElementById("user-sign-out-icon");
 export class GraphSection {
     static updateChart() {
         records.splice(-1, 1, [
@@ -232,7 +334,7 @@ class ByAvgColComparisonBar extends ColComparisonBar {
         this.aside1.textContent = list + ":";
     }
 }
-export class SummarizedSecton {
+export class ConclusionSection {
     static updateConclusion() {
         var _a, _b;
         const [cy, cm, cd] = App.Utils.todayDate.split(".").map(val => +val);
@@ -290,10 +392,10 @@ export class SummarizedSecton {
         graph.render("summarized-pie", Object.entries(spendingLists.income), this.stmIncGraphEl);
         if (!totalAccDate)
             return;
-        SummarizedSecton.comparisonBarExpenditure("expenditure", this.byTimeExpEl.children[0].children[1], month.expenditure, cMonth.expenditure);
-        SummarizedSecton.comparisonBarExpenditure("income", this.byTimeIncEl.children[0].children[1], month.income, cMonth.income);
-        SummarizedSecton.comparisonBarExpenditure("expenditure", this.byAvgExpEl.children[0].children[1], month.expenditure / cd, cMonth.expenditure / totalAccDate);
-        SummarizedSecton.comparisonBarExpenditure("income", this.byAvgIncEl.children[0].children[1], month.income / cd, cMonth.income / totalAccDate);
+        ConclusionSection.comparisonBarExpenditure("expenditure", this.byTimeExpEl.children[0].children[1], month.expenditure, cMonth.expenditure);
+        ConclusionSection.comparisonBarExpenditure("income", this.byTimeIncEl.children[0].children[1], month.income, cMonth.income);
+        ConclusionSection.comparisonBarExpenditure("expenditure", this.byAvgExpEl.children[0].children[1], month.expenditure / cd, cMonth.expenditure / totalAccDate);
+        ConclusionSection.comparisonBarExpenditure("income", this.byAvgIncEl.children[0].children[1], month.income / cd, cMonth.income / totalAccDate);
         while (this.byTimeList.length)
             (_a = this.byTimeList.pop()) === null || _a === void 0 ? void 0 : _a.remove();
         while (this.byAvgList.length)
@@ -354,21 +456,21 @@ export class SummarizedSecton {
         }
     }
 }
-SummarizedSecton.stmTtlExpEl = document.getElementById("stm-total-expenditure");
-SummarizedSecton.stmTtlIncEl = document.getElementById("stm-total-income");
-SummarizedSecton.stmAvgExpTextEl = document.getElementById("stm-average-expenditure");
-SummarizedSecton.stmAvgIncTextEl = document.getElementById("stm-average-income");
-SummarizedSecton.stmTtlBalanceTextEl = document.getElementById("stm-total-balance-text");
-SummarizedSecton.stmTtlBalanceEl = document.getElementById("stm-total-balance");
-SummarizedSecton.stmAvgBalanceTextEl = document.getElementById("stm-average-balance-text");
-SummarizedSecton.stmAvgBalanceEl = document.getElementById("stm-average-balance");
-SummarizedSecton.byTimeExpEl = document.getElementById("by-time-expenditure");
-SummarizedSecton.byTimeIncEl = document.getElementById("by-time-income");
-SummarizedSecton.byAvgExpEl = document.getElementById("by-average-expenditure");
-SummarizedSecton.byAvgIncEl = document.getElementById("by-average-income");
-SummarizedSecton.stmExpGraphEl = document.getElementById("stm-expenditure-graph");
-SummarizedSecton.stmIncGraphEl = document.getElementById("stm-income-graph");
-SummarizedSecton.stmExpDetailEl = document.getElementById("stm-expenditure-detail");
-SummarizedSecton.stmIncDetailEl = document.getElementById("stm-income-detail");
-SummarizedSecton.byTimeList = [];
-SummarizedSecton.byAvgList = [];
+ConclusionSection.stmTtlExpEl = document.getElementById("stm-total-expenditure");
+ConclusionSection.stmTtlIncEl = document.getElementById("stm-total-income");
+ConclusionSection.stmAvgExpTextEl = document.getElementById("stm-average-expenditure");
+ConclusionSection.stmAvgIncTextEl = document.getElementById("stm-average-income");
+ConclusionSection.stmTtlBalanceTextEl = document.getElementById("stm-total-balance-text");
+ConclusionSection.stmTtlBalanceEl = document.getElementById("stm-total-balance");
+ConclusionSection.stmAvgBalanceTextEl = document.getElementById("stm-average-balance-text");
+ConclusionSection.stmAvgBalanceEl = document.getElementById("stm-average-balance");
+ConclusionSection.byTimeExpEl = document.getElementById("by-time-expenditure");
+ConclusionSection.byTimeIncEl = document.getElementById("by-time-income");
+ConclusionSection.byAvgExpEl = document.getElementById("by-average-expenditure");
+ConclusionSection.byAvgIncEl = document.getElementById("by-average-income");
+ConclusionSection.stmExpGraphEl = document.getElementById("stm-expenditure-graph");
+ConclusionSection.stmIncGraphEl = document.getElementById("stm-income-graph");
+ConclusionSection.stmExpDetailEl = document.getElementById("stm-expenditure-detail");
+ConclusionSection.stmIncDetailEl = document.getElementById("stm-income-detail");
+ConclusionSection.byTimeList = [];
+ConclusionSection.byAvgList = [];

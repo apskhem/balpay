@@ -18,27 +18,27 @@ export default class GoogleAppsScriptDB {
         url += "action=" + action;
         return url;
     }
-    request(action, data, callbackfn) {
+    doGetRequest(action, data, callbackfn) {
         var _a;
         const d = (_a = this.dataRequestForms.get(action)) === null || _a === void 0 ? void 0 : _a();
         if (!data && !d)
             throw new Error("The action hasn't been specified.");
         const url = this.formatRequestURL(data !== null && data !== void 0 ? data : d, action);
         const req = new XMLHttpRequest();
+        req.responseType = "json";
         req.open("GET", url, true);
         req.onload = (e) => {
             var _a;
             const cur = e.currentTarget;
             if (req.readyState === 4 && (req.status === 200 || !req.status)) {
-                const resData = JSON.parse(cur.response);
                 if (callbackfn) {
-                    callbackfn(resData, data !== null && data !== void 0 ? data : d);
+                    callbackfn(cur.response, data !== null && data !== void 0 ? data : d);
                 }
                 else if (this.callbackfnMap.get(action)) {
-                    (_a = this.callbackfnMap.get(action)) === null || _a === void 0 ? void 0 : _a(resData, data !== null && data !== void 0 ? data : d);
+                    (_a = this.callbackfnMap.get(action)) === null || _a === void 0 ? void 0 : _a(cur.response, data !== null && data !== void 0 ? data : d);
                 }
                 else if (this.defaultResponsefn) {
-                    this.defaultResponsefn(resData, data !== null && data !== void 0 ? data : d);
+                    this.defaultResponsefn(cur.response, data !== null && data !== void 0 ? data : d);
                 }
             }
             else {
@@ -46,6 +46,28 @@ export default class GoogleAppsScriptDB {
             }
         };
         req.send();
+    }
+    doPostRequest(action, data, callbackfn) {
+        var _a;
+        const d = (_a = this.dataRequestForms.get(action)) === null || _a === void 0 ? void 0 : _a();
+        if (!data && !d)
+            throw new Error("The action hasn't been specified.");
+        const req = new XMLHttpRequest();
+        req.responseType = "json";
+        req.setRequestHeader("Content-Type", "application/json");
+        req.open("POST", `${this.link}?action=${action}`, true);
+        req.onload = (e) => {
+            const cur = e.currentTarget;
+            if (req.readyState === 4 && (req.status === 200 || !req.status)) {
+            }
+            else {
+                throw new Error("Request is unsuccessful");
+            }
+        };
+        req.send(JSON.stringify(data !== null && data !== void 0 ? data : d));
+    }
+    getResponseAction(action) {
+        return this.callbackfnMap.get(action);
     }
     setResponseAction(action, callbackfn) {
         if (callbackfn) {
